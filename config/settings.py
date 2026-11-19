@@ -73,7 +73,7 @@ DEBUG = _env_bool('DJANGO_DEBUG', True)
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
-        'ALLOWED_HOSTS', 'tupas.vercel.app,localhost,127.0.0.1'
+        'ALLOWED_HOSTS', 'tupas.vercel.app,.vercel.app,localhost,127.0.0.1'
     ).split(',')
     if host.strip()
 ]
@@ -85,7 +85,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
-        'CSRF_TRUSTED_ORIGINS', 'https://tupas.vercel.app'
+        'CSRF_TRUSTED_ORIGINS', 'https://tupas.vercel.app,https://*.vercel.app'
     ).split(',')
     if origin.strip()
 ]

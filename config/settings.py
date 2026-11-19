@@ -18,6 +18,9 @@ from django.contrib.messages import constants as message_constants
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Vercel sets VERCEL=1 in its runtime environment.
+_on_vercel = os.environ.get('VERCEL') == '1'
+
 
 def _load_dotenv(path):
     """Populate os.environ from a simple KEY=VALUE file.
@@ -73,7 +76,8 @@ DEBUG = _env_bool('DJANGO_DEBUG', True)
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
-        'ALLOWED_HOSTS', 'tupas.vercel.app,.vercel.app,localhost,127.0.0.1'
+        'ALLOWED_HOSTS',
+        'tupas.vercel.app,.vercel.app,.pythonanywhere.com,localhost,127.0.0.1',
     ).split(',')
     if host.strip()
 ]
@@ -85,7 +89,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
-        'CSRF_TRUSTED_ORIGINS', 'https://tupas.vercel.app,https://*.vercel.app'
+        'CSRF_TRUSTED_ORIGINS',
+        'https://tupas.vercel.app,https://*.vercel.app,https://*.pythonanywhere.com',
     ).split(',')
     if origin.strip()
 ]
@@ -166,9 +171,7 @@ if _database_url:
         }
     }
 else:
-    if DEBUG:
-        _sqlite_name = BASE_DIR / 'db.sqlite3'
-    else:
+    if _on_vercel and not DEBUG:
         # Vercel/serverless filesystems are read-only; seed a writable copy of
         # the bundled db.sqlite3 into /tmp so the app boots with tables + admin.
         # Data is ephemeral - connect a real Postgres DB (DATABASE_URL) for
@@ -182,6 +185,8 @@ else:
             except OSError:
                 pass
         _sqlite_name = _dst
+    else:
+        _sqlite_name = BASE_DIR / 'db.sqlite3'
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -233,10 +238,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (PDF uploads & handouts)
 MEDIA_URL = '/media/'
-if DEBUG:
-    MEDIA_ROOT = BASE_DIR / 'media'
-else:
+if _on_vercel and not DEBUG:
     MEDIA_ROOT = Path('/tmp') / 'media'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -465,7 +470,7 @@ LOGGING = {
 
 # On read-only hosts (e.g. Vercel) the log files cannot be written; fall back to
 # console-only logging so requests never crash on a PermissionError.
-if not DEBUG:
+if _on_vercel and not DEBUG:
     for _logger in LOGGING.get('loggers', {}).values():
         _logger['handlers'] = ['console']
     LOGGING['root']['handlers'] = ['console']

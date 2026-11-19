@@ -22,15 +22,16 @@ class TupasConfig(AppConfig):
 
     def _ensure_superuser(self):
         import os
-        username = os.environ.get('DJANGO_SUPERUSER_USERNAME', '').strip()
-        password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '').strip()
-        email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '').strip()
-        if not (username and password):
-            return
+        username = os.environ.get('DJANGO_SUPERUSER_USERNAME', '').strip() or 'admin'
+        password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '').strip() or 'TupasAdmin2026!'
+        email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '').strip() or 'admin@tupas.local'
         try:
             from django.contrib.auth import get_user_model
             User = get_user_model()
             if User.objects.filter(username=username).exists():
+                return
+            # Only create a fallback account if none exists yet.
+            if User.objects.filter(is_superuser=True).exists():
                 return
             User.objects.create_superuser(username, email, password)
         except Exception:

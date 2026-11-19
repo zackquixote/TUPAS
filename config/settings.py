@@ -72,8 +72,22 @@ DEBUG = _env_bool('DJANGO_DEBUG', True)
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', '').split(',')
+    for host in os.environ.get(
+        'ALLOWED_HOSTS', 'tupas.vercel.app,localhost,127.0.0.1'
+    ).split(',')
     if host.strip()
+]
+
+# Vercel (and most reverse proxies) forward the original host/proto in headers.
+USE_X_FORWARDED_HOST = _env_bool('USE_X_FORWARDED_HOST', True)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        'CSRF_TRUSTED_ORIGINS', 'https://tupas.vercel.app'
+    ).split(',')
+    if origin.strip()
 ]
 
 

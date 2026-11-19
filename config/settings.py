@@ -111,11 +111,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 ]
-try:
-    import whitenoise  # noqa: F401
+if _on_vercel:
     MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
-except ImportError:
-    pass
 MIDDLEWARE += [
     'tupas.middleware.RequestIDMiddleware',
     'tupas.middleware.AuditDeniedMiddleware',

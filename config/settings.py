@@ -166,10 +166,26 @@ if _database_url:
         }
     }
 else:
+    if DEBUG:
+        _sqlite_name = BASE_DIR / 'db.sqlite3'
+    else:
+        # Vercel/serverless filesystems are read-only; seed a writable copy of
+        # the bundled db.sqlite3 into /tmp so the app boots with tables + admin.
+        # Data is ephemeral - connect a real Postgres DB (DATABASE_URL) for
+        # persistence.
+        _src = BASE_DIR / 'db.sqlite3'
+        _dst = Path('/tmp') / 'db.sqlite3'
+        if not _dst.exists() and _src.exists():
+            try:
+                import shutil
+                shutil.copy2(_src, _dst)
+            except OSError:
+                pass
+        _sqlite_name = _dst
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': _sqlite_name,
         }
     }
 

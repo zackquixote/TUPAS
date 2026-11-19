@@ -358,7 +358,11 @@
                         Model: <code class="tupas-code">{{ ai_status.model }}</code>
                     </div>
                     <div class="small text-muted mb-0">
+                        {% if ai_status.env_var %}
                         Loaded safely from <code class="tupas-code">{{ ai_status.env_var }}</code>.
+                        {% else %}
+                        No API key required — runs entirely on your server.
+                        {% endif %}
                     </div>
                 </div>
                 {% else %}
@@ -440,8 +444,8 @@ $env:OPENROUTER_API_KEY = "your-openrouter-key"</code></pre>
 
 {% block extra_js %}
 <!-- PDF.js CDN for instant client-side PDF text extraction -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="{% static 'vendor/jszip.min.js' %}"></script>
+<script src="{% static 'vendor/pdf.min.js' %}"></script>
 <script>
     (function () {
         const deckSelect = document.getElementById('id_deck');
@@ -504,7 +508,7 @@ $env:OPENROUTER_API_KEY = "your-openrouter-key"</code></pre>
         // 3. Instant PDF & TXT Extraction into #id_notes
         if (window.pdfjsLib) {
             window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                '{% static "vendor/pdf.worker.min.js" %}';
         }
 
         async function extractPdfText(file) {

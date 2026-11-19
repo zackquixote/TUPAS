@@ -185,17 +185,15 @@ def get_ai_status(provider=None):
         if _env(PROVIDER_ENV_VARS[candidate]):
             return _provider_status(candidate)
 
+    # No external key is configured: fall back to the built-in local engine
+    # so the AI generator works out of the box (see README).
     return {
-        'configured': False,
-        'provider': None,
-        'provider_label': None,
-        'model': None,
+        'configured': True,
+        'provider': 'local',
+        'provider_label': 'TUPAS Smart Engine',
+        'model': 'Built-in Rule-Based Extractor',
         'env_var': None,
-        'error': (
-            'AI is not configured. Set the GROQ_API_KEY, GEMINI_API_KEY, '
-            'or OPENROUTER_API_KEY environment variable, then restart the '
-            'Django server.'
-        ),
+        'error': None,
     }
 
 
@@ -1080,7 +1078,7 @@ def chat_with_tupas_tutor(document_text, student_message, chat_history=None):
 
     # 1. Try Live AI API if key is available
     status = get_ai_status()
-    if status['configured']:
+    if status['configured'] and status.get('provider') != 'local':
         try:
             return _call_ai_tutor_api(status, document_text, student_message, chat_history)
         except Exception:

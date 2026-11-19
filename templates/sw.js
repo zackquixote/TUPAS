@@ -6,7 +6,7 @@
  * available after the first online visit. Navigations fall back to /offline/.
  */
 
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const STATIC_CACHE = `tupas-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `tupas-runtime-${CACHE_VERSION}`;
 const OFFLINE_URL = '{% url "tupas:offline" %}';

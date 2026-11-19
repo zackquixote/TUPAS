@@ -1,0 +1,231 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#a8ee00">
+    <meta name="description" content="TUPAS is offline. Reconnect to continue studying.">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <title>You're offline · TUPAS</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --ink: #f8fafc;
+            --muted: #a9b2bf;
+            --pink: #a8ee00;
+            --pink-soft: #c8f84a;
+            --indigo: #8a9bf8;
+            --card: rgba(255, 255, 255, 0.055);
+            --line: rgba(255, 255, 255, 0.11);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: grid;
+            place-items: center;
+            padding: calc(2rem + env(safe-area-inset-top)) 1.25rem calc(2rem + env(safe-area-inset-bottom));
+            color: var(--ink);
+            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            background:
+                radial-gradient(circle at 78% 8%, rgba(255, 107, 157, 0.22), transparent 24rem),
+                radial-gradient(circle at 10% 92%, rgba(99, 102, 241, 0.24), transparent 26rem),
+                #1d232a;
+        }
+
+        .card {
+            width: min(30rem, 100%);
+            padding: 2.6rem 2rem 2.2rem;
+            text-align: center;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 1.75rem;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(10px);
+            animation: rise 0.45s ease-out both;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            font-size: 0.78rem;
+            color: var(--pink-soft);
+            text-transform: uppercase;
+        }
+
+        .brand-mark {
+            width: 1.9rem;
+            height: 1.9rem;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 0.65rem;
+            background: linear-gradient(135deg, #ffa1c0, #ff5b92);
+            color: #2a1220;
+            letter-spacing: 0;
+            font-size: 0.72rem;
+            font-weight: 900;
+        }
+
+        .icon-wrap {
+            width: 6.5rem;
+            height: 6.5rem;
+            margin: 0 auto 1.4rem;
+            display: grid;
+            place-items: center;
+            border-radius: 1.9rem;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.18), rgba(99, 102, 241, 0.18));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .icon-wrap svg {
+            width: 3.1rem;
+            height: 3.1rem;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 0.55rem;
+            color: var(--pink-soft);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0 0 0.8rem;
+            font-size: clamp(1.75rem, 5vw, 2.15rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            margin: 0 auto 1.8rem;
+            max-width: 25rem;
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.65;
+        }
+
+        .actions {
+            display: grid;
+            gap: 0.7rem;
+        }
+
+        .retry,
+        .home {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            min-height: 3rem;
+            padding: 0.75rem 1.4rem;
+            border-radius: 999px;
+            font: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .retry {
+            border: 0;
+            color: #2a1220;
+            background: linear-gradient(135deg, var(--pink), var(--pink-soft));
+            box-shadow: 0 12px 28px rgba(255, 107, 157, 0.32);
+        }
+
+        .retry:hover,
+        .retry:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 34px rgba(255, 107, 157, 0.42);
+        }
+
+        .home {
+            color: #dfe3ea;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--line);
+        }
+
+        .home:hover,
+        .home:focus {
+            background: rgba(255, 255, 255, 0.11);
+            color: #fff;
+        }
+
+        .hint {
+            margin: 1.7rem auto 0;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--line);
+            font-size: 0.78rem;
+            line-height: 1.55;
+            color: #8f99a8;
+        }
+
+        @media (max-width: 380px) {
+            .card {
+                padding: 2rem 1.35rem 1.8rem;
+            }
+
+            .icon-wrap {
+                width: 5.6rem;
+                height: 5.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true">T</span>
+            TUPAS Reviewer
+        </div>
+
+        <div class="icon-wrap" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ff6b9d" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5.5 16.5a4.25 4.25 0 0 1 .4-8.48A5.75 5.75 0 0 1 17.3 6.4a4.75 4.75 0 0 1 1.2 9.36"/>
+                <path d="M3 3l18 18"/>
+            </svg>
+        </div>
+
+        <span class="eyebrow">No connection</span>
+        <h1>You're offline</h1>
+        <p>
+            Your reviewer is still installed. Reconnect to load fresh decks,
+            save your progress, and sync exam results.
+        </p>
+
+        <div class="actions">
+            <button type="button" class="retry" onclick="window.location.reload()">
+                <span aria-hidden="true">↻</span> Try again
+            </button>
+            <a class="home" href="{% url 'tupas:dashboard' %}">Back to dashboard</a>
+        </div>
+
+        <p class="hint">
+            Tip: TUPAS installed from your browser opens full-screen, just like a native app.
+        </p>
+    </main>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attempt #{{ attempt.id }} · TUPAS{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:deck_detail' attempt.deck.id %}">{{ attempt.deck.title|truncatechars:30 }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Attempt #{{ attempt.id }}</li>
+    </ol>
+</nav>
+
+<div class="surface-card p-4 p-lg-5 mb-4">
+    <span class="eyebrow">📝 Saved exam attempt</span>
+    <h1 class="h2 fw-bold mt-1 mb-2">{{ attempt.deck.title }}</h1>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge badge-soft">{{ attempt.get_exam_mode_display }}</span>
+        <span class="badge badge-soft">{{ attempt.score }} / {{ attempt.total_items }}</span>
+        <span class="badge badge-soft">{{ attempt.percentage|floatformat:1 }}%</span>
+        <span class="badge badge-soft">{{ attempt.date_taken|date:"M d, Y · g:i A" }}</span>
+    </div>
+    <a href="{% url 'tupas:exam_mode' attempt.deck.id attempt.mode_slug %}" class="btn btn-brand">
+        <i class="bi bi-arrow-repeat me-1"></i> Retake this exam
+    </a>
+</div>
+
+{% if diagnosis %}
+<div class="surface-card p-4 mb-4">
+    <span class="eyebrow">🩺 Post-Exam Diagnosis</span>
+    <h2 class="section-heading mt-1 mb-3">Accuracy by item type</h2>
+    <div class="row g-3">
+        {% for row in diagnosis %}
+        <div class="col-6 col-md-3">
+            <div class="profile-detail text-center">
+                <div class="profile-detail-label">{{ row.type }}</div>
+                <div class="stat-value">{{ row.percent }}%</div>
+                <div class="small text-muted-soft">{{ row.correct }} / {{ row.total }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="d-grid gap-3">
+    {% for row in details %}
+    <div class="surface-card p-4 {% if row.is_correct %}result-correct{% else %}result-wrong{% endif %}">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <span class="badge badge-soft">{{ row.item_type }}</span>
+            {% if row.is_correct %}
+            <span class="badge badge-mastered">Correct</span>
+            {% else %}
+            <span class="badge badge-review">Incorrect</span>
+            {% endif %}
+            {% if row.is_typo_accepted %}
+            <span class="badge badge-soft">✨ Close enough</span>
+            {% endif %}
+        </div>
+        <div class="fw-semibold mb-2">{{ row.prompt|linebreaksbr }}</div>
+        <div class="small"><strong>Your answer:</strong> {{ row.submitted }}</div>
+        <div class="small text-success"><strong>Expected:</strong> {{ row.expected }}</div>
+        {% if row.explanation %}
+        <div class="small text-muted-soft mt-2">{{ row.explanation|linebreaksbr }}</div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p class="text-muted-soft">No per-question snapshot was saved for this attempt.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

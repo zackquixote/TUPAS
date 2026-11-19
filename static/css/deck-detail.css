@@ -1,0 +1,105 @@
+/* ==========================================================================
+   DECK DETAIL OVERVIEW PAGE CSS
+   Matches AI Generator: cream cards, navy borders, lime/periwinkle icons
+   ========================================================================== */
+
+.mode-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--tupas-cream);
+    border: 2px solid rgba(8, 14, 44, 0.08);
+    border-radius: 1.5rem;
+    padding: 1.4rem;
+    box-shadow: var(--tupas-shadow-sm);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.mode-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(8, 14, 44, 0.24);
+    box-shadow: var(--tupas-shadow-md);
+}
+
+.mode-card.is-empty {
+    opacity: 0.62;
+}
+
+.mode-icon {
+    width: 3rem;
+    height: 3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.95rem;
+    font-size: 1.35rem;
+    margin-bottom: 0.9rem;
+    border: 2px solid var(--tupas-navy);
+}
+
+.mode-icon.flip {
+    background: var(--tupas-periwinkle);
+    color: var(--tupas-navy);
+}
+
+.mode-icon.highlight {
+    background: #fde68a;
+    color: var(--tupas-navy);
+}
+
+.mode-icon.enumeration {
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+}
+
+.mode-icon.exam {
+    background: var(--tupas-navy);
+    color: var(--tupas-lime);
+}
+
+.mode-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--tupas-navy);
+}
+
+.mode-copy {
+    color: var(--tupas-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    flex: 1 0 auto;
+}
+
+.exam-mini-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border: 2px solid rgba(8, 14, 44, 0.12);
+    border-radius: 1rem;
+    color: var(--tupas-navy);
+    font-size: 0.88rem;
+    font-weight: 700;
+    background: var(--tupas-white);
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.exam-mini-link:hover {
+    background: rgba(168, 238, 0, 0.18);
+    border-color: var(--tupas-navy);
+    color: var(--tupas-navy);
+    transform: translateY(-1px);
+}
+
+.exam-mini-link.is-empty {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+@media (max-width: 767.98px) {
+    .mode-card {
+        padding: 1.15rem;
+        border-radius: 1.25rem;
+    }
+}

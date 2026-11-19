@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leaderboard · TUPAS{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+        <span class="eyebrow">🏆 Leaderboard</span>
+        <h1 class="h2 fw-bold mt-1 mb-1">Top TUPAS students</h1>
+        <p class="text-muted-soft mb-0">
+            Opt-in students ranked by XP. Update visibility on your profile.
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn {% if scope == 'overall' %}btn-brand{% else %}btn-soft{% endif %}"
+           href="{% url 'tupas:leaderboard' %}?scope=overall">Overall</a>
+        <a class="btn {% if scope == 'course' %}btn-brand{% else %}btn-soft{% endif %}"
+           href="{% url 'tupas:leaderboard' %}?scope=course">My Course</a>
+        <a class="btn {% if scope == 'school' %}btn-brand{% else %}btn-soft{% endif %}"
+           href="{% url 'tupas:leaderboard' %}?scope=school">My School</a>
+    </div>
+</div>
+
+{% if rows %}
+<div class="surface-card p-2 p-md-4">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>School</th>
+                    <th>Course</th>
+                    <th>Level</th>
+                    <th>XP</th>
+                    <th>Streak</th>
+                    <th>Badges</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr class="{% if row.user_id == user.id %}table-active{% endif %}">
+                    <td class="fw-bold">{{ forloop.counter }}</td>
+                    <td>
+                        <span class="fw-bold">{{ row.full_name }}</span>
+                        <div class="small text-muted-soft">@{{ row.user.username }}</div>
+                    </td>
+                    <td class="small">{{ row.school_name|truncatechars:28 }}</td>
+                    <td class="small">{{ row.course_or_strand|truncatechars:22 }}</td>
+                    <td><span class="xp-chip">Lv {{ row.level }}</span></td>
+                    <td class="fw-bold">{{ row.xp_points }}</td>
+                    <td>🔥 {{ row.current_streak }}</td>
+                    <td class="small">
+                        {% if row.badges %}
+                            {{ row.badges|join:", " }}
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="empty-icon"><i class="bi bi-trophy"></i></span>
+    <h2 class="h5 fw-bold">No one on this board yet</h2>
+    <p class="text-muted-soft mb-0">
+        Study a few cards to earn XP, then turn on “Show on leaderboard” in your profile.
+    </p>
+</div>
+{% endif %}
+{% endblock %}

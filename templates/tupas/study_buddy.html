@@ -1,0 +1,533 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if view_mode == 'detail' %}{{ document.title }}{% else %}Study Buddy{% endif %} · TUPAS{% endblock %}
+
+{% block content %}
+{% if view_mode == 'detail' %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:study_buddy' %}">Study Buddy</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ document.title|truncatechars:34 }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+        <span class="eyebrow">🤖 TUPAS Study Buddy</span>
+        <h1 class="h2 fw-bold mt-1 mb-1">{{ document.title }}</h1>
+        <div class="d-flex flex-wrap gap-2">
+            <span class="badge badge-soft">{{ document.page_count }} page{{ document.page_count|pluralize }}</span>
+            <span class="badge badge-soft">{{ document.word_count }} words</span>
+            <span class="badge badge-soft">Added {{ document.created_at|date:"M d, Y" }}</span>
+            {% if document.generated_deck %}
+            <a class="badge badge-mastered text-decoration-none"
+               href="{% url 'tupas:deck_detail' document.generated_deck.id %}">
+                <i class="bi bi-collection me-1"></i>{{ document.generated_deck.title|truncatechars:26 }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-self-start">
+        <a href="#generate-deck" class="btn btn-brand">
+            <i class="bi bi-magic me-1"></i> Convert to Reviewer Deck
+        </a>
+        <a href="{% url 'tupas:study_buddy' %}" class="btn btn-soft">
+            <i class="bi bi-arrow-left me-1"></i> All handouts
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- ================= CHAT ================= -->
+    <div class="col-lg-7">
+        <div class="surface-card p-4 p-lg-5" id="chat">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <span class="eyebrow">Chat with your notes</span>
+                    <h2 class="section-heading mt-1 mb-0">TUPAS Study Buddy</h2>
+                </div>
+                {% if ai_status.configured %}
+                <span class="badge badge-mastered">
+                    <i class="bi bi-stars me-1"></i>{{ ai_status.provider_label }}
+                </span>
+                {% else %}
+                <span class="badge badge-soft">
+                    <i class="bi bi-wifi-off me-1"></i>Offline tutor
+                </span>
+                {% endif %}
+            </div>
+
+            <p class="text-muted-soft small mb-3">
+                {% if ai_status.configured %}
+                Answers come from your configured AI provider, grounded in this handout.
+                {% else %}
+                No AI key is set, so TUPAS uses its built-in offline study engine to summarize,
+                explain, and quiz you from this handout.
+                {% endif %}
+            </p>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button type="button" class="btn btn-sm btn-soft quick-prompt" data-prompt="Summarize this handout">📝 Summarize</button>
+                <button type="button" class="btn btn-sm btn-soft quick-prompt" data-prompt="Explain this in simple Taglish">🇵🇭 Taglish</button>
+                <button type="button" class="btn btn-sm btn-soft quick-prompt" data-prompt="Extract all enumerations">📋 Enumerations</button>
+                <button type="button" class="btn btn-sm btn-soft quick-prompt" data-prompt="Spot the key terms">🖍️ Key terms</button>
+                <button type="button" class="btn btn-sm btn-soft quick-prompt" data-prompt="Quiz me">🎯 Quiz me</button>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <button type="button" class="btn btn-sm btn-soft" data-bs-toggle="modal" data-bs-target="#editDocModal">
+                    📝 Edit Notes / Title
+                </button>
+                <form method="post" action="{% url 'tupas:study_buddy_clear_chat' document.id %}"
+                      class="d-inline" data-confirm="Clear this entire conversation? A fresh TUPAS greeting will be created.">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-soft">🧹 Clear Chat</button>
+                </form>
+                <form method="post" action="{% url 'tupas:study_buddy_delete_doc' document.id %}"
+                      class="d-inline" data-confirm="Delete this handout and its entire chat? This cannot be undone.">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-soft text-danger">🗑️ Delete Doc</button>
+                </form>
+            </div>
+
+            <div class="mb-4" id="chat-transcript">
+                {% for chat in chat_messages %}
+                <div class="d-flex mb-3 {% if chat.sender == 'STUDENT' %}justify-content-end{% endif %}"
+                     data-message-id="{{ chat.id }}">
+                    <div class="p-3 rounded-4 {% if chat.sender != 'STUDENT' %}border{% endif %}"
+                         style="max-width: 88%;{% if chat.sender == 'STUDENT' %}background:#080E2C;color:#fff;{% else %}background:#f8f7f2;{% endif %}">
+                        <div class="small fw-bold mb-1 d-flex align-items-center gap-2">
+                            <span>{% if chat.sender == 'STUDENT' %}You{% else %}TUPAS Study Buddy{% endif %}</span>
+                            <span class="text-muted-soft fw-normal small">{{ chat.created_at|date:"M d, H:i" }}</span>
+                        </div>
+                        <div class="small js-message-body">{{ chat.message|linebreaksbr }}</div>
+
+                        {% if chat.sender == 'STUDENT' %}
+                        <div class="d-flex gap-2 mt-2 justify-content-end">
+                            <button type="button"
+                                    class="btn btn-sm btn-link p-0 text-decoration-none js-edit-msg"
+                                    data-msg-id="{{ chat.id }}"
+                                    data-edit-url="{% url 'tupas:study_buddy_edit_message' document.id chat.id %}"
+                                    aria-label="Edit this question">
+                                ✏️ Edit
+                            </button>
+                            <form method="post"
+                                  action="{% url 'tupas:study_buddy_delete_message' document.id chat.id %}"
+                                  class="d-inline"
+                                  data-confirm="Delete this message?">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-link p-0 text-decoration-none"
+                                        aria-label="Delete this message">🗑️</button>
+                            </form>
+                        </div>
+
+                        <div class="js-edit-box d-none mt-2">
+                            <textarea class="form-control form-control-sm js-edit-textarea"
+                                      rows="3" maxlength="2000"
+                                      aria-label="Edit your question">{{ chat.message }}</textarea>
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button"
+                                        class="btn btn-sm btn-brand js-save-edit"
+                                        data-msg-id="{{ chat.id }}">Save &amp; Re-ask TUPAS</button>
+                                <button type="button"
+                                        class="btn btn-sm btn-soft js-cancel-edit">Cancel</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted-soft small py-4">
+                    <i class="bi bi-chat-dots fs-3 d-block mb-2"></i>
+                    No questions yet. Try one of the shortcuts above or ask your own.
+                </div>
+                {% endfor %}
+            </div>
+
+            <form method="post" action="{% url 'tupas:study_buddy_chat' document.id %}">
+                {% csrf_token %}
+                <label class="form-label small" for="id_message">Ask about this handout</label>
+                <textarea class="form-control" id="id_message" name="message" rows="3" maxlength="2000"
+                          required placeholder="e.g. Explain the difference between mitosis and meiosis"></textarea>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="small text-muted-soft">Keep it under 2,000 characters.</span>
+                    <button type="submit" class="btn btn-brand">
+                        <i class="bi bi-send me-1"></i> Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= DECK GENERATION ================= -->
+    <div class="col-lg-5">
+        <div class="surface-card p-4 p-lg-5" id="generate-deck">
+            <span class="eyebrow">1-click generator</span>
+            <h2 class="section-heading mt-1">Turn this handout into a deck</h2>
+            <p class="text-muted-soft small">
+                TUPAS builds flip cards, smart highlights, and enumeration drills from this
+                handout and saves them to a deck you own.
+            </p>
+
+            {% if generate_form.non_field_errors %}
+            <div class="alert alert-danger py-2 small" role="alert">
+                {% for error in generate_form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'tupas:study_buddy_generate_deck' document.id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ generate_form.deck_title.id_for_label }}">
+                        {{ generate_form.deck_title.label }}
+                    </label>
+                    {{ generate_form.deck_title }}
+                    {% for error in generate_form.deck_title.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ generate_form.subject.id_for_label }}">
+                        {{ generate_form.subject.label }}
+                    </label>
+                    {{ generate_form.subject }}
+                    {% for error in generate_form.subject.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ generate_form.new_subject_name.id_for_label }}">
+                        {{ generate_form.new_subject_name.label }}
+                    </label>
+                    {{ generate_form.new_subject_name }}
+                    {% for error in generate_form.new_subject_name.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small" for="{{ generate_form.items_count.id_for_label }}">
+                        {{ generate_form.items_count.label }}
+                    </label>
+                    {{ generate_form.items_count }}
+                    {% for error in generate_form.items_count.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-brand w-100">
+                    <i class="bi bi-stars me-1"></i> Generate reviewer deck
+                </button>
+                <div class="small text-muted-soft text-center mt-2">
+                    Counts toward your AI generation allowance.
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ================= EDIT HANDOUT MODAL ================= -->
+<div class="modal fade" id="editDocModal" tabindex="-1" aria-labelledby="editDocModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <form class="modal-content" method="post" action="{% url 'tupas:study_buddy_edit_doc' document.id %}">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="editDocModalLabel">📝 Edit Notes / Title</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted-soft small">
+                    Fix OCR mistakes or rename this handout. The Study Buddy will use the
+                    saved text for every new question.
+                </p>
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ edit_doc_form.title.id_for_label }}">
+                        Title
+                    </label>
+                    {{ edit_doc_form.title }}
+                    {% for error in edit_doc_form.title.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ edit_doc_form.extracted_text.id_for_label }}">
+                        Extracted text
+                    </label>
+                    {{ edit_doc_form.extracted_text }}
+                    {% for error in edit_doc_form.extracted_text.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-brand">Save handout</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% else %}
+<!-- ================= HANDOUT LIBRARY ================= -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+        <span class="eyebrow">🤖 TUPAS Study Buddy</span>
+        <h1 class="h2 fw-bold mt-1 mb-1">Talk to your handouts.</h1>
+        <p class="text-muted-soft mb-0">
+            Upload a PDF or paste lecture notes, then ask questions, get Taglish explanations,
+            or convert the handout into a reviewer deck.
+        </p>
+    </div>
+    {% if ai_status.configured %}
+    <span class="badge badge-mastered align-self-start">
+        <i class="bi bi-stars me-1"></i>{{ ai_status.provider_label }} Ready
+    </span>
+    {% else %}
+    <span class="badge badge-soft align-self-start">
+        <i class="bi bi-wifi-off me-1"></i>Offline tutor available
+    </span>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="surface-card p-4 p-lg-5">
+            <span class="eyebrow">New handout</span>
+            <h2 class="section-heading mt-1">Upload or paste your notes</h2>
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 small" role="alert">
+                {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% for error in form.title.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ form.pdf_file.id_for_label }}">{{ form.pdf_file.label }}</label>
+                    {{ form.pdf_file }}
+                    {% for error in form.pdf_file.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    <div class="small text-muted-soft mt-1">PDF or .txt, up to 20MB.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ form.pasted_notes.id_for_label }}">{{ form.pasted_notes.label }}</label>
+                    {{ form.pasted_notes }}
+                    {% for error in form.pasted_notes.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-brand w-100">
+                    <i class="bi bi-upload me-1"></i> Save handout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-end gap-2 mb-3">
+            <div>
+                <span class="eyebrow">Your library</span>
+                <h2 class="section-heading mt-1 mb-0">Saved handouts</h2>
+            </div>
+            <span class="badge badge-soft">{{ documents|length }} handout{{ documents|length|pluralize }}</span>
+        </div>
+
+        {% if documents %}
+        <div class="d-grid gap-3">
+            {% for document in documents %}
+            <div class="surface-card surface-card-hover p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <a class="text-decoration-none text-reset flex-grow-1"
+                       href="{% url 'tupas:study_buddy_detail' document.id %}">
+                        <div>
+                            <div class="fw-bold text-navy mb-1">{{ document.title }}</div>
+                            <div class="small text-muted-soft">
+                                {{ document.page_count }} page{{ document.page_count|pluralize }} ·
+                                {{ document.word_count }} words ·
+                                {{ document.created_at|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </a>
+                    <div class="d-flex flex-column align-items-end gap-2">
+                        {% if document.generated_deck %}
+                        <span class="badge badge-mastered">Deck ready</span>
+                        {% else %}
+                        <span class="badge badge-soft">Chat</span>
+                        {% endif %}
+                        <div class="d-flex gap-1">
+                            <a class="btn btn-sm btn-soft"
+                               href="{% url 'tupas:study_buddy_detail' document.id %}"
+                               aria-label="Open {{ document.title }}">
+                                <i class="bi bi-chat-square-text"></i>
+                            </a>
+                            <form method="post"
+                                  action="{% url 'tupas:study_buddy_delete_doc' document.id %}"
+                                  data-confirm="Delete “{{ document.title|escapejs }}” and its chat?">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-soft text-danger"
+                                        aria-label="Delete {{ document.title }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="empty-icon"><i class="bi bi-journal-text"></i></span>
+            <h2 class="h5 fw-bold">No handouts yet</h2>
+            <p class="text-muted-soft mb-0">
+                Upload a PDF or paste your lecture notes on the left to start studying with TUPAS.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if view_mode == 'detail' %}
+<script>
+    (function () {
+        'use strict';
+
+        const messageBox = document.getElementById('id_message');
+        const transcript = document.getElementById('chat-transcript');
+
+        document.querySelectorAll('.quick-prompt').forEach(function (button) {
+            button.addEventListener('click', function () {
+                if (!messageBox) return;
+                messageBox.value = button.dataset.prompt || '';
+                messageBox.focus();
+            });
+        });
+
+        // Keep the newest message in view after a reply is posted.
+        if (transcript) {
+            transcript.scrollTop = transcript.scrollHeight;
+        }
+
+        function getCsrfToken() {
+            const match = document.cookie.match(/(^|;\s*)csrftoken=([^;]+)/);
+            if (match) return decodeURIComponent(match[2]);
+            const input = document.querySelector('[name=csrfmiddlewaretoken]');
+            return input ? input.value : '';
+        }
+
+        /* Confirm destructive actions (clear chat, delete doc, delete msg). */
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!window.confirm(form.dataset.confirm)) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        /* Inline edit of a student question. */
+        function openEditor(msgId) {
+            const bubble = document.querySelector('[data-message-id="' + msgId + '"]');
+            if (!bubble) return;
+            bubble.querySelector('.js-message-body')?.classList.add('d-none');
+            bubble.querySelector('.js-edit-msg')?.closest('.d-flex')?.classList.add('d-none');
+            const box = bubble.querySelector('.js-edit-box');
+            if (box) {
+                box.classList.remove('d-none');
+                box.querySelector('.js-edit-textarea')?.focus();
+            }
+        }
+
+        function closeEditor(msgId) {
+            const bubble = document.querySelector('[data-message-id="' + msgId + '"]');
+            if (!bubble) return;
+            bubble.querySelector('.js-message-body')?.classList.remove('d-none');
+            bubble.querySelector('.js-edit-msg')?.closest('.d-flex')?.classList.remove('d-none');
+            bubble.querySelector('.js-edit-box')?.classList.add('d-none');
+        }
+
+        document.querySelectorAll('.js-edit-msg').forEach(function (button) {
+            button.addEventListener('click', function () {
+                openEditor(button.dataset.msgId);
+            });
+        });
+
+        document.querySelectorAll('.js-cancel-edit').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const box = button.closest('.js-edit-box');
+                const bubble = box?.closest('[data-message-id]');
+                if (bubble) closeEditor(bubble.dataset.messageId);
+            });
+        });
+
+        document.querySelectorAll('.js-save-edit').forEach(function (button) {
+            button.addEventListener('click', async function () {
+                const msgId = button.dataset.msgId;
+                const bubble = document.querySelector('[data-message-id="' + msgId + '"]');
+                const textarea = bubble?.querySelector('.js-edit-textarea');
+                const editUrl = bubble?.querySelector('.js-edit-msg')?.dataset.editUrl;
+                if (!textarea || !editUrl || button.dataset.loading === 'true') return;
+
+                const text = textarea.value.trim();
+                if (!text) {
+                    window.tupasToast?.('The edited question cannot be empty.', 'danger');
+                    return;
+                }
+
+                button.dataset.loading = 'true';
+                button.disabled = true;
+                try {
+                    const body = new URLSearchParams();
+                    body.set('message', text);
+                    const response = await fetch(editUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': getCsrfToken(),
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: body.toString(),
+                    });
+                    const payload = await response.json().catch(() => ({}));
+                    if (response.ok && payload.ok) {
+                        window.location.href = payload.redirect || window.location.href;
+                        return;
+                    }
+                    window.tupasToast?.(payload.error || 'Could not update that question.', 'danger');
+                } catch (error) {
+                    window.tupasToast?.('Network error. Please try again.', 'danger');
+                } finally {
+                    button.dataset.loading = 'false';
+                    button.disabled = false;
+                }
+            });
+        });
+    })();
+</script>
+{% else %}
+<script>
+    (function () {
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!window.confirm(form.dataset.confirm)) {
+                    event.preventDefault();
+                }
+            });
+        });
+    })();
+</script>
+{% endif %}
+{% endblock %}

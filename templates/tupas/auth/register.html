@@ -1,0 +1,228 @@
+{% load static %}
+<!doctype html>
+<html lang="en" class="plopp-html">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#A8EE00">
+  <meta name="description" content="Create your TUPAS account">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TUPAS">
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <link rel="icon" href="{% static 'icons/icon.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
+  <title>Create account · TUPAS Reviewer</title>
+  <link href="{% static 'vendor/bootstrap-icons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/auth-common.css' %}" rel="stylesheet">
+  <link href="{% static 'css/register.css' %}" rel="stylesheet">
+</head>
+
+<body class="plopp-auth-body">
+
+  <div class="plopp-auth-page plopp-auth-bg">
+
+    <!-- Seamless Lime-Green Mascot & Registration Card -->
+    <div class="plopp-auth-card-scroll">
+
+      <!-- Mascot Header (Exact Match to Reference Image) -->
+      <div class="plopp-auth-mascot">
+        <svg viewBox="0 0 240 175" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Top Cream Hair Tuft -->
+          <ellipse cx="113" cy="22" rx="10" ry="15" transform="rotate(20 113 22)" fill="#FAF7EE" />
+          <ellipse cx="126" cy="21" rx="12" ry="17" transform="rotate(42 126 21)" fill="#FAF7EE" />
+
+          <!-- Thick Navy Eyebrows -->
+          <path d="M48 56 Q68 42 86 54" stroke="#080E2C" stroke-width="7.5" fill="none" stroke-linecap="round" />
+          <path d="M154 54 Q172 42 192 56" stroke="#080E2C" stroke-width="7.5" fill="none" stroke-linecap="round" />
+
+          <!-- Left Eye -->
+          <circle cx="70" cy="108" r="42" fill="#FFFFFF" />
+          <circle cx="76" cy="112" r="22" fill="#080E2C" />
+          <circle cx="67" cy="103" r="7" fill="#FFFFFF" />
+          <circle cx="84" cy="121" r="3.8" fill="#FFFFFF" />
+
+          <!-- Right Eye -->
+          <circle cx="170" cy="108" r="42" fill="#FFFFFF" />
+          <circle cx="176" cy="112" r="22" fill="#080E2C" />
+          <circle cx="167" cy="103" r="7" fill="#FFFFFF" />
+          <circle cx="184" cy="121" r="3.8" fill="#FFFFFF" />
+
+          <!-- Cute Nostrils -->
+          <ellipse cx="112" cy="158" rx="3.5" ry="4.5" fill="#080E2C" />
+          <ellipse cx="128" cy="158" rx="3.5" ry="4.5" fill="#080E2C" />
+        </svg>
+
+        <h1 class="plopp-auth-heading">Ready for focus?</h1>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="plopp-alert" role="alert">
+        <i class="bi bi-exclamation-circle-fill flex-shrink-0"></i>
+        <div>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</div>
+      </div>
+      {% endif %}
+
+      <form id="plopp-reg-form" method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- ── Account Basics (Matches Top 3 Fields in Image: Name, Email, Password) ── -->
+        <div class="plopp-field-group">
+          <label for="{{ form.full_name.id_for_label }}" class="plopp-field-label">Your Name <span
+              class="req">*</span></label>
+          {{ form.full_name }}
+          {% for error in form.full_name.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+        </div>
+
+        <div class="plopp-grid-2">
+          <div class="plopp-field-group">
+            <label for="{{ form.username.id_for_label }}" class="plopp-field-label">Username <span
+                class="req">*</span></label>
+            {{ form.username }}
+            {% for error in form.username.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="plopp-field-group">
+            <label for="{{ form.email.id_for_label }}" class="plopp-field-label">Email <span
+                class="req">*</span></label>
+            {{ form.email }}
+            {% for error in form.email.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <div class="plopp-grid-2">
+          <div class="plopp-field-group">
+            <label for="{{ form.password1.id_for_label }}" class="plopp-field-label">Password <span
+                class="req">*</span></label>
+            <div class="plopp-pw-pair">
+              {{ form.password1 }}
+              <button type="button" class="plopp-pw-toggle-inner" aria-label="Toggle" onclick="togglePwField(this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            {% for error in form.password1.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="plopp-field-group">
+            <label for="{{ form.password2.id_for_label }}" class="plopp-field-label">Confirm Password <span
+                class="req">*</span></label>
+            <div class="plopp-pw-pair">
+              {{ form.password2 }}
+              <button type="button" class="plopp-pw-toggle-inner" aria-label="Toggle" onclick="togglePwField(this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            {% for error in form.password2.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <!-- ── School & Student Profile ── -->
+        <p class="plopp-section-title"><i class="bi bi-mortarboard-fill"></i> School Profile</p>
+
+        <div class="plopp-field-group">
+          <label for="{{ form.school_name.id_for_label }}" class="plopp-field-label">School / University Name</label>
+          {{ form.school_name }}
+          {% for error in form.school_name.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+        </div>
+
+        <div class="plopp-grid-2">
+          <div class="plopp-field-group">
+            <label for="{{ form.student_level.id_for_label }}" class="plopp-field-label">Student Level</label>
+            {{ form.student_level }}
+            {% for error in form.student_level.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="plopp-field-group">
+            <label for="{{ form.year_level.id_for_label }}" class="plopp-field-label">Year / Grade Level</label>
+            {{ form.year_level }}
+            {% for error in form.year_level.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <div class="plopp-grid-2">
+          <div class="plopp-field-group">
+            <label for="{{ form.course_or_strand.id_for_label }}" class="plopp-field-label">Course / Strand</label>
+            {{ form.course_or_strand }}
+            {% for error in form.course_or_strand.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="plopp-field-group">
+            <label for="{{ form.birthdate.id_for_label }}" class="plopp-field-label">Birthdate</label>
+            {{ form.birthdate }}
+            {% for error in form.birthdate.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <!-- ── Home Location (Where They Live) ── -->
+        <p class="plopp-section-title"><i class="bi bi-geo-alt-fill"></i> Where You Live</p>
+
+        <div class="plopp-grid-3">
+          <div class="plopp-field-group">
+            <label for="{{ form.region.id_for_label }}" class="plopp-field-label">Region</label>
+            {{ form.region }}
+            {% for error in form.region.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="plopp-field-group">
+            <label for="{{ form.province.id_for_label }}" class="plopp-field-label">Province</label>
+            {{ form.province }}
+            {% for error in form.province.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="plopp-field-group">
+            <label for="{{ form.city_municipality.id_for_label }}" class="plopp-field-label">City / Municipality</label>
+            {{ form.city_municipality }}
+            {% for error in form.city_municipality.errors %}<span class="plopp-field-error">{{ error }}</span>{% endfor %}
+          </div>
+        </div>
+
+        <!-- Social Login Buttons (Exact Match to Reference Image) -->
+        <div class="tupas-social-row">
+          <button type="button" class="tupas-btn-social tupas-btn-fb">
+            <span class="tupas-social-icon">f</span> Facebook
+          </button>
+          <button type="button" class="tupas-btn-social tupas-btn-google">
+            <span class="tupas-social-icon">G</span> Google
+          </button>
+        </div>
+
+        <!-- Main CTA Button -->
+        <button type="submit" class="plopp-btn-cta">
+          Let&rsquo;s TUPAS!
+        </button>
+      </form>
+
+      <p class="plopp-switch-link">
+        Already have an account? <a href="{% url 'tupas:login' %}">Sign In</a>
+      </p>
+
+    </div>
+  </div>
+
+  <script>
+    function togglePwField(btn) {
+      var wrap = btn.parentElement;
+      var input = wrap.querySelector('input');
+      var icon = btn.querySelector('i');
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+      }
+    }
+
+    // Automatically apply clean placeholders from labels to Django form widgets
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('#plopp-reg-form .plopp-field-group').forEach(function (group) {
+        var label = group.querySelector('.plopp-field-label');
+        var input = group.querySelector('input:not([type="date"])');
+        if (label && input && !input.getAttribute('placeholder')) {
+          var cleanText = label.textContent.replace('*', '').trim();
+          input.setAttribute('placeholder', cleanText);
+        }
+      });
+    });
+  </script>
+  <script src="{% static 'js/tupas.js' %}"></script>
+</body>
+
+</html>

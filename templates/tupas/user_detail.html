@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ target_user.username }} · TUPAS Users{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:user_list' %}">Users</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ target_user.username }}</li>
+    </ol>
+</nav>
+
+<div class="surface-card p-4 p-lg-5 mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+            <span class="eyebrow">👤 Account</span>
+            <h1 class="h2 fw-bold mt-1 mb-2">{{ target_profile.full_name|default:target_user.username }}</h1>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge badge-soft">@{{ target_user.username }}</span>
+                {% if target_role == 'ADMIN' %}
+                <span class="badge badge-mastered">ADMIN</span>
+                {% else %}
+                <span class="badge badge-soft">STUDENT</span>
+                {% endif %}
+                {% if target_user.is_superuser %}
+                <span class="badge badge-mastered">Superuser</span>
+                {% endif %}
+                <span class="xp-chip">Lv {{ target_profile.level|default:1 }} · {{ target_profile.xp_points|default:0 }} XP</span>
+                <span class="hero-chip"><i class="bi bi-fire"></i> {{ target_profile.current_streak|default:0 }}-day streak</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="hero-chip"><i class="bi bi-envelope"></i> {{ target_user.email|default:"—" }}</span>
+                {% if target_profile %}
+                <span class="hero-chip"><i class="bi bi-building"></i> {{ target_profile.school_name|default:"—" }}</span>
+                <span class="hero-chip"><i class="bi bi-mortarboard"></i> {{ target_profile.course_or_strand|default:"—" }}</span>
+                <span class="hero-chip"><i class="bi bi-geo-alt"></i> {{ target_profile.city_municipality }}, {{ target_profile.province }}</span>
+                {% endif %}
+            </div>
+            {% if target_profile.badges %}
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                {% for badge in target_profile.badges %}
+                <span class="badge-chip">🏅 {{ badge }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-4 text-center">
+            <div class="profile-avatar-wrap">
+                <span class="profile-avatar">{{ target_user.username|first|upper }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if can_edit_account %}
+<div class="surface-card p-4 mb-4">
+    <h2 class="section-heading mb-3"><i class="bi bi-person-gear me-2"></i>Edit account</h2>
+    <form method="post" action="{% url 'tupas:admin_edit_account' target_user.id %}" class="row g-3">
+        {% csrf_token %}
+        <div class="col-12 col-md-6">
+            <label class="form-label small" for="id_first_name">First name</label>
+            {{ account_form.first_name }}
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label small" for="id_last_name">Last name</label>
+            {{ account_form.last_name }}
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label small" for="id_email">Email</label>
+            {{ account_form.email }}
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label small" for="id_role">Role</label>
+            {{ account_form.role }}
+            {% if target_user.is_superuser %}
+            <div class="form-text small">Superusers keep the ADMIN role.</div>
+            {% endif %}
+        </div>
+        <div class="col-12">
+            <div class="form-check form-switch">
+                {{ account_form.is_active }}
+                <label class="form-check-label small" for="id_is_active">Account is active (can log in)</label>
+            </div>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-brand">Save account</button>
+        </div>
+    </form>
+    <p class="text-muted-soft small mt-2 mb-0">
+        ADMIN is stored as <code>is_staff</code>. Superusers cannot be demoted here.
+        The last remaining ADMIN cannot be demoted.
+    </p>
+</div>
+
+<div class="surface-card p-4 mb-4">
+    <h2 class="section-heading mb-3"><i class="bi bi-key me-2"></i>Set password</h2>
+    <form method="post" action="{% url 'tupas:admin_set_password' target_user.id %}" class="row g-3">
+        {% csrf_token %}
+        <div class="col-12 col-md-6">
+            <label class="form-label small" for="id_new_password1">New password</label>
+            {{ password_form.new_password1 }}
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label small" for="id_new_password2">Repeat new password</label>
+            {{ password_form.new_password2 }}
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-brand">Set password</button>
+        </div>
+    </form>
+    <p class="text-muted-soft small mt-2 mb-0">
+        The user does not need their old password. They stay logged in on this device;
+        other sessions stay valid until Django expires them.
+    </p>
+</div>
+
+<div class="surface-card p-4 mb-4">
+    <h2 class="section-heading mb-3"><i class="bi bi-shield-lock me-2"></i>Change role</h2>
+    {% if can_change_role %}
+    <form method="post" action="{% url 'tupas:set_user_role' target_user.id %}" class="d-flex flex-wrap gap-3 align-items-end">
+        {% csrf_token %}
+        <div>
+            <label class="form-label small" for="id_role_quick">Role</label>
+            <select class="form-select" id="id_role_quick" name="role">
+                <option value="STUDENT" {% if target_role == 'STUDENT' %}selected{% endif %}>STUDENT</option>
+                <option value="ADMIN" {% if target_role == 'ADMIN' %}selected{% endif %}>ADMIN</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-brand">Save role</button>
+    </form>
+    {% else %}
+    <p class="text-muted-soft small mb-0">Superusers keep the ADMIN role.</p>
+    {% endif %}
+</div>
+{% elif target_user.is_superuser %}
+<div class="alert alert-light border small">
+    This is a superuser. Role cannot be changed from the app. You can still edit the email and password above if you are an admin.
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-lime"><i class="bi bi-collection-fill"></i></span>
+            <div><div class="stat-value">{{ decks|length }}</div><div class="stat-label">Decks (latest)</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-green"><i class="bi bi-check2-circle"></i></span>
+            <div><div class="stat-value">{{ mastered }}</div><div class="stat-label">Got It</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-amber"><i class="bi bi-arrow-repeat"></i></span>
+            <div><div class="stat-value">{{ needs_review }}</div><div class="stat-label">Study again</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-blue"><i class="bi bi-journal-text"></i></span>
+            <div><div class="stat-value">{{ documents|length }}</div><div class="stat-label">Recent handouts</div></div>
+        </div>
+    </div>
+</div>
+
+{% if decks %}
+<div class="surface-card p-4 mb-4">
+    <h2 class="section-heading mb-3">Decks</h2>
+    <div class="d-grid gap-2">
+        {% for deck in decks %}
+        <a class="btn btn-soft w-100 text-start" href="{% url 'tupas:deck_detail' deck.id %}">
+            <i class="bi bi-journal-bookmark me-2"></i>{{ deck.title }}
+            <span class="text-muted-soft small ms-1">· {{ deck.subject.subject_name }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if exams %}
+<div class="surface-card p-4 mb-4">
+    <h2 class="section-heading mb-3">Recent exams</h2>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead><tr><th>Deck</th><th>Mode</th><th>Score</th><th>%</th><th>Date</th></tr></thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.deck.title|truncatechars:28 }}</td>
+                    <td><span class="badge badge-soft">{{ exam.get_exam_mode_display }}</span></td>
+                    <td>{{ exam.score }} / {{ exam.total_items }}</td>
+                    <td>{{ exam.percentage|floatformat:1 }}%</td>
+                    <td class="small text-muted-soft">{{ exam.date_taken|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<a href="{% url 'tupas:user_list' %}" class="btn btn-soft">Back to all users</a>
+{% endblock %}

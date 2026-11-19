@@ -1,0 +1,50 @@
+/* ==========================================================================
+   ENUMERATION DRILL MODE CSS
+   Responsive for iOS & Android
+   ========================================================================== */
+
+.enum-prompt {
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.answer-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(168, 238, 0, 0.28);
+    border: 1.5px solid var(--tupas-navy);
+    color: var(--tupas-navy);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    margin: 0 0.35rem 0.35rem 0;
+}
+
+.enum-slot .form-control {
+    font-size: 16px; /* Prevents auto-zoom on iOS */
+}
+
+.enum-slot .form-control.is-correct {
+    border-color: #34d399;
+    background-color: #f0fdf4;
+}
+
+.enum-slot .form-control.is-wrong {
+    border-color: #f87171;
+    background-color: #fef2f2;
+}
+
+.answer-reveal {
+    background: rgba(138, 155, 248, 0.14);
+    border: 2px dashed rgba(8, 14, 44, 0.18);
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+}
+
+@media (max-width: 767.98px) {
+    .enum-prompt {
+        font-size: 0.98rem;
+    }
+}

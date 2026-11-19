@@ -1,0 +1,97 @@
+/* ==========================================================================
+   PLOPP AUTH COMMON - Shared Variables, Animations & Mobile Reset
+   Compatible with all iOS and Android versions
+   ========================================================================== */
+
+:root {
+  --plopp-lime: #AADD00;
+  --plopp-lime-dark: #8BBE00;
+  --plopp-lime-light: #C8F000;
+  --plopp-navy: #1A1A4E;
+  --plopp-navy-mid: #2D2D7A;
+  --plopp-cream: #F5F3E8;
+  --plopp-cream-dark: #EAE7D4;
+  --plopp-white: #FFFFFF;
+  --plopp-muted: rgba(26, 26, 78, 0.55);
+  --plopp-radius: 2rem;
+  --plopp-radius-sm: 1rem;
+  --plopp-shadow: 0 24px 60px rgba(26, 26, 78, 0.18);
+  --plopp-shadow-sm: 0 8px 24px rgba(26, 26, 78, 0.10);
+}
+
+/* Reset for standalone auth screens */
+html.plopp-html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.plopp-auth-body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--plopp-navy);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Auth Mascot Keyframe Animations */
+@keyframes plopp-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes plopp-blink {
+  0%, 90%, 100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.08);
+  }
+}
+
+.plopp-mascot-eyes {
+  animation: plopp-blink 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Shared Alert Banner */
+.plopp-alert {
+  background: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #991b1b;
+  border-radius: 0.85rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 1.1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+/* Accessibility focus rings */
+.plopp-btn-primary:focus-visible,
+.plopp-btn-outline:focus-visible,
+.plopp-btn-cta:focus-visible {
+  outline: 3px solid var(--plopp-lime);
+  outline-offset: 3px;
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) {
+  .plopp-btn-primary:active,
+  .plopp-btn-outline:active,
+  .plopp-btn-cta:active {
+    transform: scale(0.97);
+  }
+}

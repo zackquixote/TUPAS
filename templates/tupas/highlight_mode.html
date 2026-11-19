@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static tupas_extras %}
+
+{% block title %}Smart Highlighter · {{ deck.title }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/highlight-mode.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:deck_detail' deck.id %}">{{ deck.title|truncatechars:34 }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Smart Highlighter</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+        <span class="eyebrow">🖍️ Smart Highlighter Mode</span>
+        <h1 class="h2 fw-bold mt-1 mb-1">{{ deck.title }}</h1>
+        <p class="text-muted-soft mb-0">
+            Read the note, then switch to blanks mode and tap each hidden keyword to test your recall.
+        </p>
+    </div>
+    <a href="{% url 'tupas:deck_detail' deck.id %}" class="btn btn-soft align-self-start">
+        <i class="bi bi-arrow-left me-1"></i> Deck overview
+    </a>
+</div>
+
+{% include 'tupas/partials/study_filter_bar.html' %}
+
+{% if items %}
+<div class="surface-card p-3 p-md-4 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-brand" id="toggle-blanks" data-mode="show">
+                <i class="bi bi-eye-slash me-1"></i> Hide keywords
+            </button>
+            <button type="button" class="btn btn-soft" id="reveal-all">
+                <i class="bi bi-lightbulb me-1"></i> Reveal all
+            </button>
+            <button type="button" class="btn btn-soft" id="reset-highlights">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge badge-mastered">Got It: {{ mastered }}</span>
+            <span class="badge badge-review">Study again: {{ needs_review }}</span>
+            <span class="badge badge-soft">{{ items|length }} note{{ items|length|pluralize }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for item in items %}
+    <div class="col-12">
+        <div class="surface-card p-4 p-lg-5">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <span class="badge badge-soft">Note {{ forloop.counter }} of {{ items|length }}</span>
+                <span class="status-wrap">
+                    {% if item.student_status == 'MASTERED' %}
+                    <span class="badge badge-mastered" data-item-status="{{ item.id }}">Got It</span>
+                    {% elif item.student_status == 'NEEDS_REVIEW' %}
+                    <span class="badge badge-review" data-item-status="{{ item.id }}">Study Again</span>
+                    {% else %}
+                    <span class="badge badge-soft d-none" data-item-status="{{ item.id }}"></span>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="highlight-note" data-note>
+                {{ item.prompt_text|highlight_prompt }}
+            </div>
+
+            {% if item.explanation %}
+            <div class="answer-reveal mt-4">
+                <div class="small fw-semibold mb-1"><i class="bi bi-lightbulb text-warning me-1"></i>Why it matters
+                </div>
+                <div class="small text-muted-soft">{{ item.explanation|linebreaksbr }}</div>
+            </div>
+            {% endif %}
+
+            <div class="progress-actions d-flex flex-wrap align-items-center gap-2 mt-4" data-item-id="{{ item.id }}">
+                <button type="button" class="btn btn-mastered"
+                    data-progress-url="{% url 'tupas:mark_progress' item.id %}" data-item-status="MASTERED">
+                    <i class="bi bi-check2 me-1"></i> Got It
+                </button>
+                <button type="button" class="btn btn-review" data-progress-url="{% url 'tupas:mark_progress' item.id %}"
+                    data-item-status="NEEDS_REVIEW">
+                    <i class="bi bi-arrow-repeat me-1"></i> Study Again
+                </button>
+                <span class="small text-muted-soft ms-md-2">Self-check after revealing the blanks.</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+{% if total_items %}
+<div class="empty-state">
+    <span class="empty-icon"><i class="bi bi-funnel"></i></span>
+    <h2 class="h5 fw-bold">Nothing matches this filter</h2>
+    <p class="text-muted-soft mb-3">
+        This deck has {{ total_items }} highlight note{{ total_items|pluralize }}, but none are in this view.
+    </p>
+    <a href="{% url 'tupas:highlight_mode' deck.id %}" class="btn btn-brand">
+        <i class="bi bi-collection me-1"></i> Show all notes
+    </a>
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="empty-icon"><i class="bi bi-highlighter"></i></span>
+    <h2 class="h5 fw-bold">No highlight notes in this deck</h2>
+    <p class="text-muted-soft mb-3">
+        Add <strong>Highlight Note</strong> items in the admin, or let AI generate notes with
+        <code>[[bracketed keywords]]</code>.
+    </p>
+    <a href="{% url 'tupas:ai_generator' %}?deck={{ deck.id }}" class="btn btn-brand">
+        <i class="bi bi-stars me-1"></i> Generate with AI
+    </a>
+</div>
+{% endif %}
+{% endif %}
+
+{% include 'tupas/partials/study_session_summary.html' %}
+{% endblock %}
+
+{% block extra_js %}
+{% if items %}
+<script>
+    (function () {
+        const notes = Array.from(document.querySelectorAll('[data-note]'));
+        const toggle = document.getElementById('toggle-blanks');
+        const revealAll = document.getElementById('reveal-all');
+        const reset = document.getElementById('reset-highlights');
+        if (!notes.length || !toggle) return;
+
+        let blanksMode = false;
+
+        function setBlanksMode(enabled) {
+            blanksMode = enabled;
+            notes.forEach((note) => {
+                note.classList.toggle('blanks', enabled);
+                if (!enabled) {
+                    note.querySelectorAll('.tupas-highlight.revealed').forEach((mark) => {
+                        mark.classList.remove('revealed');
+                    });
+                }
+            });
+
+            if (enabled) {
+                toggle.innerHTML = '<i class="bi bi-eye me-1"></i> Show keywords';
+                toggle.dataset.mode = 'hide';
+            } else {
+                toggle.innerHTML = '<i class="bi bi-eye-slash me-1"></i> Hide keywords';
+                toggle.dataset.mode = 'show';
+            }
+        }
+
+        function toggleMark(mark) {
+            if (!blanksMode || !mark) return;
+            mark.classList.toggle('revealed');
+        }
+
+        notes.forEach((note) => {
+            note.addEventListener('click', (event) => {
+                toggleMark(event.target.closest('.tupas-highlight'));
+            });
+            note.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    const mark = event.target.closest('.tupas-highlight');
+                    if (mark) {
+                        event.preventDefault();
+                        toggleMark(mark);
+                    }
+                }
+            });
+        });
+
+        toggle.addEventListener('click', () => setBlanksMode(!blanksMode));
+
+        if (revealAll) {
+            revealAll.addEventListener('click', () => {
+                setBlanksMode(true);
+                notes.forEach((note) => {
+                    note.querySelectorAll('.tupas-highlight').forEach((mark) => {
+                        mark.classList.add('revealed');
+                    });
+                });
+            });
+        }
+
+        if (reset) {
+            reset.addEventListener('click', () => setBlanksMode(false));
+        }
+    })();
+</script>
+{% endif %}
+{% endblock %}

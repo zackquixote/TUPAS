@@ -1,0 +1,327 @@
+/* ==========================================================================
+   TUPAS LOGIN SCREEN CSS (Exact Match to Reference Design)
+   Responsive for iOS, Android & Desktop
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+:root {
+  --tupas-lime: #a8ee00;
+  --tupas-lime-input: #96d700;
+  --tupas-lime-input-focus: #8cca00;
+  --tupas-lime-btn: #7cb600;
+  --tupas-lime-btn-hover: #6ea300;
+  --tupas-navy: #080e2c;
+  --tupas-cream: #faf7ee;
+  --tupas-fb: #4c76f0;
+  --tupas-google: #f65a5a;
+}
+
+.plopp-auth-page {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  /* Soft blurred purple/cream background on desktop, pure lime on mobile */
+  background: radial-gradient(circle at 65% 20%, #8a9bf8 0%, #464d70 48%, #f5f2e8 100%);
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+/* Main Lime-Green Phone Card (Matches the right screen in your image) */
+.plopp-auth-card {
+  width: 100%;
+  max-width: 370px;
+  background: var(--tupas-lime);
+  border-radius: 38px;
+  padding: 2rem 1.85rem 2.1rem;
+  margin: 0 auto;
+  box-shadow: 0 28px 65px rgba(8, 14, 44, 0.32);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Full-screen lime look on mobile phones */
+@media (max-width: 480px) {
+  .plopp-auth-page {
+    background: var(--tupas-lime);
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
+  }
+
+  .plopp-auth-card {
+    max-width: 100%;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    justify-content: center;
+    padding: 1.75rem 1.5rem;
+  }
+}
+
+/* Mascot Header */
+.plopp-auth-mascot {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.plopp-auth-mascot svg {
+  width: clamp(190px, 55vw, 230px);
+  height: auto;
+  display: block;
+  animation: plopp-float 3.5s ease-in-out infinite;
+}
+
+@keyframes plopp-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.plopp-auth-heading {
+  font-size: clamp(1.65rem, 5vw, 1.95rem);
+  font-weight: 800;
+  color: var(--tupas-navy);
+  letter-spacing: -0.03em;
+  margin-top: 0.75rem;
+  margin-bottom: 1.35rem;
+  text-align: center;
+  line-height: 1.15;
+}
+
+/* Form Wrapper */
+.tupas-auth-form {
+  width: 100%;
+}
+
+/* Alert Box */
+.plopp-alert {
+  width: 100%;
+  background: rgba(239, 68, 68, 0.16);
+  border: 2px solid #dc2626;
+  color: var(--tupas-navy);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Input Fields (Seamless Darker Lime Boxes) */
+.plopp-field-group {
+  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+/* Visually hidden labels for accessibility while keeping the clean image look */
+.plopp-field-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.plopp-input {
+  display: block;
+  width: 100%;
+  padding: 0.95rem 1.15rem;
+  background: var(--tupas-lime-input);
+  border: 2px solid transparent;
+  border-radius: 15px;
+  /* 16px prevents iOS Safari auto-zoom */
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--tupas-navy);
+  outline: none;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.plopp-input::placeholder {
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 500;
+}
+
+.plopp-input:focus {
+  background: var(--tupas-lime-input-focus);
+  border-color: rgba(8, 14, 44, 0.35);
+}
+
+.plopp-input.is-error {
+  border-color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.plopp-field-error {
+  font-size: 0.78rem;
+  color: #b91c1c;
+  font-weight: 700;
+  margin-top: 0.3rem;
+  padding-left: 0.25rem;
+  display: block;
+}
+
+/* Password Eye Toggle */
+.plopp-pw-wrap {
+  position: relative;
+}
+
+.plopp-pw-toggle {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.35rem;
+  color: rgba(8, 14, 44, 0.55);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1.15rem;
+  transition: color 0.15s ease;
+}
+
+.plopp-pw-toggle:hover {
+  color: var(--tupas-navy);
+}
+
+/* Facebook & Google Social Buttons Row */
+.tupas-social-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+
+.tupas-btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.78rem 0.75rem;
+  border-radius: 14px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.tupas-btn-social:active {
+  transform: scale(0.97);
+}
+
+.tupas-btn-fb {
+  background: var(--tupas-fb);
+}
+
+.tupas-btn-google {
+  background: var(--tupas-google);
+}
+
+.tupas-social-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+
+.tupas-btn-fb .tupas-social-icon {
+  color: var(--tupas-fb);
+}
+
+.tupas-btn-google .tupas-social-icon {
+  color: var(--tupas-google);
+}
+
+/* Primary CTA Button ("Let's TUPAS!") */
+.plopp-btn-cta {
+  display: block;
+  width: 100%;
+  padding: 0.98rem 1.5rem;
+  background: var(--tupas-lime-btn);
+  color: #ffffff !important;
+  font-family: inherit;
+  font-size: 1.02rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  margin-top: 0.75rem;
+  box-shadow: 0 8px 20px rgba(8, 14, 44, 0.12);
+  transition: transform 0.15s ease, background 0.18s ease;
+}
+
+.plopp-btn-cta:hover,
+.plopp-btn-cta:focus {
+  background: var(--tupas-lime-btn-hover);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.plopp-btn-cta:active {
+  transform: scale(0.98);
+}
+
+/* Bottom Switch Link */
+.plopp-switch-link {
+  text-align: center;
+  font-size: 0.82rem;
+  color: rgba(8, 14, 44, 0.48);
+  font-weight: 600;
+  margin-top: 1.15rem;
+  margin-bottom: 0;
+}
+
+.plopp-switch-link a {
+  color: rgba(8, 14, 44, 0.78);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.plopp-switch-link a:hover {
+  text-decoration: underline;
+}

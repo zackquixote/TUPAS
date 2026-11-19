@@ -1,0 +1,319 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="TUPAS Reviewer — flip cards, smart highlights, enumeration drills, and exams.">
+    <meta name="theme-color" content="#a8ee00">
+    <meta name="application-name" content="TUPAS">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TUPAS">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="icon" href="{% static 'icons/icon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
+    <script>
+        /* Apply the saved theme before paint so dark mode never flashes. */
+        (function () {
+            try {
+                var stored = localStorage.getItem('tupas-theme');
+                var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (error) {
+                /* Storage unavailable: render the default light theme. */
+            }
+        })();
+    </script>
+    <title>{% block title %}TUPAS Reviewer{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=ui8" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- ================= MOBILE TOP BAR (hamburger + brand + avatar) ================= -->
+    <header class="tupas-mobile-topbar d-lg-none">
+        <button class="tupas-burger" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#tupasSidebar" aria-controls="tupasSidebar"
+                aria-label="Open navigation">
+            <i class="bi bi-list"></i>
+        </button>
+        <a class="tupas-mobile-brand" href="{% url 'tupas:dashboard' %}">
+            <img src="{% static 'icons/tupas-mascot.png' %}" alt="" class="brand-mascot" width="30" height="30">
+            <span>TUPAS<span class="brand-accent">Reviewer</span></span>
+        </a>
+        {% if user.is_authenticated %}
+            <a class="tupas-topbar-avatar" href="{% url 'tupas:profile' %}" aria-label="Open profile">
+                <span class="avatar-chip">
+                    {% if user.profile and user.profile.full_name %}{{ user.profile.full_name|first|upper }}{% else %}{{ user.username|first|upper }}{% endif %}
+                </span>
+            </a>
+        {% else %}
+            <a class="btn btn-brand btn-sm px-3" href="{% url 'tupas:login' %}">Log in</a>
+        {% endif %}
+    </header>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="tupas-sidebar offcanvas-lg offcanvas-start" tabindex="-1"
+           id="tupasSidebar" aria-label="Main navigation">
+        <div class="offcanvas-header d-lg-none">
+            <span class="sidebar-brand-mini">
+                <img src="{% static 'icons/tupas-mascot.png' %}" alt="" width="28" height="28">
+                <strong>TUPAS</strong>
+            </span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                    data-bs-target="#tupasSidebar" aria-label="Close"></button>
+        </div>
+
+        <div class="tupas-sidebar-inner">
+            <a class="tupas-sidebar-brand d-none d-lg-flex" href="{% url 'tupas:dashboard' %}">
+                <img src="{% static 'icons/tupas-mascot.png' %}" alt="TUPAS mascot"
+                     class="brand-mascot" width="38" height="38">
+                <span class="tupas-sidebar-title">
+                    TUPAS<span class="brand-accent">Reviewer</span>
+                </span>
+            </a>
+
+            <nav class="tupas-sidebar-nav" aria-label="Primary">
+                {% if user.is_authenticated %}
+                    {% if tupas_role == 'ADMIN' %}
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                       href="{% url 'tupas:dashboard' %}">
+                        <i class="bi bi-grid-1x2-fill"></i> <span>Admin dashboard</span>
+                    </a>
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'user_list' or request.resolver_match.url_name == 'user_detail' %}active{% endif %}"
+                       href="{% url 'tupas:user_list' %}">
+                        <i class="bi bi-people-fill"></i> <span>Accounts</span>
+                    </a>
+                    <a class="tupas-nav-item" href="/admin/">
+                        <i class="bi bi-gear-fill"></i> <span>Django admin</span>
+                    </a>
+                    {% else %}
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                       href="{% url 'tupas:dashboard' %}">
+                        <i class="bi bi-grid-1x2-fill"></i> <span>Dashboard</span>
+                    </a>
+                    {% if tupas_role != 'ADMIN' %}
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'ai_generator' %}active{% endif %}"
+                       href="{% url 'tupas:ai_generator' %}">
+                        <i class="bi bi-stars"></i> <span>AI Generator</span>
+                    </a>
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'study_buddy' or request.resolver_match.url_name == 'study_buddy_detail' %}active{% endif %}"
+                       href="{% url 'tupas:study_buddy' %}">
+                        <i class="bi bi-chat-square-text-fill"></i> <span>Study Buddy</span>
+                    </a>
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'leaderboard' %}active{% endif %}"
+                       href="{% url 'tupas:leaderboard' %}">
+                        <i class="bi bi-trophy-fill"></i> <span>Leaderboard</span>
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+                       href="{% url 'tupas:profile' %}">
+                        <i class="bi bi-person-badge-fill"></i> <span>My Profile & Settings</span>
+                    </a>
+                {% else %}
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}"
+                       href="{% url 'tupas:login' %}">
+                        <i class="bi bi-box-arrow-in-right"></i> <span>Log in</span>
+                    </a>
+                    <a class="tupas-nav-item {% if request.resolver_match.url_name == 'register' %}active{% endif %}"
+                       href="{% url 'tupas:register' %}">
+                        <i class="bi bi-person-plus-fill"></i> <span>Create account</span>
+                    </a>
+                {% endif %}
+            </nav>
+
+            <div class="tupas-sidebar-spacer"></div>
+
+            {% if user.is_authenticated %}
+                <!-- Profile button -->
+                <a class="tupas-profile-btn {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+                   href="{% url 'tupas:profile' %}" aria-label="Open profile">
+                    <span class="avatar-chip avatar-chip-lg">
+                        {% if user.profile and user.profile.full_name %}{{ user.profile.full_name|first|upper }}{% else %}{{ user.username|first|upper }}{% endif %}
+                    </span>
+                    <span class="tupas-profile-copy">
+                        <span class="tupas-profile-name">
+                            {% if user.profile %}{{ user.profile.full_name }}{% else %}{{ user.username }}{% endif %}
+                        </span>
+                        <span class="tupas-profile-sub">
+                            {% if user.profile %}{{ user.profile.course_or_strand|truncatechars:28 }}{% else %}View profile{% endif %}
+                        </span>
+                    </span>
+                    <i class="bi bi-chevron-right tupas-profile-chevron"></i>
+                </a>
+
+                <div class="tupas-sidebar-actions">
+                    <button type="button" class="tupas-nav-item tupas-nav-btn" id="tupas-theme-toggle"
+                            data-theme-toggle aria-pressed="false">
+                        <i class="bi bi-moon-stars-fill" data-theme-icon></i>
+                        <span data-theme-label>Dark mode</span>
+                    </button>
+                    <div id="tupas-install-item" class="d-none">
+                        <button type="button" class="tupas-nav-item tupas-nav-btn w-100" id="tupas-install-btn"
+                                data-install-btn>
+                            <i class="bi bi-phone-fill"></i> <span>Install App</span>
+                        </button>
+                    </div>
+                    <form method="post" action="{% url 'tupas:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="tupas-nav-item tupas-nav-logout">
+                            <i class="bi bi-box-arrow-right"></i> <span>Log out</span>
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="tupas-sidebar-actions">
+                    <a class="tupas-nav-item" href="{% url 'tupas:register' %}">
+                        <i class="bi bi-person-plus-fill"></i> <span>Create account</span>
+                    </a>
+                    <div id="tupas-install-item" class="d-none">
+                        <button type="button" class="tupas-nav-item tupas-nav-btn w-100" id="tupas-install-btn"
+                                data-install-btn>
+                            <i class="bi bi-phone-fill"></i> <span>Install App</span>
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- ================= MAIN SHELL ================= -->
+    <div class="tupas-shell">
+        <main class="tupas-main py-4 py-lg-5">
+            <div class="container">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show mb-4" role="alert">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'error' or message.tags == 'danger' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %}"></i>
+                                <div>{{ message }}</div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+
+        <footer class="tupas-footer py-4 mt-auto">
+            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="footer-dot"></span>
+                    <span class="text-muted small">© {% now "Y" %} <strong>TUPAS Reviewer</strong> · Study smarter, one card at a time.</span>
+                </div>
+                <span class="text-muted small">Flip Cards · Smart Highlights · Enumeration · Exams</span>
+            </div>
+        </footer>
+    </div>
+
+    <div id="tupas-toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- ================= MOBILE BOTTOM TAB BAR ================= -->
+    {% if user.is_authenticated %}
+    <nav class="tupas-bottom-nav d-lg-none" aria-label="Mobile navigation">
+        {% if tupas_role == 'ADMIN' %}
+        <a class="tupas-bottom-tab" href="{% url 'tupas:dashboard' %}">
+            <i class="bi bi-grid-1x2-fill"></i><span>Admin</span>
+        </a>
+        <a class="tupas-bottom-tab" href="{% url 'tupas:user_list' %}">
+            <i class="bi bi-people-fill"></i><span>Accounts</span>
+        </a>
+        <a class="tupas-bottom-tab" href="/admin/">
+            <i class="bi bi-gear-fill"></i><span>Admin</span>
+        </a>
+        <a class="tupas-bottom-tab" href="{% url 'tupas:profile' %}">
+            <i class="bi bi-person-fill"></i><span>Profile</span>
+        </a>
+        {% else %}
+        <a class="tupas-bottom-tab" href="{% url 'tupas:dashboard' %}">
+            <i class="bi bi-grid-1x2-fill"></i><span>Home</span>
+        </a>
+        <a class="tupas-bottom-tab" href="{% url 'tupas:ai_generator' %}">
+            <i class="bi bi-stars"></i><span>AI Gen</span>
+        </a>
+        <a class="tupas-bottom-tab" href="{% url 'tupas:study_buddy' %}">
+            <i class="bi bi-chat-square-text-fill"></i><span>Buddy</span>
+        </a>
+        <a class="tupas-bottom-tab" href="{% url 'tupas:leaderboard' %}">
+            <i class="bi bi-trophy-fill"></i><span>Ranks</span>
+        </a>
+        <a class="tupas-bottom-tab" href="{% url 'tupas:profile' %}">
+            <i class="bi bi-person-fill"></i><span>Profile</span>
+        </a>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    <!-- ================= POMODORO FOCUS TIMER ================= -->
+    <div class="tupas-pomodoro" id="tupas-pomodoro" hidden>
+        <div class="tupas-pomodoro-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong class="small">🍅 Focus timer</strong>
+                <button type="button" class="btn-close btn-close-sm" id="pomodoro-close" aria-label="Close timer"></button>
+            </div>
+            <div class="tupas-pomodoro-time" id="pomodoro-time">25:00</div>
+            <div class="d-flex gap-2 mt-2">
+                <button type="button" class="btn btn-sm btn-brand flex-fill" id="pomodoro-toggle">Start</button>
+                <button type="button" class="btn btn-sm btn-soft flex-fill" id="pomodoro-mode" data-mode="focus">Break</button>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="tupas-pomodoro-fab d-lg-none" id="pomodoro-fab"
+            aria-label="Open focus timer">
+        🍅
+    </button>
+
+    <!-- ================= iOS PWA INSTALL MODAL ================= -->
+    <div class="modal fade" id="tupas-install-hint" tabindex="-1"
+         aria-labelledby="tupas-install-hint-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content tupas-install-modal">
+                <div class="modal-header border-0 pb-0">
+                    <h2 class="modal-title h5 fw-extrabold text-navy" id="tupas-install-hint-title">
+                        📲 Install TUPAS on iPhone
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted-soft small mb-3">
+                        Safari installs web apps from the Share menu. It only takes a few taps.
+                    </p>
+                    <ol class="install-steps mb-0">
+                        <li>Tap the <strong>Share</strong> button <i class="bi bi-box-arrow-up"></i> in Safari's toolbar.</li>
+                        <li>Scroll down and choose <strong>Add to Home Screen</strong>.</li>
+                        <li>Tap <strong>Add</strong> — TUPAS will open full-screen like a native app.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        /* Auto-clear stale Service Worker CSS cache from previous theme versions */
+        (function () {
+            const THEME_VERSION = 'tupas-sidebar-v1';
+            if (localStorage.getItem('tupas_theme_ver') !== THEME_VERSION && 'caches' in window) {
+                caches.keys().then(function (names) {
+                    return Promise.all(names.map(function (name) { return caches.delete(name); }));
+                }).then(function () {
+                    localStorage.setItem('tupas_theme_ver', THEME_VERSION);
+                });
+            }
+        })();
+    </script>
+    <script src="{% static 'js/tupas.js' %}?v=ui3"></script>
+    <script src="{% static 'js/accessibility.js' %}?v=ui3"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

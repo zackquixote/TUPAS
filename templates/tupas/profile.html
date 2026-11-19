@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile · TUPAS Reviewer{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+{# style.css is already loaded by base.html — do not load a second, stale copy #}
+{% endblock %}
+
+{% block content %}
+<section class="hero-panel mb-4">
+    <div class="hero-deco-cream" aria-hidden="true"></div>
+    <div class="hero-deco-blue" aria-hidden="true"></div>
+
+    <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+        <div class="col-lg-8">
+            <span class="eyebrow">👤 My Profile</span>
+            <h1 class="hero-title mt-2 mb-2">{{ display_name }}</h1>
+            <p class="hero-subtitle mb-3">
+                @{{ user.username }}{% if user.email %} · {{ user.email }}{% endif %}
+                {% if tupas_role == 'ADMIN' %} · <span class="badge badge-recommended">ADMIN</span>{% endif %}
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                {% if profile %}
+                    <span class="hero-chip"><i class="bi bi-building"></i> {{ profile.school_name|default:"School not set" }}</span>
+                    <span class="hero-chip"><i class="bi bi-mortarboard"></i> {{ profile.course_or_strand|default:"Course / strand" }}</span>
+                    <span class="hero-chip"><i class="bi bi-calendar3"></i> {{ profile.year_level|default:"Year / grade" }}</span>
+                    <span class="hero-chip"><i class="bi bi-geo-alt"></i> {{ profile.city_municipality|default:"—"}}, {{ profile.province|default:"—" }}</span>
+                {% else %}
+                    <span class="hero-chip"><i class="bi bi-shield-check"></i> Administrator account</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-4 text-center">
+            <div class="profile-avatar-wrap">
+                <span class="profile-avatar">{{ initial }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-lime"><i class="bi bi-collection-fill"></i></span>
+            <div>
+                <div class="stat-value">{{ deck_count }}</div>
+                <div class="stat-label">Decks</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-green"><i class="bi bi-check2-circle"></i></span>
+            <div>
+                <div class="stat-value">{{ mastered_count }}</div>
+                <div class="stat-label">Got It</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-amber"><i class="bi bi-arrow-repeat"></i></span>
+            <div>
+                <div class="stat-value">{{ review_count }}</div>
+                <div class="stat-label">Study again</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-blue"><i class="bi bi-pencil-square"></i></span>
+            <div>
+                <div class="stat-value">{{ exams_taken }}</div>
+                <div class="stat-label">Exams taken</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- ================= EDIT PROFILE ================= -->
+    <div class="col-lg-7">
+        <div class="surface-card p-4 p-lg-5 h-100">
+            <h2 class="section-heading mb-3">
+                <i class="bi bi-person-vcard me-2 text-periwinkle"></i>Edit Student Profile
+            </h2>
+            <p class="text-muted-soft small">
+                Keep your school, course, and location up to date so TUPAS can recommend
+                the right decks. Your username stays the same.
+            </p>
+
+            {% if profile_form.non_field_errors %}
+            <div class="alert alert-danger py-2 small" role="alert">
+                {% for error in profile_form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'tupas:profile' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_profile">
+
+                <h3 class="h6 fw-bold text-navy mt-3 mb-3">
+                    <i class="bi bi-person me-2"></i>Personal Info
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.full_name.id_for_label }}">
+                            Full name<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.full_name }}
+                        {% for error in profile_form.full_name.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.email.id_for_label }}">
+                            Email<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.email }}
+                        {% for error in profile_form.email.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.birthdate.id_for_label }}">
+                            Birthdate
+                        </label>
+                        {{ profile_form.birthdate }}
+                        {% for error in profile_form.birthdate.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <h3 class="h6 fw-bold text-navy mt-4 mb-3">
+                    <i class="bi bi-mortarboard me-2"></i>Academic Info
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.school_name.id_for_label }}">
+                            School / University<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.school_name }}
+                        {% for error in profile_form.school_name.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.student_level.id_for_label }}">
+                            Student level<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.student_level }}
+                        {% for error in profile_form.student_level.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.course_or_strand.id_for_label }}">
+                            Course / Strand<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.course_or_strand }}
+                        {% for error in profile_form.course_or_strand.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.year_level.id_for_label }}">
+                            Year / Grade<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.year_level }}
+                        {% for error in profile_form.year_level.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <h3 class="h6 fw-bold text-navy mt-4 mb-3">
+                    <i class="bi bi-geo-alt me-2"></i>Home Address
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small" for="{{ profile_form.region.id_for_label }}">
+                            Region<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.region }}
+                        {% for error in profile_form.region.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small" for="{{ profile_form.province.id_for_label }}">
+                            Province<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.province }}
+                        {% for error in profile_form.province.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small" for="{{ profile_form.city_municipality.id_for_label }}">
+                            City / Municipality<span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ profile_form.city_municipality }}
+                        {% for error in profile_form.city_municipality.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <h3 class="h6 fw-bold text-navy mt-4 mb-3">
+                    <i class="bi bi-target me-2"></i>Target exam & gamification
+                </h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.target_exam_name.id_for_label }}">
+                            Target exam name
+                        </label>
+                        {{ profile_form.target_exam_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.target_exam_date.id_for_label }}">
+                            Target exam date
+                        </label>
+                        {{ profile_form.target_exam_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.daily_goal.id_for_label }}">
+                            Daily goal (items)
+                        </label>
+                        {{ profile_form.daily_goal }}
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check form-switch">
+                            {{ profile_form.show_on_leaderboard }}
+                            <label class="form-check-label small" for="{{ profile_form.show_on_leaderboard.id_for_label }}">
+                                Show me on the leaderboard
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-brand mt-4">
+                    <i class="bi bi-check2 me-1"></i> Save Profile Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= SNAPSHOT / DECKS / PASSWORD ================= -->
+    <div class="col-lg-5">
+        <div class="surface-card p-4 p-lg-5 mb-4">
+            <h2 class="section-heading mb-3">
+                <i class="bi bi-graph-up-arrow me-2 text-periwinkle"></i>Personal Study Snapshot
+            </h2>
+            <div class="row g-3 text-center">
+                <div class="col-6">
+                    <div class="profile-detail">
+                        <span class="profile-detail-label">Got It</span>
+                        <span class="stat-value">{{ mastered_count }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="profile-detail">
+                        <span class="profile-detail-label">Study Again</span>
+                        <span class="stat-value">{{ review_count }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="profile-detail">
+                        <span class="profile-detail-label">Exams Taken</span>
+                        <span class="stat-value">{{ exams_taken }}</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="profile-detail">
+                        <span class="profile-detail-label">Average Score</span>
+                        <span class="stat-value">
+                            {% if avg_exam_score %}{{ avg_exam_score|floatformat:1 }}%{% else %}—{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3 mt-4">
+                <div class="text-center">
+                    <div class="stat-value">{{ current_streak }}</div>
+                    <div class="stat-label">Current streak</div>
+                </div>
+                <i class="bi bi-arrow-right text-muted-soft"></i>
+                <div class="text-center">
+                    <div class="stat-value">{{ longest_streak }}</div>
+                    <div class="stat-label">Longest</div>
+                </div>
+                <div class="ms-auto">
+                    {% if studied_today %}
+                        <span class="badge badge-mastered"><i class="bi bi-check2 me-1"></i>Studied today</span>
+                    {% else %}
+                        <span class="badge badge-review">Not yet today</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card p-4 p-lg-5 mb-4">
+            <h2 class="section-heading mb-3">
+                <i class="bi bi-lightning-charge me-2 text-periwinkle"></i>XP, Level & Badges
+            </h2>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="xp-chip">Lv {{ level }}</span>
+                <span class="xp-chip">{{ xp_points }} XP</span>
+                <span class="xp-chip">{{ xp_into_level }}/100 to next</span>
+            </div>
+            {% if badges %}
+            <div class="d-flex flex-wrap gap-2">
+                {% for badge in badges %}
+                <span class="badge-chip">🏅 {{ badge }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted-soft small mb-0">Study a few cards to unlock your first badge.</p>
+            {% endif %}
+            <div class="form-check form-switch mt-3">
+                <input class="form-check-input" type="checkbox" id="study-reminder-toggle">
+                <label class="form-check-label small" for="study-reminder-toggle">
+                    Daily study reminder (browser notification)
+                </label>
+            </div>
+        </div>
+
+        <div class="surface-card p-4 p-lg-5 mb-4">
+            <h2 class="section-heading mb-3">
+                <i class="bi bi-collection me-2 text-periwinkle"></i>My Created Decks
+            </h2>
+            {% if my_decks %}
+            <div class="d-grid gap-2">
+                {% for deck in my_decks %}
+                <a class="btn btn-soft w-100 text-start" href="{% url 'tupas:deck_detail' deck.id %}">
+                    <i class="bi bi-journal-bookmark me-2"></i>{{ deck.title }}
+                    <span class="text-muted-soft small ms-1">· {{ deck.subject.subject_name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted-soft small mb-0">
+                No decks yet. Create one from the <a href="{% url 'tupas:ai_generator' %}">AI Generator</a>
+                or the <a href="{% url 'tupas:study_buddy' %}">Study Buddy</a>.
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="surface-card p-4 p-lg-5 mb-4">
+            <h2 class="section-heading mb-3">
+                <i class="bi bi-journal-text me-2 text-periwinkle"></i>Recent Handouts
+            </h2>
+            {% if my_documents %}
+            <div class="d-grid gap-2">
+                {% for document in my_documents %}
+                <a class="btn btn-soft w-100 text-start" href="{% url 'tupas:study_buddy_detail' document.id %}">
+                    <i class="bi bi-chat-square-text me-2"></i>{{ document.title|truncatechars:32 }}
+                    <span class="text-muted-soft small ms-1">· {{ document.created_at|date:"M d" }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted-soft small mb-0">
+                No Study Buddy handouts yet. Upload one on the
+                <a href="{% url 'tupas:study_buddy' %}">Study Buddy</a> page.
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="surface-card p-4 p-lg-5 mb-4">
+            <h2 class="section-heading mb-3">
+                <i class="bi bi-shield-lock me-2 text-periwinkle"></i>Change Password
+            </h2>
+            <p class="text-muted-soft small">
+                Use at least 8 characters. You will stay logged in after the change.
+            </p>
+
+            {% if password_form.non_field_errors %}
+            <div class="alert alert-danger py-2 small" role="alert">
+                {% for error in password_form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'tupas:profile' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="change_password">
+
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ password_form.old_password.id_for_label }}">
+                        Current password<span class="text-danger ms-1">*</span>
+                    </label>
+                    {{ password_form.old_password }}
+                    {% for error in password_form.old_password.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ password_form.new_password1.id_for_label }}">
+                        New password<span class="text-danger ms-1">*</span>
+                    </label>
+                    {{ password_form.new_password1 }}
+                    {% for error in password_form.new_password1.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small" for="{{ password_form.new_password2.id_for_label }}">
+                        Repeat new password<span class="text-danger ms-1">*</span>
+                    </label>
+                    {{ password_form.new_password2 }}
+                    {% for error in password_form.new_password2.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-brand w-100">
+                    <i class="bi bi-key me-1"></i> Update password
+                </button>
+            </form>
+        </div>
+
+        <div class="surface-card p-4 p-lg-5">
+            <h2 class="section-heading mb-3">
+                <i class="bi bi-shield-check me-2 text-periwinkle"></i>Account actions
+            </h2>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-soft w-100 text-start" id="tupas-theme-toggle"
+                        data-theme-toggle aria-pressed="false">
+                    <i class="bi bi-moon-stars-fill me-2" data-theme-icon></i>
+                    <span data-theme-label>Dark mode</span>
+                </button>
+                {% if tupas_role == 'ADMIN' %}
+                    <a class="btn btn-soft w-100 text-start" href="/admin/">
+                        <i class="bi bi-gear-fill me-2"></i> Django admin
+                    </a>
+                {% endif %}
+                <form method="post" action="{% url 'tupas:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-review w-100 text-start">
+                        <i class="bi bi-box-arrow-right me-2"></i> Log out
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

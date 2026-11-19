@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="TUPAS — Study and Exam Reviewer">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a333e"/>
+      <stop offset="0.55" stop-color="#1d232a"/>
+      <stop offset="1" stop-color="#11151a"/>
+    </linearGradient>
+    <radialGradient id="glowPink" cx="0.8" cy="0.14" r="0.62">
+      <stop offset="0" stop-color="#ff6b9d" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#ff6b9d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowIndigo" cx="0.12" cy="0.92" r="0.62">
+      <stop offset="0" stop-color="#6366f1" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffa1c0"/>
+      <stop offset="1" stop-color="#ff5b92"/>
+    </linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffafc"/>
+      <stop offset="1" stop-color="#ffe6ef"/>
+    </linearGradient>
+    <filter id="bookShadow" x="-25%" y="-25%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect width="512" height="512" fill="url(#glowPink)"/>
+  <rect width="512" height="512" fill="url(#glowIndigo)"/>
+
+  <g transform="translate(256 256) scale(0.82) translate(-256 -256)">
+    <g fill="#ffb3cd">
+      <path d="M118 122 l5 14 14 5 -14 5 -5 14 -5 -14 -14 -5 14 -5 z" opacity="0.9"/>
+      <path d="M400 94 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4 z" opacity="0.65"/>
+      <path d="M424 212 l3.5 9 9 3.5 -9 3.5 -3.5 9 -3.5 -9 -9 -3.5 9 -3.5 z" opacity="0.55"/>
+    </g>
+    <circle cx="106" cy="288" r="5" fill="#818cf8" opacity="0.8"/>
+    <circle cx="410" cy="302" r="4" fill="#ffd166" opacity="0.9"/>
+    <circle cx="388" cy="128" r="3.5" fill="#c7d2fe" opacity="0.8"/>
+
+    <g filter="url(#bookShadow)">
+      <path d="M256 296 C 220 272 176 261 136 268 L 136 140 C 180 133 224 144 256 170 C 288 144 332 133 376 140 L 376 268 C 336 261 292 272 256 296 Z" fill="url(#cover)"/>
+      <path d="M256 284 C 226 262 188 253 152 258 L 152 154 C 190 149 228 158 256 180 C 284 158 322 149 360 154 L 360 258 C 324 253 286 262 256 284 Z" fill="url(#page)"/>
+      <g stroke="#ffb3cd" stroke-width="8" stroke-linecap="round" opacity="0.95">
+        <path d="M172 192 H236"/>
+        <path d="M172 214 H224"/>
+        <path d="M172 236 H232"/>
+      </g>
+      <g stroke="#ffb3cd" stroke-width="8" stroke-linecap="round" opacity="0.95">
+        <path d="M276 192 H340"/>
+        <path d="M288 214 H340"/>
+        <path d="M280 236 H340"/>
+      </g>
+      <path d="M256 180 V 284" stroke="#ff5b92" stroke-width="7" stroke-linecap="round"/>
+      <path d="M244 150 h24 v48 l-12 -10 -12 10 z" fill="#ffd166"/>
+    </g>
+
+    <text x="256" y="404" text-anchor="middle" font-family="'Arial Black','Segoe UI',Arial,sans-serif" font-size="92" font-weight="900" letter-spacing="4" fill="#ffffff" textLength="328" lengthAdjust="spacingAndGlyphs">TUPAS</text>
+    <rect x="196" y="426" width="120" height="10" rx="5" fill="#ff6b9d"/>
+    <text x="256" y="468" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="6" fill="#a9b2bf">STUDY · REVIEW</text>
+  </g>
+</svg>

@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% load static tupas_extras %}
+
+{% block title %}{% if show_results %}Exam Results{% else %}Exam Simulator{% endif %} · {{ deck.title }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/exam-mode.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:deck_detail' deck.id %}">{{ deck.title|truncatechars:34 }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+            {% if show_results %}Exam results{% else %}Exam simulator{% endif %}
+        </li>
+    </ol>
+</nav>
+
+{% if show_results %}
+<div class="surface-card p-4 p-lg-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-5 text-center">
+            <div class="score-ring">
+                <div class="score-value">{{ percentage|floatformat:1 }}%</div>
+                <div class="small text-muted-soft mt-1">{{ score }} / {{ attempt.total_items }} correct</div>
+            </div>
+            <script>
+                (function(el) {
+                    if (!el) return;
+                    el.style.setProperty('--score', '{{ percentage }}');
+                    el.style.setProperty('--ring-color', '{% if percentage >= 75 %}#10b981{% elif percentage >= 50 %}#f59e0b{% else %}#ef4444{% endif %}');
+                })(document.currentScript.previousElementSibling);
+            </script>
+        </div>
+        <div class="col-lg-7">
+            <span class="eyebrow">📝 Exam Simulator results</span>
+            <h1 class="h2 fw-bold mt-1 mb-2">{{ deck.title }}</h1>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge badge-soft">{{ attempt.get_exam_mode_display }}</span>
+                <span class="badge badge-soft">{{ attempt.total_items }} item{{ attempt.total_items|pluralize }}</span>
+                <span class="badge badge-soft">{{ attempt.date_taken|date:"M d, Y · g:i A" }}</span>
+                {% if xp_awarded %}<span class="xp-chip">+{{ xp_awarded }} XP</span>{% endif %}
+            </div>
+            <p class="text-muted-soft mb-4">
+                {% if percentage >= 75 %}
+                Strong work. Review the explanations below to lock in the details.
+                {% elif percentage >= 50 %}
+                You are getting there. Focus on the items marked incorrect.
+                {% else %}
+                Take another pass through the deck, then retake this exam.
+                {% endif %}
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                {% if wrong_item_ids %}
+                <a href="{% url 'tupas:exam_mode' deck.id exam_mode_key %}?retry_ids={{ retry_ids_csv }}"
+                   class="btn btn-brand">
+                    🎯 Retake Only Wrong Answers ({{ wrong_item_ids|length }} items)
+                </a>
+                {% endif %}
+                <a href="{% url 'tupas:exam_mode' deck.id exam_mode_key %}" class="btn {% if wrong_item_ids %}btn-soft{% else %}btn-brand{% endif %}">
+                    <i class="bi bi-arrow-repeat me-1"></i> Retake this exam
+                </a>
+                <a href="{% url 'tupas:deck_detail' deck.id %}" class="btn btn-soft">
+                    <i class="bi bi-collection me-1"></i> Back to deck
+                </a>
+                <a href="{% url 'tupas:exam_attempt_detail' attempt.id %}" class="btn btn-soft">
+                    <i class="bi bi-card-list me-1"></i> Saved breakdown
+                </a>
+                <a href="{% url 'tupas:dashboard' %}" class="btn btn-soft">Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if diagnosis %}
+<div class="surface-card p-4 mb-4">
+    <span class="eyebrow">🩺 Post-Exam Diagnosis</span>
+    <h2 class="section-heading mt-1 mb-3">Accuracy by item type</h2>
+    <div class="row g-3">
+        {% for row in diagnosis %}
+        <div class="col-6 col-md-3">
+            <div class="profile-detail text-center">
+                <div class="profile-detail-label">{{ row.type }}</div>
+                <div class="stat-value">{{ row.percent }}%</div>
+                <div class="small text-muted-soft">{{ row.correct }} / {{ row.total }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-end gap-2 mb-3">
+    <div>
+        <span class="eyebrow">Score breakdown</span>
+        <h2 class="section-heading mt-1">Review every answer</h2>
+    </div>
+    <span class="badge {% if score == attempt.total_items %}badge-mastered{% else %}badge-soft{% endif %}">
+        {{ score }} / {{ attempt.total_items }}
+    </span>
+</div>
+
+<div class="d-grid gap-3">
+    {% for result in results %}
+    <div class="surface-card p-4 {% if result.is_correct %}result-correct{% else %}result-wrong{% endif %}">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="question-number">{{ forloop.counter }}</span>
+                <span class="badge badge-soft">{{ result.type_label }}</span>
+            </div>
+            {% if result.is_correct %}
+            <span class="badge badge-mastered"><i class="bi bi-check-lg me-1"></i>Correct</span>
+            {% else %}
+            <span class="badge badge-review"><i class="bi bi-x-lg me-1"></i>Incorrect</span>
+            {% endif %}
+            {% if result.is_typo_accepted %}
+            <span class="badge badge-soft">✨ Close enough — spelling counted</span>
+            {% endif %}
+        </div>
+
+        <div class="fw-semibold mb-3">
+            {% if result.statement %}{{ result.statement }}{% else %}{{ result.item.prompt_text|strip_highlights|linebreaksbr }}{% endif %}
+        </div>
+
+        <div class="row g-2">
+            <div class="col-md-6">
+                <div class="result-answer">
+                    <div class="small text-muted-soft mb-1">Your answer</div>
+                    <div class="{% if result.is_correct %}text-success{% else %}text-danger{% endif %}">
+                        {{ result.user_answer|linebreaksbr }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="result-answer">
+                    <div class="small text-muted-soft mb-1">Correct answer</div>
+                    <div class="text-success">{{ result.correct_answer|linebreaksbr }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% if result.explanation %}
+        <div class="answer-reveal mt-3">
+            <div class="small fw-semibold mb-1"><i class="bi bi-lightbulb text-warning me-1"></i>Explanation</div>
+            <div class="small text-muted-soft">{{ result.explanation|linebreaksbr }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+        <span class="eyebrow">📝 Exam Simulator · {{ exam_mode_label }}</span>
+        <h1 class="h2 fw-bold mt-1 mb-1">{{ deck.title }}</h1>
+        <p class="text-muted-soft mb-0">
+            {{ question_count }} question{{ question_count|pluralize }}. Answer everything you can, then submit for an
+            instant score.
+        </p>
+    </div>
+    <a href="{% url 'tupas:deck_detail' deck.id %}" class="btn btn-soft align-self-start">
+        <i class="bi bi-x-lg me-1"></i> Cancel exam
+    </a>
+</div>
+
+{% if is_weak_exam or retry_count %}
+<div class="alert alert-warning border-0 small mb-3">
+    <i class="bi bi-funnel me-1"></i>
+    {% if retry_count %}
+    🎯 Retake mode: only the {{ retry_count }} question{{ retry_count|pluralize }} you missed are included.
+    {% else %}
+    🔥 Weak-spot mode: only items you marked <strong>Study Again</strong> are included.
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="alert alert-light border small mb-4">
+    <i class="bi bi-info-circle text-navy me-1"></i>
+    Each question is worth one point. Your score and percentage will be saved to your exam history.
+    {% if exam_mode_key == 'enumeration' %}
+    Enumeration answers are checked using each item’s strict/any-order rule.
+    {% endif %}
+    {% if exam_mode_key == 'identification' or exam_mode_key == 'enumeration' %}
+    Close spellings (one-letter typos) are accepted and marked “Close enough”.
+    {% endif %}
+</div>
+
+{% if duration_minutes %}
+<div class="surface-card p-3 mb-4 d-flex justify-content-between align-items-center" id="exam-timer-box">
+    <span class="small fw-semibold"><i class="bi bi-stopwatch me-1"></i>Time left</span>
+    <span class="stat-value" id="exam-timer">{{ duration_minutes }}:00</span>
+</div>
+{% endif %}
+
+<form method="post" id="exam-form">
+    {% csrf_token %}
+    <input type="hidden" name="exam_seed" value="{{ exam_seed }}">
+    <input type="hidden" name="attempt_token" value="{{ attempt_token }}">
+    <input type="hidden" name="exam_filter" value="{{ exam_filter }}">
+    <input type="hidden" name="retry_ids" value="{{ retry_ids_csv }}">
+    <div class="d-grid gap-3">
+        {% for q in questions %}
+        <div class="surface-card exam-question p-4">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="question-number">{{ forloop.counter }}</span>
+                    <span class="badge badge-soft">{{ q.type_label }}</span>
+                </div>
+                {% if q.type == 'ENUMERATION' %}
+                <span class="badge badge-review">{{ q.slots|length }} answer{{ q.slots|length|pluralize }}</span>
+                {% endif %}
+            </div>
+
+            <div class="fw-semibold mb-3">{{ q.item.prompt_text|strip_highlights|linebreaksbr }}</div>
+
+            {% if q.type == 'MULTIPLE_CHOICE' %}
+            <div class="d-grid gap-2">
+                {% for choice in q.choices %}
+                <label class="form-check border rounded-3 px-3 py-2 ps-5" for="choice-{{ q.item.id }}-{{ choice.id }}">
+                    <input class="form-check-input" type="radio" name="q_{{ q.item.id }}"
+                        id="choice-{{ q.item.id }}-{{ choice.id }}" value="{{ choice.id }}">
+                    <span>{{ choice.choice_text }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% elif q.type == 'TRUE_FALSE' %}
+            <p class="small text-muted-soft mb-2">Decide whether the statement is True or False.</p>
+            <div class="d-flex gap-2">
+                <label class="btn btn-soft flex-fill" for="tf-{{ q.item.id }}-true">
+                    <input class="btn-check" type="radio" name="q_{{ q.item.id }}" id="tf-{{ q.item.id }}-true" value="True">
+                    True
+                </label>
+                <label class="btn btn-soft flex-fill" for="tf-{{ q.item.id }}-false">
+                    <input class="btn-check" type="radio" name="q_{{ q.item.id }}" id="tf-{{ q.item.id }}-false" value="False">
+                    False
+                </label>
+            </div>
+            {% elif q.type == 'MATCHING' %}
+            <p class="small text-muted-soft mb-2">Column A → pick the matching Column B letter.</p>
+            <label class="form-label small" for="match-{{ q.item.id }}">Match</label>
+            <select class="form-select" id="match-{{ q.item.id }}" name="q_{{ q.item.id }}">
+                <option value="">— Choose a letter —</option>
+                {% for right in q.right_pool %}
+                <option value="{{ right.letter }}">{{ right.letter }}. {{ right.text }}</option>
+                {% endfor %}
+            </select>
+            {% elif q.type == 'IDENTIFICATION' %}
+            <label class="form-label small" for="ident-{{ q.item.id }}">Your answer</label>
+            <input type="text" class="form-control" id="ident-{{ q.item.id }}" name="q_{{ q.item.id }}" maxlength="255"
+                autocomplete="off" placeholder="Type your answer">
+            {% else %}
+            <div class="row g-2">
+                {% for slot in q.slots %}
+                <div class="col-12">
+                    <label class="form-label small mb-1" for="enum-{{ q.item.id }}-{{ slot }}">
+                        Answer {{ slot }}
+                    </label>
+                    <input type="text" class="form-control" id="enum-{{ q.item.id }}-{{ slot }}"
+                        name="q_{{ q.item.id }}_{{ slot }}" maxlength="255" autocomplete="off"
+                        placeholder="Type answer {{ slot }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div
+        class="surface-card p-3 p-md-4 mt-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div class="small text-muted-soft">
+            <i class="bi bi-shield-check me-1"></i>
+            Your attempt will be saved when you submit.
+        </div>
+        <button type="submit" class="btn btn-brand btn-lg px-5">
+            <i class="bi bi-check2-circle me-1"></i> Submit exam
+        </button>
+    </div>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if not show_results %}
+<script>
+    (function () {
+        const form = document.getElementById('exam-form');
+        if (!form) return;
+
+        form.addEventListener('submit', function () {
+            const button = form.querySelector('button[type="submit"]');
+            if (!button) return;
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Checking answers…';
+        });
+
+        const timeEl = document.getElementById('exam-timer');
+        if (!timeEl) return;
+        const minutes = Number('{{ duration_minutes|default:0 }}') || 0;
+        if (!minutes) return;
+        let remaining = minutes * 60;
+        const deadline = Date.now() + remaining * 1000;
+
+        function render() {
+            const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+            const s = String(remaining % 60).padStart(2, '0');
+            timeEl.textContent = m + ':' + s;
+            if (remaining <= 30) {
+                timeEl.style.color = '#ef4444';
+            }
+        }
+        render();
+        const timer = setInterval(function () {
+            remaining = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+            render();
+            if (remaining <= 0) {
+                clearInterval(timer);
+                if (window.tupasToast) window.tupasToast('Time is up. Auto-submitting…', 'info');
+                form.submit();
+            }
+        }, 500);
+    })();
+</script>
+{% endif %}
+{% endblock %}

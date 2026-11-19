@@ -1,0 +1,48 @@
+{% comment %}
+Study session recap. Hidden until tupas accessibility JS sees a completed
+session in a progress response. Required context: deck, session_summary.
+{% endcomment %}
+{% if session_summary %}
+<div class="surface-card p-4 mt-4 {% if not session_summary.completed %}d-none{% endif %}"
+     id="study-session-summary" aria-live="polite">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <span class="eyebrow">🎉 Session recap</span>
+            <h2 class="h5 fw-bold mb-0 mt-1">Nice work — here&rsquo;s how this session went</h2>
+        </div>
+        <span class="badge badge-soft">{{ deck.title }}</span>
+    </div>
+    <div class="row g-3 text-center">
+        <div class="col-6 col-lg-3">
+            <div class="session-metric">
+                <span class="session-metric-value" data-session-reviewed>{{ session_summary.reviewed }}</span>
+                <span class="session-metric-label">Items reviewed</span>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="session-metric">
+                <span class="session-metric-value" data-session-duration>{{ session_summary.duration_label }}</span>
+                <span class="session-metric-label">Time spent</span>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="session-metric">
+                <span class="session-metric-value" data-session-got-it>{{ session_summary.got_it_percent }}%</span>
+                <span class="session-metric-label">Got It</span>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="session-metric">
+                <span class="session-metric-value" data-session-weak>{{ session_summary.weak_new }}</span>
+                <span class="session-metric-label">New weak spots</span>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mt-3">
+        <a href="{% url 'tupas:flip_mode' deck.id %}?filter=due" class="btn btn-sm btn-soft">
+            <i class="bi bi-alarm me-1"></i> Review due cards
+        </a>
+        <a href="{% url 'tupas:deck_detail' deck.id %}" class="btn btn-sm btn-soft">Back to deck</a>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,424 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Flip Card Mode · {{ deck.title }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/flip-mode.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:deck_detail' deck.id %}">{{ deck.title|truncatechars:34 }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Flip Card Mode</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+        <span class="eyebrow">🃏 Flip Card Mode</span>
+        <h1 class="h2 fw-bold mt-1 mb-1">{{ deck.title }}</h1>
+        <p class="text-muted-soft mb-0">Tap the card to flip it. Mark each card honestly so TUPAS can track your mastery.</p>
+    </div>
+    <a href="{% url 'tupas:deck_detail' deck.id %}" class="btn btn-soft align-self-start">
+        <i class="bi bi-arrow-left me-1"></i> Deck overview
+    </a>
+</div>
+
+{% include 'tupas/partials/study_filter_bar.html' %}
+
+<div class="surface-card p-4 mb-4 flip-progress">
+    <div class="row align-items-center g-3">
+        <div class="col-sm-4">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="small fw-semibold">Got It</span>
+                <span class="badge badge-mastered"><span id="flip-mastered-count">{{ mastered }}</span> / {{ total }}</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="flip-mastered-bar" role="progressbar"
+                     aria-valuenow="{{ mastered_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                <script>document.currentScript.previousElementSibling.style.width = '{{ mastered_percent }}%';</script>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <span class="small text-muted-soft d-block">Study again</span>
+            <span class="fw-bold text-warning"><span id="flip-review-count">{{ needs_review }}</span> item{{ needs_review|pluralize }}</span>
+        </div>
+        <div class="col-sm-5 text-sm-end">
+            <span class="badge badge-soft">{{ total }} flip card{{ total|pluralize }}{% if current_filter != 'all' %} in this view{% endif %}</span>
+            <span class="small text-muted-soft ms-2">Progress saves automatically</span>
+        </div>
+    </div>
+</div>
+
+{% if items %}
+    <div class="flip-stage" id="flip-deck" data-total="{{ total }}">
+        {% for item in items %}
+            <div class="flip-card-item {% if not forloop.first %}d-none{% endif %}" data-item-id="{{ item.id }}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="card-counter">Card {{ forloop.counter }} of {{ total }}</span>
+                    <span class="badge badge-soft status-wrap">
+                        {% if item.student_status == 'MASTERED' %}
+                            <span class="badge badge-mastered" data-item-status="{{ item.id }}">Got It</span>
+                        {% elif item.student_status == 'NEEDS_REVIEW' %}
+                            <span class="badge badge-review" data-item-status="{{ item.id }}">Study Again</span>
+                        {% else %}
+                            <span class="badge badge-soft d-none" data-item-status="{{ item.id }}"></span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="flip-card" tabindex="0" role="button" aria-label="Flip card {{ forloop.counter }}">
+                    <div class="flip-card-inner">
+                        <div class="flip-face flip-face-front">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="eyebrow">Question</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-soft listen-btn" hidden
+                                            data-speak-target="flip-front-{{ item.id }}"
+                                            aria-label="Listen to the question">
+                                        <i class="bi bi-volume-up-fill me-1"></i><span data-speak-label>Listen</span>
+                                    </button>
+                                    <i class="bi bi-arrow-repeat text-periwinkle fs-5"></i>
+                                </div>
+                            </div>
+                            <div class="prompt my-auto" id="flip-front-{{ item.id }}">{{ item.prompt_text|linebreaksbr }}</div>
+                            <div class="flip-hint text-center mt-4">
+                                <i class="bi bi-hand-index-thumb me-1"></i> Click, tap, or press Space to flip
+                            </div>
+                        </div>
+                        <div class="flip-face flip-face-back">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="eyebrow">Answer</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-soft listen-btn" hidden
+                                            data-speak-target="flip-back-{{ item.id }}"
+                                            aria-label="Listen to the answer">
+                                        <i class="bi bi-volume-up-fill me-1"></i><span data-speak-label>Listen</span>
+                                    </button>
+                                    <i class="bi bi-check2-circle text-success fs-5"></i>
+                                </div>
+                            </div>
+                            <div id="flip-back-{{ item.id }}">
+                                <div class="answer mb-3">{{ item.main_answer }}</div>
+                                {% if item.explanation %}
+                                    <div class="mt-2">
+                                        <span class="badge badge-soft">
+                                            <i class="bi bi-lightbulb me-1"></i> 💡 Memory Trick / Hint
+                                        </span>
+                                        <p class="text-muted-soft small mb-0 mt-1">{{ item.explanation|linebreaksbr }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flip-hint text-center mt-auto pt-4">
+                                Decide: did you get it right?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-actions flip-actions d-flex flex-wrap justify-content-center align-items-center gap-2 mt-3" data-item-id="{{ item.id }}">
+                    <button type="button" class="btn btn-review px-3"
+                            data-progress-url="{% url 'tupas:mark_progress' item.id %}"
+                            data-item-confidence="AGAIN"
+                            data-item-status="NEEDS_REVIEW">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> 🔄 Again
+                    </button>
+                    <button type="button" class="btn btn-soft px-3"
+                            data-progress-url="{% url 'tupas:mark_progress' item.id %}"
+                            data-item-confidence="HARD"
+                            data-item-status="NEEDS_REVIEW">
+                        <i class="bi bi-emoji-frown me-1"></i> 😓 Hard
+                    </button>
+                    <button type="button" class="btn btn-mastered px-3"
+                            data-progress-url="{% url 'tupas:mark_progress' item.id %}"
+                            data-item-confidence="GOOD"
+                            data-item-status="MASTERED">
+                        <i class="bi bi-check2 me-1"></i> ✅ Good (Got It)
+                    </button>
+                </div>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                    <button type="button" class="btn btn-sm btn-soft listen-btn" hidden
+                            data-speak-target="flip-front-{{ item.id }}"
+                            aria-label="Read the question aloud">
+                        <i class="bi bi-volume-up me-1"></i> 🔊 Question
+                    </button>
+                    <button type="button" class="btn btn-sm btn-soft listen-btn" hidden
+                            data-speak-target="flip-back-{{ item.id }}"
+                            aria-label="Read the answer aloud">
+                        <i class="bi bi-volume-up me-1"></i> 🔊 Answer
+                    </button>
+                    <button type="button" class="btn btn-sm btn-soft js-explain"
+                            data-explain-url="{% url 'tupas:explain_deeper' item.id %}"
+                            data-item-id="{{ item.id }}">
+                        <i class="bi bi-robot me-1"></i> 🤖 Explain Deeper
+                    </button>
+                    <button type="button" class="btn btn-sm btn-soft js-feedback" data-flag="GOOD"
+                            data-feedback-url="{% url 'tupas:item_feedback' item.id %}">
+                        👍 Helpful
+                    </button>
+                    <button type="button" class="btn btn-sm btn-soft js-feedback" data-flag="FLAGGED"
+                            data-feedback-url="{% url 'tupas:item_feedback' item.id %}">
+                        👎 Needs Fix
+                    </button>
+                    {% if can_edit_deck %}
+                    <button type="button" class="btn btn-sm btn-soft js-regen"
+                            data-regen-url="{% url 'tupas:regenerate_item' item.id %}">
+                        <i class="bi bi-magic me-1"></i> Regenerate
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="js-explain-box d-none small text-muted-soft mt-2 px-3"
+                     id="explain-{{ item.id }}" aria-live="polite"></div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center gap-2 mt-4">
+        <button type="button" class="btn btn-soft" id="flip-prev">
+            <i class="bi bi-arrow-left"></i> Previous
+        </button>
+        <span class="card-counter mx-2" id="flip-counter">1 / {{ total }}</span>
+        <button type="button" class="btn btn-soft" id="flip-next">
+            Next <i class="bi bi-arrow-right"></i>
+        </button>
+    </div>
+
+    <div class="surface-card p-4 text-center mt-4 d-none" id="flip-complete">
+        <span class="empty-icon"><i class="bi bi-trophy"></i></span>
+        <h2 class="h4 fw-bold">You reached the end of the deck</h2>
+        <p class="text-muted-soft mb-3">
+            You marked <strong id="flip-final-mastered">{{ mastered }}</strong> as Got It and
+            <strong id="flip-final-review">{{ needs_review }}</strong> for Study Again.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <button type="button" class="btn btn-brand" id="flip-restart">
+                <i class="bi bi-arrow-repeat me-1"></i> Review cards again
+            </button>
+            <a href="{% url 'tupas:deck_detail' deck.id %}" class="btn btn-soft">Back to deck overview</a>
+        </div>
+    </div>
+{% else %}
+    {% if total_items %}
+    <div class="empty-state">
+        <span class="empty-icon"><i class="bi bi-funnel"></i></span>
+        <h2 class="h5 fw-bold">Nothing matches this filter</h2>
+        <p class="text-muted-soft mb-3">
+            This deck has {{ total_items }} flip card{{ total_items|pluralize }}, but none are in this view.
+            Mark a card <strong>Study Again</strong> and it will appear under Weak Spots.
+        </p>
+        <a href="{% url 'tupas:flip_mode' deck.id %}" class="btn btn-brand">
+            <i class="bi bi-collection me-1"></i> Show all cards
+        </a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-icon"><i class="bi bi-card-text"></i></span>
+        <h2 class="h5 fw-bold">No flip cards in this deck</h2>
+        <p class="text-muted-soft mb-3">
+            Add items with the <strong>Flip Card</strong> type in the admin, or generate some with AI.
+        </p>
+        <a href="{% url 'tupas:ai_generator' %}?deck={{ deck.id }}" class="btn btn-brand">
+            <i class="bi bi-stars me-1"></i> Generate with AI
+        </a>
+    </div>
+    {% endif %}
+{% endif %}
+
+{% include 'tupas/partials/study_session_summary.html' %}
+{% endblock %}
+
+{% block extra_js %}
+{% if items %}
+<script>
+(function () {
+    const deckEl = document.getElementById('flip-deck');
+    if (!deckEl) return;
+
+    function getCsrfToken() {
+        const match = document.cookie.match(/(^|;\s*)csrftoken=([^;]+)/);
+        if (match) return decodeURIComponent(match[2]);
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        return input ? input.value : '';
+    }
+
+    const cards = Array.from(deckEl.querySelectorAll('.flip-card-item'));
+    const total = Number(deckEl.dataset.total) || cards.length;
+    let index = 0;
+
+    const counter = document.getElementById('flip-counter');
+    const completePanel = document.getElementById('flip-complete');
+    const masteredCount = document.getElementById('flip-mastered-count');
+    const reviewCount = document.getElementById('flip-review-count');
+    const masteredBar = document.getElementById('flip-mastered-bar');
+    const finalMastered = document.getElementById('flip-final-mastered');
+    const finalReview = document.getElementById('flip-final-review');
+
+    function updateProgress(payload) {
+        if (typeof payload.mastered !== 'undefined') {
+            masteredCount.textContent = payload.mastered;
+            finalMastered.textContent = payload.mastered;
+        }
+        if (typeof payload.needs_review !== 'undefined') {
+            reviewCount.textContent = payload.needs_review;
+            finalReview.textContent = payload.needs_review;
+        }
+        if (typeof payload.mastered !== 'undefined' && total > 0) {
+            const percent = Math.round((payload.mastered / total) * 100);
+            masteredBar.style.width = percent + '%';
+            masteredBar.setAttribute('aria-valuenow', String(percent));
+        }
+    }
+
+    function showCard(nextIndex) {
+        if (!cards.length) return;
+        index = Math.max(0, Math.min(nextIndex, cards.length - 1));
+        cards.forEach((card, cardIndex) => {
+            card.classList.toggle('d-none', cardIndex !== index);
+            if (cardIndex !== index) {
+                const flipper = card.querySelector('.flip-card');
+                if (flipper) flipper.classList.remove('is-flipped');
+            }
+        });
+        counter.textContent = (index + 1) + ' / ' + total;
+        if (completePanel) completePanel.classList.add('d-none');
+        deckEl.classList.remove('d-none');
+    }
+
+    function flip(card) {
+        if (!card) return;
+        card.classList.toggle('is-flipped');
+    }
+
+    cards.forEach((wrapper) => {
+        const card = wrapper.querySelector('.flip-card');
+        if (!card) return;
+        card.addEventListener('click', () => flip(card));
+        card.addEventListener('keydown', (event) => {
+            if (event.target.closest('[data-speak-target]')) return;
+            if (event.key === ' ' || event.key === 'Enter') {
+                event.preventDefault();
+                flip(card);
+            }
+        });
+    });
+
+    const prevButton = document.getElementById('flip-prev');
+    const nextButton = document.getElementById('flip-next');
+    if (prevButton) prevButton.addEventListener('click', () => showCard(index - 1));
+    if (nextButton) nextButton.addEventListener('click', () => showCard(index + 1));
+
+    document.addEventListener('keydown', (event) => {
+        if (event.target.matches('input, textarea, select, button')) return;
+        if (event.key === 'ArrowLeft') showCard(index - 1);
+        if (event.key === 'ArrowRight') showCard(index + 1);
+    });
+
+    document.addEventListener('tupas:progress', (event) => {
+        updateProgress(event.detail);
+        window.setTimeout(() => {
+            if (index < cards.length - 1) {
+                showCard(index + 1);
+            } else if (completePanel) {
+                deckEl.classList.add('d-none');
+                completePanel.classList.remove('d-none');
+                completePanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 420);
+    });
+
+    const restart = document.getElementById('flip-restart');
+    if (restart) {
+        restart.addEventListener('click', () => {
+            showCard(0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    showCard(0);
+
+    /* Explain deeper / feedback / regenerate */
+    document.querySelectorAll('.js-explain').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            const box = document.getElementById('explain-' + button.dataset.itemId);
+            if (!box) return;
+            if (!box.classList.contains('d-none')) {
+                box.classList.add('d-none');
+                return;
+            }
+            button.disabled = true;
+            box.classList.remove('d-none');
+            box.textContent = 'Thinking…';
+            try {
+                const body = new URLSearchParams();
+                body.set('csrfmiddlewaretoken', getCsrfToken());
+                const response = await fetch(button.dataset.explainUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCsrfToken(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: body,
+                });
+                const payload = await response.json();
+                box.textContent = payload.explanation || payload.error || 'No extra explanation yet.';
+            } catch (error) {
+                box.textContent = 'Could not reach TUPAS AI right now.';
+            } finally {
+                button.disabled = false;
+            }
+        });
+    });
+
+    document.querySelectorAll('.js-feedback').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            button.disabled = true;
+            try {
+                const body = new URLSearchParams({ flag: button.dataset.flag });
+                const response = await fetch(button.dataset.feedbackUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCsrfToken(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: body,
+                });
+                const payload = await response.json();
+                if (window.tupasToast) {
+                    window.tupasToast(payload.ok ? 'Thanks for the feedback!' : (payload.error || 'Failed.'), payload.ok ? 'success' : 'danger');
+                }
+            } finally {
+                button.disabled = false;
+            }
+        });
+    });
+
+    document.querySelectorAll('.js-regen').forEach(function (button) {
+        button.addEventListener('click', async function () {
+            if (!window.confirm('Regenerate this card with AI? The current text will be replaced.')) return;
+            button.disabled = true;
+            try {
+                const response = await fetch(button.dataset.regenUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCsrfToken(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                const payload = await response.json();
+                if (payload.ok) {
+                    window.location.reload();
+                } else if (window.tupasToast) {
+                    window.tupasToast(payload.error || 'Regenerate failed.', 'danger');
+                }
+            } finally {
+                button.disabled = false;
+            }
+        });
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

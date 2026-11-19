@@ -1,0 +1,1560 @@
+/* ==========================================================================
+   TUPAS REVIEWER - Global Design System (static/css/style.css)
+   Matches the AI Generator & Mascot Reference UI:
+   Lime (#A8EE00) · Cream (#FAF7EE) · Navy (#080E2C) · Periwinkle (#8A9BF8)
+   Font: Plus Jakarta Sans
+   ========================================================================== */
+
+:root {
+    --tupas-lime: #a8ee00;
+    --tupas-lime-dark: #7cb600;
+    --tupas-lime-hover: #9be000;
+    --tupas-cream: #faf7ee;
+    --tupas-cream-dark: #f0ead8;
+    --tupas-navy: #080e2c;
+    --tupas-navy-mid: #141d4f;
+    --tupas-periwinkle: #8a9bf8;
+    --tupas-periwinkle-dark: #6c7ff2;
+    --tupas-white: #ffffff;
+    --tupas-ink: #080e2c;
+    --tupas-muted: rgba(8, 14, 44, 0.65);
+    --tupas-brand: #080e2c;
+    --tupas-brand-dark: #080e2c;
+    --tupas-violet: #8a9bf8;
+    --tupas-bg: #f4f1e6;
+    --tupas-line: rgba(8, 14, 44, 0.12);
+    --tupas-mint: #16a34a;
+    --tupas-amber: #f59e0b;
+    --tupas-coral: #ef4444;
+    --tupas-shadow-sm: 0 12px 30px rgba(8, 14, 44, 0.05);
+    --tupas-shadow-md: 0 16px 36px rgba(8, 14, 44, 0.1);
+    --tupas-hard-shadow: 0 4px 0 var(--tupas-navy);
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    background: var(--tupas-bg);
+    scroll-padding-top: 4.5rem;
+    overscroll-behavior-y: none;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: var(--tupas-navy);
+    background:
+        radial-gradient(circle at 8% 0%, rgba(168, 238, 0, 0.18), transparent 34rem),
+        radial-gradient(circle at 96% 8%, rgba(138, 155, 248, 0.16), transparent 30rem),
+        var(--tupas-bg);
+    background-attachment: fixed;
+    /* clip (not hidden) so position: sticky/fixed chrome keeps working.
+       !important beats a stale second copy of this file (old ?v=profile2). */
+    overflow-x: clip !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Critical fallbacks when Bootstrap CSS is slow or blocked (CDN). */
+.modal:not(.show) {
+    display: none !important;
+}
+
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+img, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.025em;
+    font-weight: 800;
+    color: var(--tupas-navy);
+}
+
+a {
+    text-decoration: none;
+}
+
+.text-navy {
+    color: var(--tupas-navy) !important;
+}
+
+.text-periwinkle {
+    color: var(--tupas-periwinkle-dark) !important;
+}
+
+.fw-extrabold {
+    font-weight: 800 !important;
+}
+
+/* ==========================================================================
+   1. TOP NAVIGATION BAR (Deep Navy + Lime Mascot Accents)
+   ========================================================================== */
+.tupas-navbar {
+    background: var(--tupas-navy) !important;
+    background-image: none !important;
+    box-shadow: 0 10px 28px rgba(8, 14, 44, 0.18);
+    border-bottom: 3px solid var(--tupas-lime);
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}
+
+.tupas-navbar .navbar-brand {
+    color: var(--tupas-cream) !important;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: -0.03em;
+}
+
+.brand-mascot {
+    width: 2.35rem;
+    height: 2.35rem;
+    object-fit: contain;
+    border-radius: 0.8rem;
+    background: var(--tupas-lime);
+    border: 2px solid var(--tupas-cream);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    transition: transform 0.18s ease;
+}
+
+@media (max-width: 575.98px) {
+    .brand-mascot {
+        width: 2rem;
+        height: 2rem;
+    }
+    .tupas-navbar .navbar-brand {
+        font-size: 1rem;
+    }
+}
+
+.tupas-navbar .navbar-brand:hover .brand-mascot {
+    transform: rotate(-6deg) scale(1.05);
+}
+
+.brand-mark {
+    width: 2.35rem;
+    height: 2.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.8rem;
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+    border: 2px solid var(--tupas-cream);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    transition: transform 0.18s ease;
+}
+
+.tupas-navbar .navbar-brand:hover .brand-mark {
+    transform: rotate(-6deg) scale(1.05);
+}
+
+.brand-accent {
+    color: var(--tupas-lime);
+    margin-left: 0.2rem;
+}
+
+.tupas-navbar .nav-link {
+    color: rgba(250, 247, 238, 0.85) !important;
+    font-weight: 700;
+    font-size: 0.92rem;
+    border-radius: 999px;
+    padding: 0.48rem 0.95rem !important;
+    transition: color 0.18s ease, background-color 0.18s ease, transform 0.15s ease;
+}
+
+.tupas-navbar .nav-link:hover,
+.tupas-navbar .nav-link:focus {
+    color: var(--tupas-navy) !important;
+    background-color: var(--tupas-cream);
+}
+
+.tupas-navbar .nav-link.active {
+    color: var(--tupas-navy) !important;
+    background-color: var(--tupas-lime);
+    font-weight: 800;
+    box-shadow: 0 2px 0 rgba(250, 247, 238, 0.35);
+}
+
+.tupas-user-pill {
+    background-color: rgba(250, 247, 238, 0.1);
+    border: 1.5px solid rgba(250, 247, 238, 0.2);
+}
+
+.tupas-navbar .navbar-toggler {
+    border: 2px solid rgba(250, 247, 238, 0.35);
+    border-radius: 0.75rem;
+    padding: 0.35rem 0.6rem;
+}
+
+.tupas-navbar .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+.avatar-chip {
+    width: 1.95rem;
+    height: 1.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--tupas-lime);
+    border: 2px solid var(--tupas-navy);
+    color: var(--tupas-navy);
+    font-weight: 800;
+    font-size: 0.82rem;
+}
+
+.tupas-navbar .dropdown-menu {
+    border: 2px solid var(--tupas-navy);
+    border-radius: 1.25rem;
+    background: var(--tupas-cream);
+    box-shadow: 0 10px 25px rgba(8, 14, 44, 0.2);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.tupas-navbar .dropdown-item {
+    font-weight: 700;
+    color: var(--tupas-navy);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.85rem;
+}
+
+.tupas-navbar .dropdown-item:hover,
+.tupas-navbar .dropdown-item:focus {
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+}
+
+/* ==========================================================================
+   1B. SIDEBAR SHELL (replaces the top navbar on every authenticated page)
+   ========================================================================== */
+:root {
+    --sidebar-w: 268px;
+}
+
+.tupas-sidebar {
+    /* Bootstrap's .offcanvas-lg forces background-color: transparent
+       !important on desktop. Without !important the cream page background
+       shows through and the cream sidebar text disappears in light mode. */
+    background: var(--tupas-navy) !important;
+    color: var(--tupas-cream);
+    border-right: 3px solid var(--tupas-lime);
+    width: var(--sidebar-w);
+}
+
+.tupas-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 1.1rem 0.9rem 1rem;
+    gap: 0.35rem;
+}
+
+.offcanvas-lg .tupas-sidebar-inner {
+    min-height: calc(100dvh - 64px);
+}
+
+.tupas-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.35rem 0.5rem 0.9rem;
+    color: var(--tupas-cream);
+    font-weight: 800;
+}
+
+.tupas-sidebar-title {
+    font-size: 1.15rem;
+    letter-spacing: -0.03em;
+}
+
+.sidebar-brand-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--tupas-cream);
+}
+
+.tupas-sidebar-nav {
+    display: grid;
+    gap: 0.3rem;
+}
+
+.tupas-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: 14px;
+    color: rgba(250, 247, 238, 0.82);
+    font-weight: 700;
+    font-size: 0.92rem;
+    background: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    transition: background 0.16s ease, color 0.16s ease, transform 0.12s ease;
+}
+
+.tupas-nav-item i {
+    font-size: 1.05rem;
+    width: 1.35rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.tupas-nav-item:hover,
+.tupas-nav-item:focus {
+    background: var(--tupas-cream);
+    color: var(--tupas-navy);
+    transform: translateX(2px);
+}
+
+.tupas-nav-item.active {
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+    box-shadow: 0 3px 0 rgba(250, 247, 238, 0.25);
+}
+
+.tupas-nav-btn {
+    cursor: pointer;
+}
+
+.tupas-nav-logout {
+    color: #fecaca;
+}
+
+.tupas-nav-logout:hover,
+.tupas-nav-logout:focus {
+    background: #fee2e2;
+    color: #991b1b;
+    transform: none;
+}
+
+.tupas-sidebar-spacer {
+    flex: 1 1 auto;
+    min-height: 0.75rem;
+}
+
+/* Profile button — the thing the user asked for */
+.tupas-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 18px;
+    background: rgba(250, 247, 238, 0.08);
+    border: 2px solid rgba(168, 238, 0, 0.45);
+    color: var(--tupas-cream);
+    margin-bottom: 0.5rem;
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.tupas-profile-btn:hover,
+.tupas-profile-btn:focus,
+.tupas-profile-btn.active {
+    background: var(--tupas-cream);
+    color: var(--tupas-navy);
+    border-color: var(--tupas-lime);
+    transform: translateY(-2px);
+}
+
+.avatar-chip-lg {
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.tupas-profile-copy {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.tupas-profile-name {
+    display: block;
+    font-weight: 800;
+    font-size: 0.88rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tupas-profile-sub {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(250, 247, 238, 0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tupas-profile-btn:hover .tupas-profile-sub,
+.tupas-profile-btn.active .tupas-profile-sub {
+    color: rgba(8, 14, 44, 0.65);
+}
+
+.tupas-profile-chevron {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.tupas-sidebar-actions {
+    display: grid;
+    gap: 0.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(250, 247, 238, 0.12);
+}
+
+/* Mobile top bar — pinned so the burger is tappable at any scroll position */
+.tupas-mobile-topbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1040 !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
+    background: var(--tupas-navy);
+    border-bottom: 3px solid var(--tupas-lime);
+    color: var(--tupas-cream);
+    padding-top: calc(0.6rem + env(safe-area-inset-top, 0px));
+}
+
+.tupas-burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 2.75rem;
+    border-radius: 0.8rem;
+    border: 2px solid rgba(250, 247, 238, 0.3);
+    background: transparent;
+    color: var(--tupas-cream);
+    font-size: 1.25rem;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.tupas-mobile-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--tupas-cream);
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.tupas-topbar-avatar {
+    display: inline-flex;
+}
+
+/* Desktop: pin the sidebar, shift the shell */
+@media (min-width: 992px) {
+    .tupas-sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 1035;
+        display: flex;
+        flex-direction: column;
+        visibility: visible !important;
+        transform: none !important;
+        box-shadow: 8px 0 24px rgba(8, 14, 44, 0.18);
+    }
+
+    .tupas-sidebar .offcanvas-header {
+        display: none !important;
+    }
+
+    .tupas-shell {
+        margin-left: var(--sidebar-w);
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .tupas-shell {
+        /* Clear the fixed mobile top bar (~60px + notch). */
+        padding-top: calc(3.75rem + env(safe-area-inset-top, 0px));
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tupas-sidebar {
+        --bs-offcanvas-width: 280px;
+        border-right: 3px solid var(--tupas-lime);
+        /* Fallback if Bootstrap offcanvas CSS is missing: keep the drawer
+           off-screen until the burger adds .show. */
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1045;
+        display: flex;
+        flex-direction: column;
+        width: min(280px, 85vw);
+        visibility: hidden;
+        transform: translateX(-100%);
+        transition: transform 0.28s ease-in-out, visibility 0.28s;
+    }
+
+    .tupas-sidebar.show,
+    .tupas-sidebar.showing {
+        visibility: visible;
+        transform: translateX(0);
+    }
+
+    .offcanvas-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1040;
+        background: rgba(8, 14, 44, 0.55);
+    }
+}
+
+/* ==========================================================================
+   2. SHARED CARDS, SURFACES & STEP HEADERS (Matches AI Generator)
+   ========================================================================== */
+.surface-card {
+    background: var(--tupas-cream);
+    border: 2px solid rgba(8, 14, 44, 0.08);
+    border-radius: 28px;
+    box-shadow: var(--tupas-shadow-sm);
+}
+
+.surface-card-hover {
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.surface-card-hover:hover {
+    transform: translateY(-4px);
+    border-color: var(--tupas-navy);
+    box-shadow: var(--tupas-shadow-md);
+}
+
+.section-heading {
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin-bottom: 0;
+    color: var(--tupas-navy);
+    letter-spacing: -0.02em;
+}
+
+.eyebrow,
+.section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--tupas-periwinkle-dark);
+}
+
+.question-number {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+    background-color: var(--tupas-navy);
+    color: var(--tupas-lime);
+    font-weight: 800;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mode-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+    border: 2px solid var(--tupas-navy);
+}
+
+.text-muted-soft {
+    color: var(--tupas-muted) !important;
+    font-weight: 600;
+}
+
+.hairline {
+    height: 2px;
+    background: rgba(8, 14, 44, 0.1);
+    border: 0;
+    opacity: 1;
+}
+
+/* ==========================================================================
+   3. BUTTONS (AI Generator Pill + Hard Navy Pop Shadow)
+   ========================================================================== */
+.btn {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-weight: 800;
+    border-radius: 999px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.btn-brand,
+.btn-primary {
+    background-color: var(--tupas-lime);
+    color: var(--tupas-navy) !important;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 4px 0 var(--tupas-navy);
+    padding: 0.6rem 1.3rem;
+    font-size: 0.92rem;
+}
+
+.btn-brand:hover,
+.btn-brand:focus,
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--tupas-lime-hover);
+    color: var(--tupas-navy) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--tupas-navy);
+}
+
+.btn-brand:active,
+.btn-primary:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--tupas-navy);
+}
+
+.btn-soft {
+    background-color: var(--tupas-cream);
+    color: var(--tupas-navy) !important;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 3px 0 var(--tupas-navy);
+    padding: 0.52rem 1.15rem;
+    font-size: 0.88rem;
+}
+
+.btn-soft:hover,
+.btn-soft:focus {
+    background-color: var(--tupas-navy);
+    color: var(--tupas-cream) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 rgba(8, 14, 44, 0.4);
+}
+
+.btn-mastered {
+    background: var(--tupas-lime);
+    color: var(--tupas-navy) !important;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 3px 0 var(--tupas-navy);
+    font-weight: 800;
+}
+
+.btn-mastered:hover,
+.btn-mastered:focus {
+    background: var(--tupas-lime-hover);
+    color: var(--tupas-navy) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 var(--tupas-navy);
+}
+
+.btn-review {
+    background: #fef3c7;
+    color: #92400e !important;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 3px 0 var(--tupas-navy);
+    font-weight: 800;
+}
+
+.btn-review:hover,
+.btn-review:focus {
+    background: #fde68a;
+    color: #92400e !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 var(--tupas-navy);
+}
+
+.btn-periwinkle {
+    background-color: var(--tupas-periwinkle);
+    color: var(--tupas-navy) !important;
+    font-weight: 800;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 3px 0 var(--tupas-navy);
+}
+
+.btn-periwinkle:hover,
+.btn-periwinkle:focus {
+    background-color: var(--tupas-periwinkle-dark);
+    color: var(--tupas-white) !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-brand {
+    background-color: var(--tupas-cream);
+    color: var(--tupas-navy) !important;
+    border: 2px solid var(--tupas-navy);
+    font-weight: 800;
+}
+
+.btn-outline-brand:hover {
+    background-color: var(--tupas-navy);
+    color: var(--tupas-cream) !important;
+}
+
+/* ==========================================================================
+   4. BADGES, FORMS, TABLES & EMPTY STATES
+   ========================================================================== */
+.badge {
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    border-radius: 999px;
+    padding: 0.4em 0.78em;
+}
+
+.badge-soft {
+    background: rgba(8, 14, 44, 0.07);
+    color: var(--tupas-navy);
+    border: 1.5px solid rgba(8, 14, 44, 0.14);
+}
+
+.badge-recommended,
+.badge-mastered {
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+    border: 1.5px solid var(--tupas-navy);
+}
+
+.badge-review {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1.5px solid #fbbf24;
+}
+
+.form-label {
+    font-weight: 800;
+    font-size: 0.88rem;
+    color: var(--tupas-navy);
+}
+
+.form-control,
+.form-select {
+    background-color: var(--tupas-white);
+    border: 2px solid rgba(8, 14, 44, 0.14);
+    border-radius: 16px;
+    padding: 0.72rem 1rem;
+    font-size: 16px; /* Prevents auto-zoom on iOS Safari */
+    font-weight: 600;
+    color: var(--tupas-navy);
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--tupas-navy);
+    box-shadow: 0 0 0 4px rgba(168, 238, 0, 0.35);
+    background-color: var(--tupas-white);
+    color: var(--tupas-navy);
+}
+
+.form-control::placeholder {
+    color: rgba(8, 14, 44, 0.42);
+    font-weight: 500;
+}
+
+.form-text {
+    color: var(--tupas-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.form-check-input:checked {
+    background-color: var(--tupas-lime);
+    border-color: var(--tupas-navy);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(168, 238, 0, 0.35);
+    border-color: var(--tupas-navy);
+}
+
+/* Tables sit on their card surface instead of Bootstrap's white body
+   background. Without this, every table (Accounts, Activity, Leaderboard,
+   exam history) is a white block in dark mode and clashes with the cream
+   cards in light mode. */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--tupas-navy);
+    --bs-table-border-color: rgba(8, 14, 44, 0.12);
+    --bs-table-striped-bg: rgba(8, 14, 44, 0.035);
+    --bs-table-striped-color: var(--tupas-navy);
+    --bs-table-active-bg: rgba(168, 238, 0, 0.18);
+    --bs-table-active-color: var(--tupas-navy);
+    --bs-table-hover-bg: rgba(168, 238, 0, 0.12);
+    --bs-table-hover-color: var(--tupas-navy);
+}
+
+.table > :not(caption) > * > * {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+    border-bottom-color: rgba(8, 14, 44, 0.08);
+}
+
+.table thead th {
+    color: var(--tupas-muted);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 800;
+    border-bottom-color: rgba(8, 14, 44, 0.12);
+    background: var(--tupas-cream);
+}
+
+[data-theme="dark"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--tupas-text);
+    --bs-table-border-color: var(--tupas-border);
+    --bs-table-striped-bg: rgba(250, 247, 238, 0.04);
+    --bs-table-striped-color: var(--tupas-text);
+    --bs-table-active-bg: rgba(168, 238, 0, 0.16);
+    --bs-table-active-color: var(--tupas-text);
+    --bs-table-hover-bg: rgba(168, 238, 0, 0.1);
+    --bs-table-hover-color: var(--tupas-text);
+}
+
+[data-theme="dark"] .table thead th {
+    background: #0f1730;
+    color: var(--tupas-text-soft);
+    border-bottom-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .table > :not(caption) > * > * {
+    border-bottom-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .pagination {
+    --bs-pagination-color: var(--tupas-text);
+    --bs-pagination-bg: var(--tupas-surface);
+    --bs-pagination-border-color: var(--tupas-border);
+    --bs-pagination-hover-color: var(--tupas-navy);
+    --bs-pagination-hover-bg: var(--tupas-lime);
+    --bs-pagination-hover-border-color: var(--tupas-lime);
+    --bs-pagination-focus-color: var(--tupas-navy);
+    --bs-pagination-focus-bg: var(--tupas-lime);
+    --bs-pagination-disabled-color: var(--tupas-text-soft);
+    --bs-pagination-disabled-bg: rgba(250, 247, 238, 0.06);
+    --bs-pagination-disabled-border-color: var(--tupas-border);
+    --bs-pagination-active-color: var(--tupas-navy);
+    --bs-pagination-active-bg: var(--tupas-lime);
+    --bs-pagination-active-border-color: var(--tupas-lime);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border: 2px dashed rgba(8, 14, 44, 0.18);
+    border-radius: 24px;
+    background: rgba(250, 247, 238, 0.82);
+}
+
+.empty-icon {
+    width: 3.4rem;
+    height: 3.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 3px 0 var(--tupas-navy);
+    font-size: 1.4rem;
+    margin-bottom: 0.9rem;
+}
+
+/* ==========================================================================
+   5. FOOTER, ALERTS, PROGRESS & PWA INSTALL BUTTON
+   ========================================================================== */
+.tupas-footer {
+    background: var(--tupas-navy);
+    border-top: 3px solid var(--tupas-lime);
+    color: rgba(250, 247, 238, 0.8);
+}
+
+.tupas-footer .text-muted {
+    color: rgba(250, 247, 238, 0.72) !important;
+    font-weight: 600;
+}
+
+.footer-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--tupas-lime);
+    display: inline-block;
+}
+
+#tupas-toast-container {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1090;
+}
+
+.breadcrumb-item a {
+    color: var(--tupas-lime-dark);
+    font-weight: 700;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--tupas-navy);
+}
+
+.breadcrumb-item.active {
+    color: var(--tupas-navy);
+    font-weight: 800;
+}
+
+.alert {
+    border-radius: 18px;
+    border-width: 2px;
+    border-style: solid;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(8, 14, 44, 0.06);
+}
+
+.alert-success {
+    background: rgba(168, 238, 0, 0.22);
+    border-color: var(--tupas-navy);
+    color: var(--tupas-navy);
+}
+
+.alert-danger,
+.alert-error {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+.alert-warning {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+}
+
+.alert-info {
+    background: rgba(138, 155, 248, 0.2);
+    border-color: var(--tupas-navy);
+    color: var(--tupas-navy);
+}
+
+.progress {
+    background: rgba(8, 14, 44, 0.08);
+    border-radius: 999px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--tupas-lime), #c8f84a);
+    border-radius: 999px;
+}
+
+/* PWA Install Button (Lime + Hard Navy Border) */
+.btn-install {
+    background: var(--tupas-lime) !important;
+    background-image: none !important;
+    border: 2px solid var(--tupas-cream) !important;
+    border-radius: 999px;
+    color: var(--tupas-navy) !important;
+    font-weight: 800;
+    padding: 0.44rem 1rem;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-install:hover,
+.btn-install:focus {
+    color: var(--tupas-navy) !important;
+    background: var(--tupas-cream) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+}
+
+.btn-install:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.tupas-install-modal {
+    border-radius: 24px;
+    border: 2px solid var(--tupas-navy);
+    background: var(--tupas-cream);
+    box-shadow: 0 16px 40px rgba(8, 14, 44, 0.25);
+}
+
+.install-steps {
+    padding-left: 1.2rem;
+    color: var(--tupas-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.install-steps li + li {
+    margin-top: 0.55rem;
+}
+
+.install-steps li::marker {
+    color: var(--tupas-lime-dark);
+    font-weight: 800;
+}
+
+.tupas-code {
+    background-color: rgba(8, 14, 44, 0.08);
+    color: var(--tupas-navy);
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+@media (max-width: 991.98px) {
+    .tupas-navbar .btn-install {
+        width: 100%;
+        margin-top: 0.4rem;
+        padding: 0.55rem 1rem;
+    }
+
+    .tupas-navbar .nav-link {
+        padding: 0.6rem 0.9rem !important;
+    }
+}
+
+/* Keep the app chrome clear of notches on iOS and Android */
+@supports (padding: env(safe-area-inset-top)) {
+    .tupas-navbar {
+        padding-top: calc(0.5rem + env(safe-area-inset-top));
+    }
+
+    .tupas-footer {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
+    #tupas-toast-container {
+        bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+}
+[data-theme="dark"] .tupas-sidebar {
+    background: #050a1c !important;
+    border-right-color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-mobile-topbar {
+    background: #050a1c;
+}
+
+[data-theme="dark"] .tupas-nav-item {
+    color: rgba(250, 247, 238, 0.82);
+}
+
+[data-theme="dark"] .tupas-nav-item:hover,
+[data-theme="dark"] .tupas-nav-item:focus {
+    background: rgba(168, 238, 0, 0.18);
+    color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-nav-item.active {
+    background: var(--tupas-lime);
+    color: var(--tupas-navy);
+}
+
+[data-theme="dark"] .tupas-profile-btn {
+    background: rgba(250, 247, 238, 0.06);
+    border-color: rgba(168, 238, 0, 0.4);
+    color: var(--tupas-cream);
+}
+
+[data-theme="dark"] .tupas-profile-btn:hover,
+[data-theme="dark"] .tupas-profile-btn.active {
+    background: rgba(168, 238, 0, 0.16);
+    color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-profile-sub {
+    color: rgba(250, 247, 238, 0.6);
+}
+
+[data-theme="dark"] .tupas-profile-btn:hover .tupas-profile-sub,
+[data-theme="dark"] .tupas-profile-btn.active .tupas-profile-sub {
+    color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-sidebar-actions {
+    border-top-color: rgba(250, 247, 238, 0.12);
+}
+
+[data-theme="dark"] .tupas-nav-logout {
+    color: #fecaca;
+}
+
+.profile-avatar-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-avatar {
+    width: clamp(88px, 18vw, 128px);
+    height: clamp(88px, 18vw, 128px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--tupas-navy);
+    color: var(--tupas-lime);
+    font-weight: 800;
+    font-size: clamp(2rem, 6vw, 3rem);
+    border: 4px solid var(--tupas-lime);
+    box-shadow: 0 12px 28px rgba(8, 14, 44, 0.25);
+}
+
+.profile-detail-grid {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.profile-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.7rem 0.95rem;
+    background: var(--tupas-white);
+    border: 1.5px solid var(--tupas-line);
+    border-radius: 14px;
+}
+
+.profile-detail-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tupas-muted);
+}
+
+.profile-detail-value {
+    font-weight: 700;
+    color: var(--tupas-navy);
+    word-break: break-word;
+}
+
+[data-theme="dark"] .profile-detail {
+    background: var(--tupas-surface);
+    border-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .profile-detail-value {
+    color: var(--tupas-text);
+}
+
+/* ==========================================================================
+   DARK THEME TOKENS + COMPONENT OVERRIDES
+   ========================================================================== */
+[data-theme="dark"] {
+    color-scheme: dark;
+    --tupas-page: #0b1020;
+    --tupas-surface: #121a33;
+    --tupas-text: #faf7ee;
+    --tupas-text-soft: rgba(250, 247, 238, 0.72);
+    --tupas-border: rgba(250, 247, 238, 0.16);
+    --tupas-bg: #0b1020;
+    --tupas-ink: #faf7ee;
+    --tupas-muted: rgba(250, 247, 238, 0.7);
+    --tupas-line: rgba(250, 247, 238, 0.16);
+    --tupas-cream-dark: #16203d;
+    --tupas-white: #121a33;
+    --tupas-shadow-sm: 0 12px 30px rgba(0, 0, 0, 0.4);
+    --tupas-shadow-md: 0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] body {
+    color: var(--tupas-text);
+    background:
+        radial-gradient(circle at 8% 0%, rgba(168, 238, 0, 0.1), transparent 34rem),
+        radial-gradient(circle at 96% 8%, rgba(138, 155, 248, 0.14), transparent 30rem),
+        var(--tupas-page);
+    background-attachment: fixed;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] .text-navy {
+    color: var(--tupas-text) !important;
+}
+
+[data-theme="dark"] .text-muted-soft,
+[data-theme="dark"] .text-muted {
+    color: var(--tupas-text-soft) !important;
+}
+
+[data-theme="dark"] .surface-card,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .deck-card,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .alert-light {
+    background: var(--tupas-surface);
+    color: var(--tupas-text);
+    border-color: var(--tupas-border) !important;
+}
+
+[data-theme="dark"] .tupas-table {
+    color: var(--tupas-text);
+}
+
+[data-theme="dark"] .tupas-table th,
+[data-theme="dark"] .tupas-table td {
+    color: var(--tupas-text);
+    border-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .badge-soft {
+    background: rgba(250, 247, 238, 0.1);
+    color: var(--tupas-text);
+}
+
+[data-theme="dark"] .btn-soft {
+    background: rgba(250, 247, 238, 0.08);
+    color: var(--tupas-text);
+    border-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .btn-soft:hover,
+[data-theme="dark"] .btn-soft:focus {
+    background: rgba(250, 247, 238, 0.16);
+    color: var(--tupas-text);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #0f1730;
+    border-color: var(--tupas-border);
+    color: var(--tupas-text);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: rgba(250, 247, 238, 0.45);
+}
+
+[data-theme="dark"] .input-group-text {
+    background: #0f1730;
+    border-color: var(--tupas-border);
+    color: var(--tupas-text);
+}
+
+[data-theme="dark"] .breadcrumb-item.active,
+[data-theme="dark"] .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--tupas-text-soft);
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--tupas-text);
+}
+
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus {
+    background: rgba(250, 247, 238, 0.08);
+    color: var(--tupas-lime);
+}
+
+/* ==========================================================================
+   RETENTION WIDGETS, READ-ALOUD, SESSION RECAP
+   ========================================================================== */
+.retention-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.streak-card {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 0.95rem;
+    border-radius: 1rem;
+    background: var(--tupas-navy);
+    color: var(--tupas-cream);
+    box-shadow: 0 4px 0 rgba(8, 14, 44, 0.25);
+}
+
+.streak-flame {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.streak-value {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.streak-label {
+    font-size: 0.7rem;
+    color: rgba(250, 247, 238, 0.72);
+}
+
+.goal-ring {
+    --ring-size: 5rem;
+    --goal-progress: 0%;
+    width: var(--ring-size);
+    height: var(--ring-size);
+    border-radius: 50%;
+    background: conic-gradient(var(--tupas-lime) var(--goal-progress), rgba(250, 247, 238, 0.22) 0);
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+}
+
+.goal-ring-inner {
+    width: calc(var(--ring-size) - 12px);
+    height: calc(var(--ring-size) - 12px);
+    border-radius: 50%;
+    background: var(--tupas-navy);
+    color: var(--tupas-cream);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.goal-ring-value {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.goal-ring-value small {
+    font-size: 0.7rem;
+    font-weight: 600;
+    opacity: 0.72;
+}
+
+.goal-ring-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(250, 247, 238, 0.7);
+}
+
+.listen-btn[hidden] {
+    display: none !important;
+}
+
+.listen-btn {
+    white-space: nowrap;
+}
+
+.session-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.85rem 0.5rem;
+    border-radius: 1rem;
+    background: rgba(8, 14, 44, 0.04);
+}
+
+.session-metric-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--tupas-navy);
+}
+
+.session-metric-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tupas-muted);
+}
+
+[data-theme="dark"] .session-metric {
+    background: rgba(250, 247, 238, 0.06);
+}
+
+[data-theme="dark"] .session-metric-value {
+    color: var(--tupas-text);
+}
+
+/* ==========================================================================
+   Mobile bottom tab bar + Pomodoro + XP chips
+   ========================================================================== */
+
+.tupas-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1040;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+    background: var(--tupas-navy);
+    border-top: 1px solid rgba(168, 238, 0, 0.25);
+}
+
+.tupas-bottom-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    color: rgba(250, 247, 238, 0.72);
+    text-decoration: none;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.75rem;
+}
+
+.tupas-bottom-tab i {
+    font-size: 1.15rem;
+}
+
+.tupas-bottom-tab.active,
+.tupas-bottom-tab:hover {
+    color: var(--tupas-lime);
+}
+
+.tupas-main {
+    /* Beat Bootstrap .py-4 so the last rows clear the fixed bottom nav. */
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (min-width: 992px) {
+    .tupas-main {
+        padding-bottom: 1.5rem !important;
+    }
+    .tupas-pomodoro-fab {
+        display: none !important;
+    }
+}
+
+.tupas-pomodoro {
+    position: fixed;
+    right: 1rem;
+    bottom: 5.5rem;
+    z-index: 1050;
+    width: 13rem;
+}
+
+.tupas-pomodoro[hidden] {
+    display: none !important;
+}
+
+.tupas-pomodoro-card {
+    background: var(--tupas-navy);
+    color: var(--tupas-cream);
+    border: 2px solid var(--tupas-lime);
+    border-radius: 1rem;
+    padding: 0.85rem;
+    box-shadow: 0 12px 28px rgba(8, 14, 44, 0.28);
+}
+
+.tupas-pomodoro-time {
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 0.04em;
+    color: var(--tupas-lime);
+    font-variant-numeric: tabular-nums;
+}
+
+.tupas-pomodoro-fab {
+    position: fixed;
+    right: 0.9rem;
+    bottom: 5.2rem;
+    z-index: 1035;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 2px solid var(--tupas-lime);
+    background: var(--tupas-navy);
+    color: var(--tupas-lime);
+    font-size: 1.25rem;
+    box-shadow: 0 8px 18px rgba(8, 14, 44, 0.25);
+}
+
+.xp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: var(--tupas-navy);
+    color: var(--tupas-lime);
+    font-weight: 800;
+    font-size: 0.78rem;
+}
+
+.badge-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(138, 155, 248, 0.18);
+    color: var(--tupas-navy);
+    font-weight: 700;
+    font-size: 0.72rem;
+}
+
+.flip-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+[data-theme="dark"] .tupas-bottom-nav {
+    background: #05081c;
+}
+
+.tupas-close-enough {
+    color: var(--tupas-lime-dark);
+    font-weight: 700;
+}

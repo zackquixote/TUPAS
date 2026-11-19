@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enumeration Drill · {{ deck.title }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/enumeration-mode.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:deck_detail' deck.id %}">{{ deck.title|truncatechars:34 }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Enumeration Drill</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+        <span class="eyebrow">📋 Enumeration Drill Mode</span>
+        <h1 class="h2 fw-bold mt-1 mb-1">{{ deck.title }}</h1>
+        <p class="text-muted-soft mb-0">
+            Reveal the list to study, then type the answers and let TUPAS check the order and wording.
+        </p>
+    </div>
+    <a href="{% url 'tupas:deck_detail' deck.id %}" class="btn btn-soft align-self-start">
+        <i class="bi bi-arrow-left me-1"></i> Deck overview
+    </a>
+</div>
+
+{% include 'tupas/partials/study_filter_bar.html' %}
+
+{% if items %}
+    <div class="surface-card p-3 p-md-4 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="small text-muted-soft">
+                <i class="bi bi-info-circle me-1"></i>
+                Matching ignores capitalisation and extra spaces. Strict lists must be in the shown order.
+            </div>
+            <div class="d-flex gap-2">
+                <span class="badge badge-mastered">Got It: {{ mastered }}</span>
+                <span class="badge badge-review">Study again: {{ needs_review }}</span>
+                <span class="badge badge-soft">{{ items|length }} drill{{ items|length|pluralize }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for item in items %}
+            <div class="col-12" id="item-{{ item.id }}">
+                <div class="surface-card p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-3">
+                        <div>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                <span class="badge badge-soft">Drill {{ forloop.counter }} of {{ items|length }}</span>
+                                {% if item.is_strict_order %}
+                                    <span class="badge badge-review"><i class="bi bi-arrow-down-up me-1"></i>Strict order</span>
+                                {% else %}
+                                    <span class="badge badge-soft"><i class="bi bi-shuffle me-1"></i>Any order</span>
+                                {% endif %}
+                                <span class="badge badge-soft">{{ item.answer_list|length }} answer{{ item.answer_list|length|pluralize }}</span>
+                            </div>
+                            <div class="d-flex align-items-start gap-2">
+                                <div class="enum-prompt" id="enum-prompt-{{ item.id }}">{{ item.prompt_text|linebreaksbr }}</div>
+                                <button type="button" class="btn btn-sm btn-soft listen-btn text-nowrap" hidden
+                                        data-speak-target="enum-prompt-{{ item.id }}"
+                                        aria-label="Listen to the enumeration prompt">
+                                    <i class="bi bi-volume-up-fill me-1"></i><span data-speak-label>Listen</span>
+                                </button>
+                            </div>
+                        </div>
+                        <span class="status-wrap text-nowrap">
+                            {% if item.student_status == 'MASTERED' %}
+                                <span class="badge badge-mastered" data-item-status="{{ item.id }}">Got It</span>
+                            {% elif item.student_status == 'NEEDS_REVIEW' %}
+                                <span class="badge badge-review" data-item-status="{{ item.id }}">Study Again</span>
+                            {% else %}
+                                <span class="badge badge-soft d-none" data-item-status="{{ item.id }}"></span>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% if result_item_id == item.id and result %}
+                        <div class="alert {% if result.is_correct %}alert-success{% else %}alert-warning{% endif %} border-0 mt-3">
+                            <div class="fw-semibold">
+                                {% if result.is_correct %}
+                                    <i class="bi bi-check-circle me-1"></i> All {{ result.total }} answers are correct.
+                                {% else %}
+                                    <i class="bi bi-exclamation-circle me-1"></i>
+                                    {{ result.correct_count }} of {{ result.total }} answers matched. Check the expected list below.
+                                {% endif %}
+                            </div>
+                            {% if not result.is_correct %}
+                                <div class="small mt-1">
+                                    Tip: for strict-order drills, type the steps in the exact order shown in the notes.
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex flex-wrap align-items-center gap-2 my-3">
+                        <button type="button" class="btn btn-sm btn-soft" data-reveal-target="answers-{{ item.id }}">
+                            <i class="bi bi-eye me-1"></i> Show answers
+                        </button>
+                        <span class="small text-muted-soft">
+                            {% if item.is_strict_order %}Sequence matters.{% else %}Order does not matter.{% endif %}
+                        </span>
+                    </div>
+
+                    {% if item.explanation %}
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-sm btn-soft"
+                                data-mnemonic-target="mnemonic-{{ item.id }}" aria-expanded="false">
+                            <i class="bi bi-lightbulb me-1"></i> 💡 Show Memory Trick / Acronym
+                        </button>
+                        <div class="alert alert-light border small mt-2 mb-0 d-none" id="mnemonic-{{ item.id }}">
+                            {{ item.explanation|linebreaksbr }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="answer-reveal {% if result_item_id != item.id %}d-none{% endif %}" id="answers-{{ item.id }}">
+                        <div class="small fw-semibold mb-2">Expected answers</div>
+                        {% if item.is_strict_order %}
+                            <ol class="small mb-0 ps-3">
+                                {% for answer in item.answer_list %}<li>{{ answer }}</li>{% endfor %}
+                            </ol>
+                        {% else %}
+                            <div class="mb-0">
+                                {% for answer in item.answer_list %}
+                                    <span class="answer-chip">{{ answer }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if item.slots %}
+                        <form method="post" action="{% url 'tupas:enumeration_mode' deck.id %}{% if current_filter != 'all' %}?filter={{ current_filter }}{% endif %}#item-{{ item.id }}" class="mt-4">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+
+                            <div class="row g-2">
+                                {% for slot in item.slots %}
+                                    <div class="col-12 enum-slot">
+                                        <label class="form-label small mb-1" for="answer-{{ item.id }}-{{ slot.number }}">
+                                            {% if item.is_strict_order %}Step {{ slot.number }}{% else %}Answer {{ slot.number }}{% endif %}
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   class="form-control {% if slot.is_correct %}is-correct{% elif slot.is_correct == False %}is-wrong{% endif %}"
+                                                   id="answer-{{ item.id }}-{{ slot.number }}"
+                                                   name="answer_{{ item.id }}_{{ slot.number }}"
+                                                   value="{{ slot.value }}"
+                                                   autocomplete="off"
+                                                   placeholder="{% if item.is_strict_order %}Type step {{ slot.number }}{% else %}Type an answer{% endif %}">
+                                            {% if slot.is_correct %}
+                                                <span class="input-group-text bg-success-subtle text-success"><i class="bi bi-check-lg"></i></span>
+                                            {% elif slot.is_correct == False %}
+                                                <span class="input-group-text bg-danger-subtle text-danger"><i class="bi bi-x-lg"></i></span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button type="submit" class="btn btn-brand mt-3">
+                                <i class="bi bi-check2-square me-1"></i> Check answers
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-light border small mt-4 mb-0">
+                            This enumeration has no accepted answers configured yet. Add them in the admin.
+                        </div>
+                    {% endif %}
+
+                    <div class="progress-actions d-flex flex-wrap align-items-center gap-2 mt-4" data-item-id="{{ item.id }}">
+                        <button type="button" class="btn btn-mastered"
+                                data-progress-url="{% url 'tupas:mark_progress' item.id %}"
+                                data-item-status="MASTERED">
+                            <i class="bi bi-check2 me-1"></i> Got It
+                        </button>
+                        <button type="button" class="btn btn-review"
+                                data-progress-url="{% url 'tupas:mark_progress' item.id %}"
+                                data-item-status="NEEDS_REVIEW">
+                            <i class="bi bi-arrow-repeat me-1"></i> Study Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    {% if total_items %}
+    <div class="empty-state">
+        <span class="empty-icon"><i class="bi bi-funnel"></i></span>
+        <h2 class="h5 fw-bold">Nothing matches this filter</h2>
+        <p class="text-muted-soft mb-3">
+            This deck has {{ total_items }} drill{{ total_items|pluralize }}, but none are in this view.
+            Mark a drill <strong>Study Again</strong> and it will appear under Weak Spots.
+        </p>
+        <a href="{% url 'tupas:enumeration_mode' deck.id %}" class="btn btn-brand">
+            <i class="bi bi-collection me-1"></i> Show all drills
+        </a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-icon"><i class="bi bi-list-ol"></i></span>
+        <h2 class="h5 fw-bold">No enumeration drills in this deck</h2>
+        <p class="text-muted-soft mb-3">
+            Add <strong>Enumeration</strong> items and their accepted answers in the admin, or generate them with AI.
+        </p>
+        <a href="{% url 'tupas:ai_generator' %}?deck={{ deck.id }}" class="btn btn-brand">
+            <i class="bi bi-stars me-1"></i> Generate with AI
+        </a>
+    </div>
+    {% endif %}
+{% endif %}
+
+{% include 'tupas/partials/study_session_summary.html' %}
+{% endblock %}
+
+{% block extra_js %}
+{% if items %}
+<script>
+(function () {
+    document.querySelectorAll('[data-reveal-target]').forEach((button) => {
+        const target = document.getElementById(button.dataset.revealTarget);
+        if (!target) return;
+
+        function syncLabel() {
+            const hidden = target.classList.contains('d-none');
+            button.innerHTML = hidden
+                ? '<i class="bi bi-eye me-1"></i> Show answers'
+                : '<i class="bi bi-eye-slash me-1"></i> Hide answers';
+        }
+
+        syncLabel();
+        button.addEventListener('click', function () {
+            target.classList.toggle('d-none');
+            syncLabel();
+        });
+    });
+
+    document.querySelectorAll('[data-mnemonic-target]').forEach((button) => {
+        const target = document.getElementById(button.dataset.mnemonicTarget);
+        if (!target) return;
+        button.addEventListener('click', function () {
+            const hidden = target.classList.toggle('d-none');
+            button.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+            button.innerHTML = hidden
+                ? '<i class="bi bi-lightbulb me-1"></i> 💡 Show Memory Trick / Acronym'
+                : '<i class="bi bi-lightbulb-fill me-1"></i> Hide Memory Trick';
+        });
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,554 @@
+/* ==========================================================================
+   TUPAS DASHBOARD - Fully Responsive Mobile & Desktop Stylesheet
+   Compatible with all iOS & Android versions
+   ========================================================================== */
+
+:root {
+    --dash-lime: #A8EE00;
+    --dash-lime-dark: #6CA600;
+    --dash-lime-light: #C8F84A;
+    --dash-navy: #080E2C;
+    --dash-navy-mid: #1A1A4E;
+    --dash-cream: #FAF7EE;
+    --dash-cream-dark: #ECE7D5;
+    --dash-radius: 1.6rem;
+    --dash-radius-sm: 1rem;
+    --dash-shadow: 0 12px 32px rgba(8, 14, 44, 0.08);
+}
+
+/* ---------- 1. HERO PANEL (matches AI Generator lime hero) ---------- */
+.hero-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 2rem;
+    padding: clamp(1.35rem, 4vw, 2.5rem);
+    background: var(--dash-lime);
+    color: var(--dash-navy);
+    box-shadow: 0 16px 36px rgba(8, 14, 44, 0.12);
+    border: 2px solid rgba(8, 14, 44, 0.1);
+}
+
+/* Playful background decorative bubbles */
+.hero-deco-cream {
+    position: absolute;
+    top: -3.5rem;
+    right: -3.5rem;
+    width: clamp(8rem, 22vw, 14rem);
+    height: clamp(8rem, 22vw, 14rem);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(250, 247, 238, 0.55) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-deco-blue {
+    position: absolute;
+    bottom: -4rem;
+    left: 20%;
+    width: clamp(7rem, 20vw, 12rem);
+    height: clamp(7rem, 20vw, 12rem);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(138, 155, 248, 0.35) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-deco-navy {
+    position: absolute;
+    top: 25%;
+    left: -2rem;
+    width: clamp(4rem, 12vw, 8rem);
+    height: clamp(4rem, 12vw, 8rem);
+    border-radius: 50%;
+    background: rgba(8, 14, 44, 0.08);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-panel .eyebrow {
+    display: inline-block;
+    background: var(--dash-navy);
+    color: var(--dash-lime);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    margin-bottom: 0.4rem;
+}
+
+.hero-title {
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--dash-navy);
+}
+
+.hero-subtitle {
+    font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+    color: rgba(8, 14, 44, 0.78);
+    font-weight: 600;
+    line-height: 1.5;
+    max-width: 520px;
+}
+
+/* User information chips */
+.hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--tupas-cream);
+    border: 2px solid var(--dash-navy);
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--dash-navy);
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 2px 0 var(--dash-navy);
+}
+
+/* Hero Action CTA Buttons */
+.tupas-btn-navy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dash-navy);
+    color: var(--dash-lime) !important;
+    font-weight: 800;
+    font-size: 0.95rem;
+    border-radius: 999px;
+    padding: 0.65rem 1.35rem;
+    border: 2px solid var(--dash-navy);
+    box-shadow: 0 4px 0 rgba(8, 14, 44, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    min-height: 44px;
+    /* iOS standard touch target */
+}
+
+.tupas-btn-navy:hover,
+.tupas-btn-navy:focus {
+    background: #141d4f;
+    color: var(--dash-lime) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(8, 14, 44, 0.35);
+}
+
+.tupas-btn-cream {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tupas-cream);
+    color: var(--dash-navy) !important;
+    font-weight: 800;
+    font-size: 0.95rem;
+    border-radius: 999px;
+    padding: 0.65rem 1.35rem;
+    border: 2px solid var(--dash-navy);
+    box-shadow: 0 4px 0 var(--dash-navy);
+    transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    min-height: 44px;
+}
+
+.tupas-btn-cream:hover,
+.tupas-btn-cream:focus {
+    background: #ffffff;
+    color: var(--dash-navy) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--dash-navy);
+}
+
+/* Mascot Peeking Over Mastery Box */
+.hero-mascot-peek {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: -18px;
+    position: relative;
+    z-index: 3;
+    pointer-events: none;
+    user-select: none;
+}
+
+.hero-mascot-peek svg {
+    width: clamp(110px, 32vw, 150px);
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+}
+
+/* Mastery Snapshot Card */
+.mastery-snapshot-card {
+    position: relative;
+    z-index: 2;
+    background: rgba(8, 14, 44, 0.85);
+    border: 1.5px solid rgba(168, 238, 0, 0.35);
+    border-radius: 1.35rem;
+    padding: 1.35rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.mastery-label {
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.mastery-progress-track {
+    height: 0.55rem;
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.mastery-progress-fill {
+    width: var(--mastery-pct, 0%);
+    background: linear-gradient(90deg, #A8EE00, #C8F84A);
+    border-radius: 999px;
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- 2. STAT CARDS (4-GRID) ---------- */
+.stat-card {
+    background: var(--tupas-cream);
+    border: 2px solid rgba(8, 14, 44, 0.08);
+    border-radius: 1.5rem;
+    padding: clamp(0.85rem, 2.5vw, 1.2rem);
+    box-shadow: var(--tupas-shadow-sm);
+    height: 100%;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    box-sizing: border-box;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(8, 14, 44, 0.22);
+    box-shadow: 0 16px 36px rgba(8, 14, 44, 0.11);
+}
+
+.stat-icon {
+    width: clamp(2.4rem, 6vw, 2.9rem);
+    height: clamp(2.4rem, 6vw, 2.9rem);
+    border-radius: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    flex-shrink: 0;
+}
+
+.stat-icon-lime {
+    background: var(--dash-lime);
+    color: var(--dash-navy);
+    border: 2px solid var(--dash-navy);
+}
+
+.stat-icon-green {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.stat-icon-amber {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.stat-icon-blue {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.stat-value {
+    font-size: clamp(1.25rem, 3.8vw, 1.7rem);
+    font-weight: 850;
+    line-height: 1.1;
+    color: var(--dash-navy);
+}
+
+.stat-label {
+    color: var(--tupas-muted);
+    font-size: clamp(0.72rem, 2vw, 0.82rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-top: 0.15rem;
+}
+
+/* ---------- 3. SECTION HEADINGS ---------- */
+.section-eyebrow {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dash-lime-dark);
+}
+
+.section-heading {
+    font-size: clamp(1.2rem, 3.5vw, 1.55rem);
+    font-weight: 850;
+    color: var(--dash-navy);
+    letter-spacing: -0.02em;
+}
+
+/* ---------- 4. DECK CARDS ---------- */
+.deck-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--tupas-cream);
+    border: 2px solid rgba(8, 14, 44, 0.08);
+    border-radius: 1.6rem;
+    padding: clamp(1rem, 3vw, 1.35rem);
+    box-shadow: var(--dash-shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    box-sizing: border-box;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.deck-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(8, 14, 44, 0.24);
+    box-shadow: 0 16px 36px rgba(8, 14, 44, 0.13);
+}
+
+.deck-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+    background: var(--dash-lime);
+    color: var(--dash-navy);
+    border: 2px solid var(--dash-navy);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.deck-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--dash-navy);
+    line-height: 1.3;
+}
+
+.deck-meta {
+    color: var(--tupas-muted);
+    font-size: 0.82rem;
+    font-weight: 550;
+}
+
+/* ---------- 5. RECENT EXAM TABLE ---------- */
+.tupas-table {
+    white-space: nowrap;
+}
+
+.tupas-table th {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tupas-muted);
+    padding: 0.85rem 1rem;
+    background: var(--dash-cream);
+    border-bottom: 2px solid rgba(8, 14, 44, 0.1);
+}
+
+[data-theme="dark"] .tupas-table th {
+    background: #0f1730;
+    color: var(--tupas-text-soft);
+    border-bottom-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .deck-card {
+    background: var(--tupas-surface);
+    border-color: var(--tupas-border);
+}
+
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .deck-title {
+    color: var(--tupas-text);
+}
+
+.tupas-table td {
+    padding: 0.9rem 1rem;
+    font-size: 0.88rem;
+    vertical-align: middle;
+}
+
+/* ---------- 6. MOBILE SPECIFIC OPTIMIZATIONS (iOS & Android) ---------- */
+@media (max-width: 767.98px) {
+    .hero-panel {
+        padding: 1.35rem 1.15rem;
+        border-radius: 1.35rem;
+    }
+
+    .hero-title {
+        font-size: 1.55rem;
+    }
+
+    .hero-panel .d-flex.gap-2.mt-4 {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.65rem !important;
+        margin-top: 1.25rem !important;
+    }
+
+    .tupas-btn-navy,
+    .tupas-btn-cream {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem 1rem;
+    }
+
+    .hero-mascot-peek {
+        margin-top: 1rem;
+        margin-bottom: -14px;
+    }
+
+    .hero-mascot-peek svg {
+        width: 120px;
+    }
+
+    .mastery-snapshot-card {
+        padding: 1.1rem;
+        border-radius: 1.15rem;
+    }
+
+    /* Stat Cards Grid on Mobile */
+    .stat-card {
+        padding: 0.75rem 0.65rem;
+        border-radius: 1rem;
+        gap: 0.6rem !important;
+    }
+
+    .stat-icon {
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.7rem;
+        font-size: 1.05rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.72rem;
+    }
+
+    /* Deck Cards on Mobile */
+    .deck-card {
+        padding: 1.1rem;
+        border-radius: 1.15rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .stat-card {
+        padding: 0.65rem 0.5rem;
+    }
+
+    .stat-icon {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .stat-value {
+        font-size: 1.05rem;
+    }
+
+    .stat-label {
+        font-size: 0.68rem;
+    }
+}
+
+/* Touch active state on mobile */
+@media (hover: none) {
+    .deck-card:active {
+        transform: scale(0.98);
+    }
+
+    .tupas-btn-navy:active,
+    .tupas-btn-cream:active {
+        transform: scale(0.98);
+    }
+}
+
+
+@media (max-width: 380px) {
+    .stat-card {
+        padding: 0.65rem 0.5rem;
+    }
+
+    .stat-icon {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .stat-value {
+        font-size: 1.05rem;
+    }
+
+    .stat-label {
+        font-size: 0.68rem;
+    }
+}
+
+/* Touch active state on mobile */
+@media (hover: none) {
+    .deck-card:active {
+        transform: scale(0.98);
+    }
+
+    .tupas-btn-navy:active,
+    .tupas-btn-cream:active {
+        transform: scale(0.98);
+    }
+}
+/* ==========================================================================
+   ADMIN DASHBOARD
+   ========================================================================== */
+.admin-activity-table th {
+    white-space: nowrap;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--dash-navy);
+    opacity: 0.7;
+}
+
+.admin-activity-table td {
+    font-size: 0.85rem;
+}
+
+.admin-stat .stat-value {
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767.98px) {
+    .admin-activity-table .col-ip,
+    .admin-activity-table .col-detail {
+        display: none;
+    }
+
+    .hero-panel .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .admin-activity-table th,
+    .admin-activity-table td {
+        padding: 0.45rem 0.5rem;
+    }
+}

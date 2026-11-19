@@ -1,0 +1,250 @@
+/* ==========================================================================
+   TUPAS LANDING / WELCOME SCREEN CSS (Screen 1 - Exact Reference Match)
+   Responsive for iOS, Android & Desktop
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --tupas-lime: #a8ee00;
+  --tupas-lime-border: #99cc14;
+  --tupas-lime-text: #7cb600;
+  --tupas-cream: #faf7ee;
+  --tupas-navy: #080e2c;
+  --tupas-navy-hover: #141d4f;
+  --tupas-periwinkle: #8a9bf8;
+  --tupas-subtext: #3a3f58;
+}
+
+/* Outer Backdrop (Soft gradient on Desktop, Seamless Cream on Mobile) */
+.plopp-landing-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at 65% 20%, #8a9bf8 0%, #464d70 48%, #f5f2e8 100%);
+  padding: 1.5rem 0.75rem;
+  box-sizing: border-box;
+}
+
+/* Phone Card Container */
+.plopp-landing {
+  position: relative;
+  width: 100%;
+  max-width: 370px;
+  min-height: 670px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--tupas-cream);
+  border-radius: 38px;
+  box-shadow: 0 28px 65px rgba(8, 14, 44, 0.32);
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-top: 2rem;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Full-Screen Native App Feel on Mobile Phones */
+@media (max-width: 480px) {
+  .plopp-landing-wrapper {
+    background: var(--tupas-cream);
+    padding: 0;
+  }
+
+  .plopp-landing {
+    max-width: 100%;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: max(2rem, env(safe-area-inset-top));
+  }
+}
+
+/* =========================================
+   TOP 3 DECORATIVE CIRCLES (EXACT POSITIONS)
+   ========================================= */
+
+/* 1. Large Lime-Green Circle (Top-Left Corner) */
+.plopp-blob-tl {
+  position: absolute;
+  top: -58px;
+  left: -38px;
+  width: 205px;
+  height: 185px;
+  background: var(--tupas-lime);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 2. Solid Dark Navy Circle (Top-Middle-Right) */
+.plopp-blob-tr {
+  position: absolute;
+  top: 28px;
+  right: 82px;
+  width: 68px;
+  height: 68px;
+  background: var(--tupas-navy);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 3. Periwinkle Blue Circle (Clipped on Right Edge) */
+.plopp-blob-mid {
+  position: absolute;
+  top: 26px;
+  right: -52px;
+  width: 118px;
+  height: 118px;
+  background: var(--tupas-periwinkle);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* =========================================
+   MAIN TEXT & BUTTONS AREA
+   ========================================= */
+.plopp-landing-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: 145px;
+  margin-bottom: 1rem;
+  padding: 0 2.1rem;
+  box-sizing: border-box;
+}
+
+.plopp-landing-title {
+  font-size: clamp(2.05rem, 6.5vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--tupas-navy);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.85rem 0;
+}
+
+.plopp-landing-sub {
+  font-size: 0.96rem;
+  font-weight: 500;
+  color: var(--tupas-subtext);
+  line-height: 1.48;
+  margin: 0 0 2rem 0;
+}
+
+/* Primary Button ("Sign Up" - Dark Navy Rounded Box) */
+.plopp-btn-primary {
+  display: block;
+  width: 100%;
+  padding: 0.98rem 1.5rem;
+  background: var(--tupas-navy);
+  color: #ffffff !important;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition: transform 0.15s ease, background 0.18s ease;
+}
+
+.plopp-btn-primary:hover,
+.plopp-btn-primary:focus {
+  background: var(--tupas-navy-hover);
+  transform: translateY(-1px);
+  color: #ffffff !important;
+}
+
+.plopp-btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Outline Button ("Log In" - Lime Green Border & Text) */
+.plopp-btn-outline {
+  display: block;
+  width: 100%;
+  padding: 0.92rem 1.5rem;
+  background: transparent;
+  color: var(--tupas-lime-text) !important;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 2px solid var(--tupas-lime-border);
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  margin-top: 0.85rem;
+  transition: background 0.18s ease, transform 0.15s ease;
+}
+
+.plopp-btn-outline:hover,
+.plopp-btn-outline:focus {
+  background: rgba(168, 238, 0, 0.12);
+  transform: translateY(-1px);
+  color: var(--tupas-lime-text) !important;
+}
+
+.plopp-btn-outline:active {
+  transform: scale(0.98);
+}
+
+/* =========================================
+   MASCOT PEEKING FROM BOTTOM
+   ========================================= */
+.plopp-mascot-landing {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+  user-select: none;
+  margin-top: auto;
+  line-height: 0;
+}
+
+.plopp-mascot-landing svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Subtle pupil movement animation */
+.plopp-mascot-eyes {
+  animation: tupas-look 4.5s ease-in-out infinite;
+}
+
+@keyframes tupas-look {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-3px, -2px);
+  }
+}
+
+/* Short screens adjustment */
+@media (max-height: 640px) {
+  .plopp-landing-content {
+    margin-top: 115px;
+  }
+
+  .plopp-landing-sub {
+    margin-bottom: 1.25rem;
+  }
+}

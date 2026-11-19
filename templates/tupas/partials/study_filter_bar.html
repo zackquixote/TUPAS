@@ -1,0 +1,35 @@
+{% comment %}
+Reusable Weak-Spot / Unmastered filter bar for the study modes.
+Required context: deck, mode_url_name, current_filter, total_items,
+weak_count, unmastered_count, due_count.
+{% endcomment %}
+<div class="surface-card p-2 p-md-3 mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="eyebrow me-1 d-none d-md-inline">Study filter</span>
+        <a href="{% url mode_url_name deck.id %}"
+           class="btn btn-sm {% if current_filter == 'all' %}btn-brand{% else %}btn-soft{% endif %}"
+           {% if current_filter == 'all' %}aria-current="page"{% endif %}>
+            📚 All Items ({{ total_items }})
+        </a>
+        <a href="{% url mode_url_name deck.id %}?filter=weak"
+           class="btn btn-sm {% if current_filter == 'weak' %}btn-brand{% else %}btn-soft{% endif %}"
+           {% if current_filter == 'weak' %}aria-current="page"{% endif %}>
+            🔥 Weak Spots Only ({{ weak_count }})
+        </a>
+        <a href="{% url mode_url_name deck.id %}?filter=unmastered"
+           class="btn btn-sm {% if current_filter == 'unmastered' %}btn-brand{% else %}btn-soft{% endif %}"
+           {% if current_filter == 'unmastered' %}aria-current="page"{% endif %}>
+            ⏳ Not Yet Mastered ({{ unmastered_count }})
+        </a>
+        <a href="{% url mode_url_name deck.id %}?filter=due"
+           class="btn btn-sm {% if current_filter == 'due' %}btn-brand{% else %}btn-soft{% endif %}"
+           {% if current_filter == 'due' %}aria-current="page"{% endif %}>
+            ⏰ Due Today ({{ due_count|default:0 }})
+        </a>
+        {% if current_filter != 'all' %}
+        <span class="badge badge-review ms-auto">
+            <i class="bi bi-funnel me-1"></i>{{ items|length }} shown
+        </span>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,55 @@
+/* ==========================================================================
+   SMART HIGHLIGHTER MODE CSS
+   Responsive for iOS & Android
+   ========================================================================== */
+
+.highlight-note {
+    line-height: 1.9;
+    font-size: 1.02rem;
+    color: var(--tupas-navy);
+}
+
+.answer-reveal {
+    background: rgba(138, 155, 248, 0.14);
+    border: 2px dashed rgba(8, 14, 44, 0.16);
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+}
+
+.tupas-highlight {
+    background: #fde68a;
+    color: inherit;
+    padding: 0.05em 0.25em;
+    border-radius: 0.3em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.highlight-note.blanks .tupas-highlight {
+    background: #e5e7eb;
+    color: transparent;
+    border-bottom: 2px dashed #9ca3af;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.highlight-note.blanks .tupas-highlight.revealed,
+.highlight-note.blanks .tupas-highlight:focus {
+    background: #fde68a;
+    color: inherit;
+    border-bottom-color: transparent;
+}
+
+.highlight-note.blanks .tupas-highlight:hover {
+    background: #d1d5db;
+}
+
+@media (max-width: 767.98px) {
+    .highlight-note {
+        font-size: 0.95rem;
+        line-height: 1.8;
+    }
+}

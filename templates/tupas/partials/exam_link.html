@@ -1,0 +1,11 @@
+{% if count %}
+    <a href="{% url 'tupas:exam_mode' deck.id mode %}" class="exam-mini-link">
+        <span><i class="bi {{ icon }} me-2"></i>{{ label }}</span>
+        <span class="badge badge-soft">{{ count }}</span>
+    </a>
+{% else %}
+    <div class="exam-mini-link is-empty">
+        <span><i class="bi {{ icon }} me-2"></i>{{ label }}</span>
+        <span class="badge badge-soft">0</span>
+    </div>
+{% endif %}

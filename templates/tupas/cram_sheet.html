@@ -1,0 +1,376 @@
+{% load tupas_extras %}<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cram Sheet · {{ deck.title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+          rel="stylesheet">
+    <style>
+        :root {
+            --lime: #a8ee00;
+            --cream: #faf7ee;
+            --navy: #080e2c;
+            --periwinkle: #8a9bf8;
+            --line: rgba(8, 14, 44, 0.14);
+            --muted: rgba(8, 14, 44, 0.66);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            color: var(--navy);
+            background: var(--cream);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .cram-shell {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 18px 18px 32px;
+        }
+
+        .cram-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            box-shadow: 0 10px 26px rgba(8, 14, 44, 0.06);
+        }
+
+        .cram-bar a,
+        .cram-bar button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            color: var(--navy);
+            font: inherit;
+            font-weight: 700;
+            font-size: 12.5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .cram-bar .is-active {
+            background: var(--navy);
+            color: #ffffff;
+            border-color: var(--navy);
+        }
+
+        .cram-bar .print-btn {
+            margin-left: auto;
+            background: var(--lime);
+            border-color: var(--lime);
+            color: var(--navy);
+        }
+
+        .cram-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            border-radius: 16px;
+            background: var(--navy);
+            color: #ffffff;
+        }
+
+        .cram-header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .cram-header .cram-sub {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .cram-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--periwinkle);
+            color: var(--navy);
+            font-size: 10.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .cram-section {
+            margin-bottom: 14px;
+            break-inside: avoid;
+        }
+
+        .cram-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cram-section-title::before {
+            content: '';
+            width: 18px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--lime);
+        }
+
+        .cram-grid {
+            column-count: 2;
+            column-gap: 14px;
+        }
+
+        .cram-card {
+            break-inside: avoid;
+            margin: 0 0 10px;
+            padding: 9px 11px;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--lime);
+            border-radius: 10px;
+        }
+
+        .cram-card.is-note {
+            border-left-color: var(--periwinkle);
+        }
+
+        .cram-card.is-enum {
+            border-left-color: var(--navy);
+        }
+
+        .cram-term {
+            display: block;
+            font-weight: 800;
+            font-size: 12.5px;
+            margin-bottom: 2px;
+        }
+
+        .cram-answer {
+            display: block;
+            font-weight: 600;
+        }
+
+        .cram-note {
+            font-size: 12px;
+        }
+
+        .cram-note strong u {
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+        }
+
+        .cram-list {
+            margin: 4px 0 0;
+            padding-left: 17px;
+            font-size: 12px;
+        }
+
+        .cram-list li {
+            margin-bottom: 2px;
+        }
+
+        .cram-mnemonic {
+            margin-top: 6px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            background: rgba(168, 238, 0, 0.22);
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .cram-muted {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .cram-footer {
+            margin-top: 18px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--line);
+            font-size: 10.5px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        @media (max-width: 720px) {
+            .cram-grid { column-count: 1; }
+        }
+
+        @media print {
+            @page { margin: 10mm; }
+
+            body {
+                background: #ffffff;
+                font-size: 10.5pt;
+            }
+
+            .cram-shell {
+                max-width: none;
+                padding: 0;
+            }
+
+            .d-print-none { display: none !important; }
+
+            .cram-header {
+                background: #ffffff;
+                color: var(--navy);
+                border-bottom: 3px solid var(--navy);
+                border-radius: 0;
+                padding: 0 0 6px;
+                margin-bottom: 8px;
+            }
+
+            .cram-header .cram-sub { color: var(--muted); }
+
+            .cram-section { margin-bottom: 8px; }
+
+            .cram-card {
+                padding: 6px 8px;
+                margin-bottom: 6px;
+                box-shadow: none;
+            }
+
+            .cram-grid {
+                column-count: 2;
+                column-gap: 8mm;
+            }
+
+            .cram-footer { margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="cram-shell">
+    <div class="cram-bar d-print-none">
+        <a href="{% url 'tupas:deck_detail' deck.id %}">← Back to deck</a>
+        <a href="{% url 'tupas:deck_cram_sheet' deck.id %}"
+           class="{% if filter_key == 'all' %}is-active{% endif %}">📚 All Items</a>
+        <a href="{% url 'tupas:deck_cram_sheet' deck.id %}?filter=weak"
+           class="{% if filter_key == 'weak' %}is-active{% endif %}">🔥 Weak Spots Only</a>
+        <button type="button" class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+
+    <header class="cram-header">
+        <div>
+            <span class="cram-pill">{{ deck.subject.subject_name }}</span>
+            <h1>{{ deck.title }}</h1>
+            <div class="cram-sub">
+                {% if filter_key == 'weak' %}
+                Weak spots only · {{ total_items }} item{{ total_items|pluralize }} · {{ weak_count }} marked Study Again
+                {% else %}
+                All items · {{ total_items }} item{{ total_items|pluralize }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="cram-sub">TUPAS Cram Sheet · {% now "M d, Y" %}</div>
+    </header>
+
+    <main>
+        {% if flip_cards %}
+        <section class="cram-section">
+            <h2 class="cram-section-title">1 · Key Terms &amp; Definitions</h2>
+            <div class="cram-grid">
+                {% for item in flip_cards %}
+                <article class="cram-card">
+                    <span class="cram-term">{{ item.prompt_text|striptags }}</span>
+                    <span class="cram-answer">{{ item.main_answer }}</span>
+                    {% if item.explanation %}
+                    <div class="cram-mnemonic">{{ item.explanation|striptags }}</div>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if highlight_notes %}
+        <section class="cram-section">
+            <h2 class="cram-section-title">2 · Highlighted Study Notes</h2>
+            <div class="cram-grid">
+                {% for item in highlight_notes %}
+                <article class="cram-card is-note">
+                    <div class="cram-note">{{ item.prompt_text|cram_note }}</div>
+                    {% if item.explanation %}
+                    <div class="cram-mnemonic">{{ item.explanation|striptags }}</div>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if enumerations %}
+        <section class="cram-section">
+            <h2 class="cram-section-title">3 · Must-Memorize Enumerations</h2>
+            <div class="cram-grid">
+                {% for item in enumerations %}
+                <article class="cram-card is-enum">
+                    <span class="cram-term">{{ item.prompt_text|striptags }}</span>
+                    {% if item.is_strict_order %}
+                    <ol class="cram-list">
+                        {% for answer in item.cram_answers %}<li>{{ answer }}</li>{% endfor %}
+                    </ol>
+                    {% else %}
+                    <ul class="cram-list">
+                        {% for answer in item.cram_answers %}<li>{{ answer }}</li>{% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if item.explanation %}
+                    <div class="cram-mnemonic">{{ item.explanation|striptags }}</div>
+                    {% endif %}
+                    {% if item.is_strict_order %}
+                    <div class="cram-muted">Sequence matters.</div>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not flip_cards and not highlight_notes and not enumerations %}
+        <div class="cram-card">
+            <span class="cram-term">Nothing to print yet</span>
+            <span class="cram-muted">
+                {% if filter_key == 'weak' %}
+                No weak-spot items in this deck yet. Mark a card “Study Again” to fill this sheet.
+                {% else %}
+                This deck has no review items yet.
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer class="cram-footer">
+        <span>TUPAS Reviewer · Study smarter, one card at a time.</span>
+        <span>{% if filter_key == 'weak' %}Weak spots{% else %}Full deck{% endif %} · {{ total_items }} items</span>
+    </footer>
+</div>
+</body>
+</html>

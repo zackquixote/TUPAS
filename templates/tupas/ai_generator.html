@@ -1,0 +1,782 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Auto-Reviewer & PDF Generator · TUPAS{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+<link href="{% static 'css/ai-generator.css' %}?v=ui11" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="tupas-ai-wrapper">
+
+    <!-- ================= TUPAS LIME MASCOT HERO BANNER ================= -->
+    <section class="tupas-ai-hero mb-4">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <span class="tupas-ai-pill">
+                        <i class="bi bi-stars me-1"></i> AI Auto-Reviewer &amp; PDF Reader
+                    </span>
+                    {% if ai_status.configured %}
+                    <span class="tupas-ai-status-pill is-ready">
+                        <span class="status-dot"></span> {{ ai_status.provider_label }} Ready
+                    </span>
+                    {% else %}
+                    <span class="tupas-ai-status-pill is-warning">
+                        <i class="bi bi-exclamation-circle me-1"></i> API Key Needed
+                    </span>
+                    {% endif %}
+                </div>
+
+                <h1 class="tupas-ai-title mb-2">
+                    Turn your PDFs &amp; notes into a reviewer.
+                </h1>
+                <p class="tupas-ai-subtitle mb-3">
+                    Upload a PDF handout or paste your lecture notes—TUPAS AI will automatically build
+                    <strong>3D Flip Cards</strong>, <strong>Smart Highlights</strong>, and <strong>Enumeration
+                        Drills</strong> straight into your deck.
+                </p>
+
+                <a href="{% url 'tupas:dashboard' %}" class="btn tupas-btn-navy-outline">
+                    <i class="bi bi-arrow-left me-1"></i> Back to library
+                </a>
+            </div>
+
+            <!-- Big-Eyed TUPAS Mascot Character -->
+            <div class="col-lg-4 d-none d-lg-flex justify-content-center">
+                <div class="tupas-ai-mascot-box" aria-hidden="true">
+                    <svg class="tupas-ai-mascot-svg" viewBox="0 0 240 175" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Top Leaf Sprout -->
+                        <ellipse cx="113" cy="22" rx="10" ry="15" transform="rotate(20 113 22)" fill="#FAF7EE" />
+                        <ellipse cx="126" cy="21" rx="12" ry="17" transform="rotate(42 126 21)" fill="#FAF7EE" />
+                        <!-- Expressive Eyebrows -->
+                        <path d="M48 56 Q68 42 86 54" stroke="#080E2C" stroke-width="7.5" fill="none"
+                            stroke-linecap="round" />
+                        <path d="M154 54 Q172 42 192 56" stroke="#080E2C" stroke-width="7.5" fill="none"
+                            stroke-linecap="round" />
+                        <!-- Left Big Eye -->
+                        <circle cx="70" cy="108" r="42" fill="#FFFFFF" />
+                        <circle cx="76" cy="112" r="22" fill="#080E2C" />
+                        <circle cx="67" cy="103" r="7" fill="#FFFFFF" />
+                        <circle cx="84" cy="121" r="3.8" fill="#FFFFFF" />
+                        <!-- Right Big Eye -->
+                        <circle cx="170" cy="108" r="42" fill="#FFFFFF" />
+                        <circle cx="176" cy="112" r="22" fill="#080E2C" />
+                        <circle cx="167" cy="103" r="7" fill="#FFFFFF" />
+                        <circle cx="184" cy="121" r="3.8" fill="#FFFFFF" />
+                        <!-- Cute Nostrils -->
+                        <ellipse cx="112" cy="158" rx="3.5" ry="4.5" fill="#080E2C" />
+                        <ellipse cx="128" cy="158" rx="3.5" ry="4.5" fill="#080E2C" />
+                    </svg>
+                    <div class="tupas-mascot-speech">
+                        <i class="bi bi-file-earmark-pdf-fill me-1"></i> Drop a PDF or paste notes!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= MAIN GENERATOR GRID ================= -->
+    <div class="row g-4">
+        <!-- LEFT COLUMN: MAIN FORM -->
+        <div class="col-lg-8">
+            <div class="tupas-ai-card p-4 p-lg-5">
+                <form method="post" id="ai-generator-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="tupas-alert-danger mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>
+                            {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if form.errors %}
+                    <div class="tupas-alert-danger mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>
+                            <div class="fw-bold mb-1">Please fix the following:</div>
+                            <ul class="mb-0 ps-3">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}</strong>: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# ===== SIMPLIFIED 2-STEP FORM ===== #}
+
+                    {# --- STEP 1: NAME YOUR REVIEWER --- #}
+                    <div class="tupas-step-header mb-3">
+                        <span class="tupas-step-badge">1</span>
+                        <div>
+                            <h2 class="tupas-step-title mb-0">Name your reviewer</h2>
+                            <p class="tupas-step-desc mb-0">Give it a title and an optional subject — TUPAS will handle the rest.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-7">
+                            <label for="{{ form.new_deck_title.id_for_label }}" class="tupas-label">
+                                Reviewer Deck Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.new_deck_title }}
+                            {% for error in form.new_deck_title.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="{{ form.subject_name.id_for_label }}" class="tupas-label">
+                                Subject / Topic <span class="text-muted small fw-normal">(optional)</span>
+                            </label>
+                            {{ form.subject_name }}
+                            <datalist id="subject-datalist">
+                                {% for s in existing_subjects %}<option value="{{ s }}">{% endfor %}
+                            </datalist>
+                            <div class="tupas-help-text">Leave blank → auto "General Studies"</div>
+                            {% for error in form.subject_name.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    {# Hidden existing deck selector — collapsed by default #}
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-muted small" id="toggle-existing-deck-btn">
+                            <i class="bi bi-chevron-down me-1" id="existing-deck-chevron"></i>Or append to an existing deck?
+                        </button>
+                        <div id="existing-deck-panel" class="mt-2 d-none">
+                            <label for="{{ form.deck.id_for_label }}" class="tupas-label">Select existing deck</label>
+                            {{ form.deck }}
+                            {% for error in form.deck.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    {# Hidden fields still submitted for backend compatibility #}
+                    <div class="d-none">
+                        {{ form.subject }}
+                        {{ form.new_subject_name }}
+                        {{ form.new_subject_target_course }}
+                        {{ form.new_deck_description }}
+                    </div>
+
+                    {% if user.is_staff %}
+                    <div class="tupas-danger-check mb-3">
+                        <div class="form-check mb-0">
+                            {{ form.clear_existing }}
+                            <label class="form-check-label fw-bold" for="{{ form.clear_existing.id_for_label }}">
+                                {{ form.clear_existing.label }}
+                            </label>
+                            <div class="small text-danger mt-1">
+                                This permanently deletes the selected deck's review items before saving the new ones.
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <hr class="tupas-divider my-4">
+
+                    {# --- STEP 2: ADD HANDOUT / NOTES --- #}
+                    <div class="tupas-step-header mb-3">
+                        <span class="tupas-step-badge">2</span>
+                        <div>
+                            <h2 class="tupas-step-title mb-0">Add your handout or lecture notes</h2>
+                            <p class="tupas-step-desc mb-0">Drop a PDF/PPT handout or paste raw text below.</p>
+                        </div>
+                    </div>
+
+                    {# PDF Dropzone #}
+                    <div class="tupas-pdf-dropzone mb-3" id="pdf-dropzone">
+                        <input type="file" id="pdf-file-input" accept=".pdf,.pptx,.txt,.md,.png,.jpg,.jpeg,.webp" class="d-none">
+                        <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center gap-3 text-center text-sm-start flex-column flex-sm-row">
+                                <div class="tupas-pdf-icon">
+                                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-extrabold text-navy" id="pdf-status-title">
+                                        Have a PDF module or reviewer handout?
+                                    </div>
+                                    <div class="small text-muted" id="pdf-status-subtitle">
+                                        Upload a <code>.pdf</code>, <code>.pptx</code>, <code>.txt</code>, or a photo of
+                                        your slides/whiteboard and we'll extract the text into the box below.
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn tupas-btn-periwinkle flex-shrink-0" id="pdf-browse-btn">
+                                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload PDF / PPTX / Slide Photo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="{{ form.notes.id_for_label }}" class="tupas-label mb-0">{{ form.notes.label }}</label>
+                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-muted small" id="clear-notes-btn">
+                                <i class="bi bi-eraser me-1"></i>Clear text
+                            </button>
+                        </div>
+                        {{ form.notes }}
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="tupas-help-text">
+                                <i class="bi bi-lightbulb-fill text-warning me-1"></i>
+                                Detailed notes produce the best cards. Aim for 300+ characters.
+                            </div>
+                            <div class="tupas-char-counter">
+                                <span id="notes-count">0</span> / 30,000
+                            </div>
+                        </div>
+                        {% for error in form.notes.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    {# Live readiness + error summary #}
+                    <div id="generate-blockers" class="tupas-alert-danger mb-3 d-none" role="alert" aria-live="polite">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>
+                            <div class="fw-bold mb-1">Cannot generate yet — fix these:</div>
+                            <ul id="generate-blocker-list" class="mb-0 ps-3"></ul>
+                        </div>
+                    </div>
+
+                    {# PRIMARY CTA #}
+                    <button type="submit" id="generate-button" class="btn tupas-btn-generate w-100 py-3 fs-5 fw-bold mb-2">
+                        <i class="bi bi-stars me-2"></i> Build My Reviewer Deck
+                    </button>
+                    <div class="tupas-help-text text-center mb-4">
+                        <i class="bi bi-clock-history me-1"></i> Takes ~15–30 seconds. Keep this tab open.
+                    </div>
+
+                    {# ===== ADVANCED SETTINGS (collapsed by default) ===== #}
+                    <div class="accordion accordion-flush" id="advanced-accordion">
+                        <div class="accordion-item border rounded-3 overflow-hidden">
+                            <h2 class="accordion-header" id="adv-heading">
+                                <button class="accordion-button collapsed px-4 py-3 fw-semibold text-navy bg-transparent" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#adv-body" aria-expanded="false" aria-controls="adv-body">
+                                    <i class="bi bi-sliders me-2 text-muted"></i> Advanced Settings
+                                </button>
+                            </h2>
+                            <div id="adv-body" class="accordion-collapse collapse" aria-labelledby="adv-heading">
+                                <div class="accordion-body px-4 pb-4">
+
+                                    {# AI Engine Selector #}
+                                    {% if form.ai_provider.field.choices|length > 1 %}
+                                    <div class="mb-3">
+                                        <label for="{{ form.ai_provider.id_for_label }}" class="tupas-label">
+                                            {{ form.ai_provider.label }}
+                                        </label>
+                                        {{ form.ai_provider }}
+                                        {% for error in form.ai_provider.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                                        <div class="tupas-help-text">
+                                            <i class="bi bi-cpu me-1"></i>
+                                            Only engines with a configured key are listed.
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    {# Item Types #}
+                                    <div class="mb-3">
+                                        <label class="tupas-label">{{ form.item_types.label }}</label>
+                                        <div class="d-flex flex-wrap gap-2 mb-2" id="preset-pills">
+                                            <button type="button" class="btn btn-sm tupas-preset-pill active" data-preset="all">✨ All 3 Modes</button>
+                                            <button type="button" class="btn btn-sm tupas-preset-pill" data-preset="flip">🃏 Only Flip Cards</button>
+                                            <button type="button" class="btn btn-sm tupas-preset-pill" data-preset="enum">📋 Only Enumerations</button>
+                                            <button type="button" class="btn btn-sm tupas-preset-pill" data-preset="highlight">🖍️ Only Smart Highlights</button>
+                                        </div>
+                                        <div class="tupas-checkbox-grid">
+                                            {% for checkbox in form.item_types %}
+                                            <div class="form-check tupas-check-card">
+                                                {{ checkbox.tag }}
+                                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% for error in form.item_types.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                                    </div>
+
+                                    {# Coverage Depth + Exam Style #}
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="{{ form.items_per_type.id_for_label }}" class="tupas-label">{{ form.items_per_type.label }}</label>
+                                            {{ form.items_per_type }}
+                                            <div class="tupas-help-text">{{ form.items_per_type.help_text }}</div>
+                                            {% for error in form.items_per_type.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                                            <div class="form-check mt-2">
+                                                {{ form.exhaustive }}
+                                                <label class="form-check-label small" for="{{ form.exhaustive.id_for_label }}">
+                                                    {{ form.exhaustive.label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="{{ form.exam_style.id_for_label }}" class="tupas-label">{{ form.exam_style.label }}</label>
+                                            {{ form.exam_style }}
+                                            {% for error in form.exam_style.errors %}<div class="tupas-field-error">{{ error }}</div>{% endfor %}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: AI STATUS & MODE PREVIEW -->
+        <div class="col-lg-4">
+            <!-- AI Provider Status Card -->
+            <div class="tupas-ai-card p-4 mb-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="tupas-side-icon is-lime">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="tupas-side-heading mb-0">AI Engine Status</h3>
+                        <div class="small text-muted">Server-side, key-safe</div>
+                    </div>
+                </div>
+
+                {% if ai_status.configured %}
+                <div class="tupas-provider-box is-configured mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="fw-extrabold text-navy">{{ ai_status.provider_label }}</span>
+                        <span class="tupas-ready-badge">
+                            <i class="bi bi-check-circle-fill me-1"></i>Connected
+                        </span>
+                    </div>
+                    <div class="small text-muted mb-1">
+                        Model: <code class="tupas-code">{{ ai_status.model }}</code>
+                    </div>
+                    <div class="small text-muted mb-0">
+                        Loaded safely from <code class="tupas-code">{{ ai_status.env_var }}</code>.
+                    </div>
+                </div>
+                {% else %}
+                <div class="tupas-alert-warning small mb-3">
+                    <i class="bi bi-key-fill me-1"></i> {{ ai_status.error }}
+                </div>
+                <div class="small fw-bold text-navy mb-2">
+                    Paste your free API key in PowerShell:
+                </div>
+                <pre class="tupas-terminal mb-2"><code>$env:GEMINI_API_KEY = "AIzaSyYourKeyHere"
+$env:GROQ_API_KEY = "your-groq-key"
+$env:OPENROUTER_API_KEY = "your-openrouter-key"</code></pre>
+                <div class="small text-muted">
+                    Then restart <code class="tupas-code">python manage.py runserver</code>.
+                    Optional: <code class="tupas-code">$env:TUPAS_AI_PROVIDER = "gemini"</code>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- What Gets Created Card -->
+            <div class="tupas-ai-card p-4 mb-4">
+                <h3 class="tupas-side-heading mb-3">
+                    <i class="bi bi-magic me-2 text-periwinkle"></i>What TUPAS AI creates
+                </h3>
+
+                <div class="d-grid gap-3">
+                    <div class="tupas-feature-item">
+                        <span class="tupas-feature-icon is-flip">
+                            <i class="bi bi-files"></i>
+                        </span>
+                        <div>
+                            <div class="fw-extrabold text-navy small">3D Flip Cards + Exam Choices</div>
+                            <div class="small text-muted">Question, answer, explanation, and 4 multiple-choice options.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tupas-feature-item">
+                        <span class="tupas-feature-icon is-highlight">
+                            <i class="bi bi-highlighter"></i>
+                        </span>
+                        <div>
+                            <div class="fw-extrabold text-navy small">Smart Highlight Notes</div>
+                            <div class="small text-muted">Key terms wrapped in <code
+                                    class="tupas-code">[[double brackets]]</code> for tap-to-reveal blanks.</div>
+                        </div>
+                    </div>
+
+                    <div class="tupas-feature-item">
+                        <span class="tupas-feature-icon is-enum">
+                            <i class="bi bi-list-ol"></i>
+                        </span>
+                        <div>
+                            <div class="fw-extrabold text-navy small">Enumeration Drills</div>
+                            <div class="small text-muted">Ordered or any-order checklists for step-by-step recall.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer Tip -->
+            <div class="tupas-tip-box">
+                <div class="d-flex gap-2">
+                    <i class="bi bi-shield-check text-navy fs-5 flex-shrink-0"></i>
+                    <div class="small">
+                        <strong>Study Tip:</strong> Always verify AI-generated definitions against your professor's
+                        syllabus before exam day.
+                        {% if not user.is_staff %}
+                        Generated items are saved to the selected deck for your review sessions.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- PDF.js CDN for instant client-side PDF text extraction -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    (function () {
+        const deckSelect = document.getElementById('id_deck');
+        const newDeckFields = document.getElementById('new-deck-fields');
+        const notes = document.getElementById('id_notes');
+        const notesCount = document.getElementById('notes-count');
+        const clearNotesBtn = document.getElementById('clear-notes-btn');
+        const form = document.getElementById('ai-generator-form');
+        const button = document.getElementById('generate-button');
+
+        // PDF Upload Elements
+        const pdfDropzone = document.getElementById('pdf-dropzone');
+        const pdfFileInput = document.getElementById('pdf-file-input');
+        const pdfBrowseBtn = document.getElementById('pdf-browse-btn');
+        const pdfStatusTitle = document.getElementById('pdf-status-title');
+        const pdfStatusSubtitle = document.getElementById('pdf-status-subtitle');
+
+        // 1. Existing Deck Panel Toggle
+        const toggleExistingBtn = document.getElementById('toggle-existing-deck-btn');
+        const existingDeckPanel = document.getElementById('existing-deck-panel');
+        const existingDeckChevron = document.getElementById('existing-deck-chevron');
+
+        function toggleExistingDeck(forceOpen) {
+            if (!existingDeckPanel) return;
+            const open = forceOpen !== undefined ? forceOpen : existingDeckPanel.classList.contains('d-none');
+            existingDeckPanel.classList.toggle('d-none', !open);
+            if (existingDeckChevron) {
+                existingDeckChevron.className = open ? 'bi bi-chevron-up me-1' : 'bi bi-chevron-down me-1';
+            }
+        }
+
+        if (toggleExistingBtn) {
+            toggleExistingBtn.addEventListener('click', function () {
+                toggleExistingDeck();
+            });
+        }
+        if (deckSelect && deckSelect.value) {
+            toggleExistingDeck(true);
+        }
+
+        // 2. Character Counter
+        function syncNotesCount() {
+            if (!notes || !notesCount) return;
+            notesCount.textContent = notes.value.length.toLocaleString();
+        }
+
+        if (notes) {
+            notes.addEventListener('input', syncNotesCount);
+            syncNotesCount();
+        }
+
+        if (clearNotesBtn && notes) {
+            clearNotesBtn.addEventListener('click', function () {
+                notes.value = '';
+                syncNotesCount();
+                notes.focus();
+            });
+        }
+
+        // 3. Instant PDF & TXT Extraction into #id_notes
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        async function extractPdfText(file) {
+            if (!notes) return;
+            pdfDropzone.classList.add('is-loading');
+            pdfStatusTitle.textContent = 'Reading "' + file.name + '"...';
+            pdfStatusSubtitle.textContent = 'Extracting text from pages, please wait...';
+
+            try {
+                // Slide / whiteboard photos go through server-side Gemini OCR.
+                if (/\.(png|jpe?g|webp)$/i.test(file.name)) {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const response = await fetch('{% url "tupas:extract_image" %}', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                        body: formData
+                    });
+                    const data = await response.json().catch(function () { return { ok: false }; });
+                    if (!data.ok) {
+                        pdfDropzone.classList.remove('is-loading', 'is-success');
+                        pdfDropzone.classList.add('is-warning');
+                        pdfStatusTitle.textContent = 'Could not read that image';
+                        pdfStatusSubtitle.textContent =
+                            (data.error || 'Photo OCR is unavailable right now.') +
+                            ' You can paste the text manually below.';
+                        notes.focus();
+                        return;
+                    }
+                    const existingText = notes.value.trim();
+                    notes.value = ((existingText ? existingText + '\n\n' : '') + data.text).slice(0, 30000);
+                    syncNotesCount();
+                    pdfStatusTitle.textContent = 'Photo text extracted: ' + file.name;
+                    pdfStatusSubtitle.textContent =
+                        'Review the notes below, then generate your reviewer.';
+                    pdfDropzone.classList.remove('is-loading');
+                    pdfDropzone.classList.add('is-success');
+                    return;
+                }
+
+                if (file.name.toLowerCase().endsWith('.txt') || file.name.toLowerCase().endsWith('.md')) {
+                    const rawText = await file.text();
+                    notes.value = rawText.slice(0, 30000);
+                    syncNotesCount();
+                    if (notes.value.trim().length < 80) {
+                        pdfDropzone.classList.remove('is-loading', 'is-success');
+                        pdfDropzone.classList.add('is-warning');
+                        pdfStatusTitle.textContent = 'This file has very little selectable text (< 80 characters)';
+                        pdfStatusSubtitle.textContent = 'It may be a scanned or empty file. Paste or type at least 80 characters of notes below, then try again.';
+                        notes.focus();
+                        return;
+                    }
+                    pdfStatusTitle.textContent = 'Loaded: ' + file.name;
+                    pdfStatusSubtitle.textContent = notes.value.length.toLocaleString() + ' characters extracted into notes below.';
+                    pdfDropzone.classList.remove('is-loading');
+                    pdfDropzone.classList.add('is-success');
+                    return;
+                }
+
+                if (file.name.toLowerCase().endsWith('.pptx')) {
+                    if (!window.JSZip) {
+                        throw new Error('PPTX reader library is still loading. Please try again.');
+                    }
+                    const zip = await window.JSZip.loadAsync(file);
+                    const slideFiles = Object.keys(zip.files)
+                        .filter(function (n) { return /^ppt\/slides\/slide\d+\.xml$/.test(n); })
+                        .sort(function (a, b) {
+                            return parseInt(a.match(/slide(\d+)\.xml/)[1], 10) -
+                                parseInt(b.match(/slide(\d+)\.xml/)[1], 10);
+                        });
+                    let combined = '';
+                    for (let i = 0; i < slideFiles.length; i++) {
+                        const xml = await zip.files[slideFiles[i]].async('string');
+                        const doc = new DOMParser().parseFromString(xml, 'application/xml');
+                        const texts = Array.from(doc.getElementsByTagName('a:t')).map(function (n) { return n.textContent; });
+                        combined += '--- Slide ' + (i + 1) + ' ---\n' + texts.join(' ') + '\n\n';
+                        if (combined.length >= 30000) break;
+                    }
+                    notes.value = combined.trim().slice(0, 30000);
+                    syncNotesCount();
+                    if (notes.value.trim().length < 80) {
+                        pdfDropzone.classList.remove('is-loading', 'is-success');
+                        pdfDropzone.classList.add('is-warning');
+                        pdfStatusTitle.textContent = 'This PPTX has very little selectable text (< 80 characters)';
+                        pdfStatusSubtitle.textContent = 'It may contain only images. Paste or type at least 80 characters of notes below, then try again.';
+                        notes.focus();
+                        return;
+                    }
+                    const newDeckTitleInput = document.getElementById('id_new_deck_title');
+                    if (newDeckTitleInput && !newDeckTitleInput.value) {
+                        newDeckTitleInput.value = file.name.replace(/\.[^/.]+$/, '');
+                    }
+                    pdfStatusTitle.textContent = 'PPTX Extracted: ' + file.name + ' (' + slideFiles.length + ' slides)';
+                    pdfStatusSubtitle.textContent = notes.value.length.toLocaleString() + ' characters ready for TUPAS AI!';
+                    pdfDropzone.classList.remove('is-loading');
+                    pdfDropzone.classList.add('is-success');
+                    return;
+                }
+
+                if (!window.pdfjsLib) {
+                    throw new Error('PDF reader library is still loading. Please try again.');
+                }
+
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let combinedText = '';
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    pdfStatusSubtitle.textContent = 'Extracting page ' + pageNum + ' of ' + pdf.numPages + '...';
+                    const page = await pdf.getPage(pageNum);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(function (item) { return item.str; }).join(' ');
+                    combinedText += '--- Page ' + pageNum + ' ---\n' + pageText + '\n\n';
+                    if (combinedText.length >= 30000) break;
+                }
+
+                notes.value = combinedText.trim().slice(0, 30000);
+                syncNotesCount();
+
+                if (notes.value.trim().length < 80) {
+                    pdfDropzone.classList.remove('is-loading', 'is-success');
+                    pdfDropzone.classList.add('is-warning');
+                    pdfStatusTitle.textContent = 'This PDF has very little selectable text (< 80 characters)';
+                    pdfStatusSubtitle.textContent = 'It may be a scanned image PDF. Paste or type at least 80 characters of notes below, then focus the notes box.';
+                    notes.focus();
+                    return;
+                }
+
+                // Auto-fill New Deck Title if empty
+                const newDeckTitleInput = document.getElementById('id_new_deck_title');
+                if (newDeckTitleInput && !newDeckTitleInput.value) {
+                    newDeckTitleInput.value = file.name.replace(/\.[^/.]+$/, '');
+                }
+
+                pdfStatusTitle.textContent = 'PDF Extracted: ' + file.name + ' (' + pdf.numPages + ' pages)';
+                pdfStatusSubtitle.textContent = notes.value.length.toLocaleString() + ' characters ready for TUPAS AI!';
+                pdfDropzone.classList.remove('is-loading');
+                pdfDropzone.classList.add('is-success');
+            } catch (err) {
+                pdfDropzone.classList.remove('is-loading');
+                pdfStatusTitle.textContent = 'Could not read PDF file';
+                pdfStatusSubtitle.textContent = err.message || 'Try another PDF or paste your notes directly.';
+            }
+        }
+
+        if (pdfBrowseBtn && pdfFileInput) {
+            pdfBrowseBtn.addEventListener('click', function () {
+                pdfFileInput.click();
+            });
+            pdfFileInput.addEventListener('change', function (e) {
+                if (e.target.files && e.target.files[0]) {
+                    extractPdfText(e.target.files[0]);
+                }
+            });
+        }
+
+        if (pdfDropzone) {
+            pdfDropzone.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                pdfDropzone.classList.add('is-dragover');
+            });
+            pdfDropzone.addEventListener('dragleave', function () {
+                pdfDropzone.classList.remove('is-dragover');
+            });
+            pdfDropzone.addEventListener('drop', function (e) {
+                e.preventDefault();
+                pdfDropzone.classList.remove('is-dragover');
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    extractPdfText(e.dataTransfer.files[0]);
+                }
+            });
+        }
+
+        // 4. Preset pills for item_types
+        const presetPills = document.getElementById('preset-pills');
+        const itemTypesCheckboxes = document.querySelectorAll('input[name="item_types"]');
+        function setItemTypes(values) {
+            itemTypesCheckboxes.forEach(function (cb) {
+                cb.checked = values.indexOf(cb.value) !== -1;
+            });
+            if (presetPills) {
+                presetPills.querySelectorAll('.tupas-preset-pill').forEach(function (pill) {
+                    pill.classList.remove('active');
+                });
+            }
+        }
+        function activePreset() {
+            const checked = Array.from(itemTypesCheckboxes).filter(function (c) { return c.checked; }).map(function (c) { return c.value; });
+            const all = ['FLIP_CARD', 'HIGHLIGHT_NOTE', 'ENUMERATION'];
+            if (checked.length === 3 && all.every(function (v) { return checked.indexOf(v) !== -1; })) return 'all';
+            if (checked.length === 1 && checked[0] === 'FLIP_CARD') return 'flip';
+            if (checked.length === 1 && checked[0] === 'ENUMERATION') return 'enum';
+            if (checked.length === 1 && checked[0] === 'HIGHLIGHT_NOTE') return 'highlight';
+            return null;
+        }
+        function syncPresetHighlight() {
+            if (!presetPills) return;
+            const p = activePreset();
+            presetPills.querySelectorAll('.tupas-preset-pill').forEach(function (pill) {
+                pill.classList.toggle('active', pill.getAttribute('data-preset') === p);
+            });
+        }
+        if (presetPills) {
+            presetPills.addEventListener('click', function (e) {
+                const pill = e.target.closest('.tupas-preset-pill');
+                if (!pill) return;
+                const preset = pill.getAttribute('data-preset');
+                if (preset === 'all') setItemTypes(['FLIP_CARD', 'HIGHLIGHT_NOTE', 'ENUMERATION']);
+                else if (preset === 'flip') setItemTypes(['FLIP_CARD']);
+                else if (preset === 'enum') setItemTypes(['ENUMERATION']);
+                else if (preset === 'highlight') setItemTypes(['HIGHLIGHT_NOTE']);
+                syncPresetHighlight();
+            });
+        }
+        itemTypesCheckboxes.forEach(function (cb) {
+            cb.addEventListener('change', syncPresetHighlight);
+        });
+        syncPresetHighlight();
+
+        // 5. Live readiness + submit blocker
+        const titleInput = document.getElementById('id_new_deck_title');
+        const blockersBox = document.getElementById('generate-blockers');
+        const blockersList = document.getElementById('generate-blocker-list');
+
+        function collectBlockers() {
+            const issues = [];
+            const notesLen = notes && notes.value ? notes.value.trim().length : 0;
+            if (notesLen < 80) {
+                issues.push(
+                    'Notes are too short (' + notesLen + ' characters). Paste at least 80 characters, or upload a PDF/PPT/TXT handout.'
+                );
+            }
+            const usingExistingDeck = Boolean(deckSelect && deckSelect.value);
+            if (!usingExistingDeck) {
+                const title = titleInput && titleInput.value ? titleInput.value.trim() : '';
+                if (!title) issues.push('Enter a Reviewer Deck Title (Step 1).');
+            }
+            return issues;
+        }
+
+        function syncBlockers() {
+            if (!blockersBox || !blockersList) return;
+            const issues = collectBlockers();
+            blockersList.innerHTML = '';
+            issues.forEach(function (text) {
+                const li = document.createElement('li');
+                li.textContent = text;
+                blockersList.appendChild(li);
+            });
+            blockersBox.classList.toggle('d-none', issues.length === 0);
+        }
+
+        if (notes) notes.addEventListener('input', syncBlockers);
+        if (deckSelect) deckSelect.addEventListener('change', syncBlockers);
+        if (titleInput) titleInput.addEventListener('input', syncBlockers);
+        syncBlockers();
+
+        // 6. Form Submit Loading State
+        if (form && button) {
+            form.addEventListener('submit', function (event) {
+                const issues = collectBlockers();
+                if (issues.length) {
+                    event.preventDefault();
+                    syncBlockers();
+                    blockersBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                if (!form.checkValidity()) return;
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>TUPAS AI is building your reviewer…';
+            });
+        }
+    })();
+</script>
+{% endblock %}

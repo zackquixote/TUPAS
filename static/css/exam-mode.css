@@ -1,0 +1,97 @@
+/* ==========================================================================
+   EXAM SIMULATOR MODE CSS
+   Matches AI Generator: navy/lime, cream surfaces
+   ========================================================================== */
+
+.exam-question {
+    border-left: 4px solid var(--tupas-lime);
+}
+
+.exam-question .question-number {
+    width: 1.9rem;
+    height: 1.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+    background: var(--tupas-navy);
+    color: var(--tupas-lime);
+    font-weight: 800;
+    font-size: 0.82rem;
+    flex: 0 0 auto;
+}
+
+.form-check-input:checked {
+    background-color: var(--tupas-lime);
+    border-color: var(--tupas-navy);
+}
+
+.form-check-input:checked[type="radio"] {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2.5' fill='%23080e2c'/%3e%3c/svg%3e");
+}
+
+.form-check-label {
+    font-weight: 600;
+    color: var(--tupas-navy);
+}
+
+.score-ring {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    background: conic-gradient(var(--ring-color, var(--tupas-lime-dark)) calc(var(--score, 0) * 1%), rgba(8, 14, 44, 0.1) 0);
+    position: relative;
+    border: 2px solid var(--tupas-navy);
+}
+
+.score-ring::before {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    background: var(--tupas-cream);
+}
+
+.score-ring > * {
+    position: relative;
+    z-index: 1;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--tupas-navy);
+}
+
+.result-correct {
+    border-left: 4px solid var(--tupas-lime-dark);
+}
+
+.result-wrong {
+    border-left: 4px solid #f87171;
+}
+
+.result-answer {
+    background: rgba(8, 14, 44, 0.05);
+    border-radius: 0.8rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--tupas-navy);
+}
+
+@media (max-width: 767.98px) {
+    .score-ring {
+        width: 126px;
+        height: 126px;
+    }
+    .score-value {
+        font-size: 1.7rem;
+    }
+}

@@ -1,0 +1,20 @@
+<a href="{% url 'tupas:deck_detail' deck.id %}" class="deck-card text-reset">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <span class="deck-icon"><i class="bi bi-journal-bookmark"></i></span>
+        {% if deck.is_recommended %}
+            <span class="badge badge-recommended"><i class="bi bi-stars me-1"></i>For you</span>
+        {% endif %}
+    </div>
+    <div class="deck-title mb-1">{{ deck.title }}</div>
+    <div class="deck-meta mb-2">
+        {{ deck.subject.subject_name }}
+        {% if deck.subject.target_course %} · {{ deck.subject.target_course }}{% endif %}
+    </div>
+    {% if deck.description %}
+        <p class="small text-muted-soft mb-3">{{ deck.description|truncatechars:110 }}</p>
+    {% endif %}
+    <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
+        <span class="badge badge-soft">{{ deck.item_count }} item{{ deck.item_count|pluralize }}</span>
+        <span class="small fw-semibold text-navy">Open review <i class="bi bi-arrow-right"></i></span>
+    </div>
+</a>

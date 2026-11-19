@@ -1,0 +1,799 @@
+/* ==========================================================================
+   TUPAS AI Auto-Reviewer & PDF Generator Stylesheet (static/css/ai-generator.css)
+   Matches the Reference Mascot UI: Lime (#A8EE00), Cream (#FAF7EE), Navy (#080E2C)
+   ========================================================================== */
+
+:root {
+    --tupas-lime: #a8ee00;
+    --tupas-lime-dark: #7cb600;
+    --tupas-lime-hover: #6ea300;
+    --tupas-cream: #faf7ee;
+    --tupas-cream-dark: #f0ead8;
+    --tupas-navy: #080e2c;
+    --tupas-periwinkle: #8a9bf8;
+    --tupas-periwinkle-dark: #6c7ff2;
+    --tupas-white: #ffffff;
+}
+
+.tupas-ai-wrapper {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: var(--tupas-navy);
+    padding-bottom: 2.5rem;
+}
+
+.text-navy {
+    color: var(--tupas-navy) !important;
+}
+
+.text-periwinkle {
+    color: var(--tupas-periwinkle-dark) !important;
+}
+
+.fw-extrabold {
+    font-weight: 800;
+}
+
+/* ==========================================================================
+   1. LIME MASCOT HERO BANNER
+   ========================================================================== */
+.tupas-ai-hero {
+    background-color: var(--tupas-lime);
+    border-radius: 32px;
+    padding: 2rem 2.25rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 16px 36px rgba(8, 14, 44, 0.08);
+    border: 2px solid rgba(8, 14, 44, 0.08);
+}
+
+.tupas-ai-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--tupas-navy);
+    color: var(--tupas-cream);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.42rem 0.9rem;
+    border-radius: 999px;
+}
+
+.tupas-ai-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+}
+
+.tupas-ai-status-pill.is-ready {
+    background-color: var(--tupas-cream);
+    color: var(--tupas-navy);
+}
+
+.tupas-ai-status-pill.is-warning {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #16a34a;
+    display: inline-block;
+}
+
+.tupas-ai-title {
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--tupas-navy);
+    line-height: 1.15;
+}
+
+.tupas-ai-subtitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(8, 14, 44, 0.82);
+    max-width: 620px;
+}
+
+.tupas-btn-navy-outline {
+    background-color: var(--tupas-cream);
+    color: var(--tupas-navy);
+    font-weight: 800;
+    font-size: 0.9rem;
+    border-radius: 999px;
+    padding: 0.55rem 1.2rem;
+    border: 2px solid var(--tupas-navy);
+    transition: all 0.2s ease;
+}
+
+.tupas-btn-navy-outline:hover {
+    background-color: var(--tupas-navy);
+    color: var(--tupas-cream);
+    transform: translateY(-1px);
+}
+
+/* Mascot Box */
+.tupas-ai-mascot-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tupas-ai-mascot-svg {
+    width: 185px;
+    height: auto;
+    filter: drop-shadow(0 8px 16px rgba(8, 14, 44, 0.1));
+    animation: tupasFloat 3.4s ease-in-out infinite;
+}
+
+.tupas-mascot-speech {
+    margin-top: 0.45rem;
+    background-color: var(--tupas-cream);
+    color: var(--tupas-navy);
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 4px 0 var(--tupas-navy);
+}
+
+@keyframes tupasFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* ==========================================================================
+   2. CREAM SURFACE CARDS & FORM STYLING
+   ========================================================================== */
+.tupas-ai-card {
+    background-color: var(--tupas-cream);
+    border-radius: 28px;
+    border: 2px solid rgba(8, 14, 44, 0.08);
+    box-shadow: 0 12px 30px rgba(8, 14, 44, 0.05);
+}
+
+.tupas-step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.tupas-step-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background-color: var(--tupas-navy);
+    color: var(--tupas-lime);
+    font-weight: 800;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tupas-step-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--tupas-navy);
+}
+
+.tupas-step-desc {
+    font-size: 0.86rem;
+    color: rgba(8, 14, 44, 0.65);
+    font-weight: 600;
+}
+
+.tupas-label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--tupas-navy);
+    margin-bottom: 0.4rem;
+}
+
+/* Style Django-rendered inputs, selects, and textareas automatically */
+.tupas-ai-card input[type="text"],
+.tupas-ai-card input[type="number"],
+.tupas-ai-card select,
+.tupas-ai-card textarea,
+.tupas-ai-card .form-control,
+.tupas-ai-card .form-select {
+    background-color: var(--tupas-white);
+    border: 2px solid rgba(8, 14, 44, 0.14);
+    border-radius: 16px;
+    padding: 0.72rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--tupas-navy);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+}
+
+.tupas-ai-card textarea {
+    min-height: 210px;
+    line-height: 1.6;
+}
+
+.tupas-ai-card input:focus,
+.tupas-ai-card select:focus,
+.tupas-ai-card textarea:focus,
+.tupas-ai-card .form-control:focus,
+.tupas-ai-card .form-select:focus {
+    outline: none;
+    border-color: var(--tupas-navy);
+    box-shadow: 0 0 0 4px rgba(168, 238, 0, 0.35);
+}
+
+/* New Deck Subpanel */
+.tupas-subpanel {
+    background-color: rgba(255, 255, 255, 0.75);
+    border: 2px dashed rgba(8, 14, 44, 0.18);
+    border-radius: 22px;
+    padding: 1.25rem 1.4rem;
+}
+
+.tupas-subpanel-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background-color: var(--tupas-lime);
+    color: var(--tupas-navy);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+/* PDF Dropzone */
+.tupas-pdf-dropzone {
+    background-color: var(--tupas-white);
+    border: 2px dashed var(--tupas-periwinkle);
+    border-radius: 20px;
+    padding: 1.1rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.tupas-pdf-dropzone.is-dragover {
+    background-color: rgba(138, 155, 248, 0.12);
+    border-color: var(--tupas-navy);
+    transform: scale(1.01);
+}
+
+.tupas-pdf-dropzone.is-success {
+    background-color: rgba(168, 238, 0, 0.16);
+    border-style: solid;
+    border-color: var(--tupas-lime-dark);
+}
+
+.tupas-pdf-dropzone.is-warning {
+    background-color: rgba(251, 191, 36, 0.16);
+    border-style: solid;
+    border-color: #f59e0b;
+}
+
+/* Preset pills */
+.tupas-preset-pill {
+    border-radius: 999px;
+    border: 2px solid rgba(8, 14, 44, 0.15);
+    background: var(--tupas-white);
+    color: var(--tupas-navy);
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+.tupas-preset-pill.active {
+    background: var(--tupas-lime);
+    border-color: var(--tupas-lime-dark);
+    color: var(--tupas-navy);
+}
+.tupas-preset-pill:hover {
+    transform: translateY(-1px);
+}
+
+/* Checkbox grid for item types */
+.tupas-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.6rem;
+}
+.tupas-check-card {
+    background: var(--tupas-white);
+    border: 2px solid rgba(8, 14, 44, 0.12);
+    border-radius: 14px;
+    padding: 0.6rem 0.8rem;
+    margin: 0;
+    transition: all 0.15s ease;
+}
+.tupas-check-card:has(input:checked) {
+    background: rgba(168, 238, 0, 0.16);
+    border-color: var(--tupas-lime-dark);
+}
+.tupas-check-card .form-check-input {
+    margin-right: 0.5rem;
+}
+.tupas-check-card .form-check-label {
+    font-weight: 700;
+    color: var(--tupas-navy);
+}
+
+.tupas-pdf-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background-color: rgba(138, 155, 248, 0.2);
+    color: var(--tupas-navy);
+    font-size: 1.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tupas-btn-periwinkle {
+    background-color: var(--tupas-periwinkle);
+    color: var(--tupas-navy);
+    font-weight: 800;
+    font-size: 0.88rem;
+    border-radius: 999px;
+    padding: 0.55rem 1.15rem;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 3px 0 var(--tupas-navy);
+    transition: all 0.15s ease;
+}
+
+.tupas-btn-periwinkle:hover {
+    background-color: var(--tupas-periwinkle-dark);
+    color: var(--tupas-white);
+    transform: translateY(-1px);
+}
+
+/* Primary Generate CTA Button */
+.tupas-btn-generate {
+    background-color: var(--tupas-lime);
+    color: var(--tupas-navy);
+    font-weight: 800;
+    font-size: 1.05rem;
+    border-radius: 999px;
+    padding: 0.9rem 1.5rem;
+    border: 2px solid var(--tupas-navy);
+    box-shadow: 0 5px 0 var(--tupas-navy);
+    transition: all 0.15s ease;
+}
+
+.tupas-btn-generate:hover:not(:disabled) {
+    background-color: #9be000;
+    color: var(--tupas-navy);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 var(--tupas-navy);
+}
+
+.tupas-btn-generate:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--tupas-navy);
+}
+
+.tupas-help-text {
+    font-size: 0.8rem;
+    color: rgba(8, 14, 44, 0.65);
+    font-weight: 600;
+}
+
+.tupas-char-counter {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--tupas-navy);
+    background-color: rgba(8, 14, 44, 0.06);
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+}
+
+.tupas-field-error {
+    color: #dc2626;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-top: 0.35rem;
+}
+
+.tupas-divider {
+    border-top: 2px solid rgba(8, 14, 44, 0.1);
+    opacity: 1;
+}
+
+/* ==========================================================================
+   3. RIGHT SIDEBAR STATUS & FEATURE CARDS
+   ========================================================================== */
+.tupas-side-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.tupas-side-icon.is-lime {
+    background-color: var(--tupas-lime);
+    color: var(--tupas-navy);
+    border: 2px solid var(--tupas-navy);
+}
+
+.tupas-side-heading {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--tupas-navy);
+}
+
+.tupas-provider-box {
+    background-color: var(--tupas-white);
+    border-radius: 18px;
+    padding: 0.95rem 1.1rem;
+    border: 2px solid rgba(8, 14, 44, 0.1);
+}
+
+.tupas-ready-badge {
+    background-color: var(--tupas-lime);
+    color: var(--tupas-navy);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+}
+
+.tupas-code {
+    background-color: rgba(8, 14, 44, 0.08);
+    color: var(--tupas-navy);
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.tupas-terminal {
+    background-color: var(--tupas-navy);
+    color: var(--tupas-lime);
+    border-radius: 16px;
+    padding: 0.85rem 1rem;
+    font-size: 0.78rem;
+    overflow-x: auto;
+}
+
+.tupas-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    background-color: var(--tupas-white);
+    padding: 0.85rem 1rem;
+    border-radius: 18px;
+    border: 1.5px solid rgba(8, 14, 44, 0.08);
+}
+
+.tupas-feature-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    font-weight: 800;
+}
+
+.tupas-feature-icon.is-flip {
+    background-color: rgba(138, 155, 248, 0.25);
+    color: var(--tupas-navy);
+}
+
+.tupas-feature-icon.is-highlight {
+    background-color: rgba(168, 238, 0, 0.4);
+    color: var(--tupas-navy);
+}
+
+.tupas-feature-icon.is-enum {
+    background-color: #fde68a;
+    color: var(--tupas-navy);
+}
+
+.tupas-tip-box {
+    background-color: rgba(138, 155, 248, 0.18);
+    border: 2px solid rgba(8, 14, 44, 0.12);
+    border-radius: 22px;
+    padding: 1rem 1.15rem;
+    color: var(--tupas-navy);
+}
+
+.tupas-alert-danger {
+    display: flex;
+    align-items: flex-start;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #f87171;
+    border-radius: 18px;
+    padding: 0.9rem 1.1rem;
+    font-weight: 700;
+}
+
+.tupas-alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 2px solid #fbbf24;
+    border-radius: 16px;
+    padding: 0.8rem 1rem;
+    font-weight: 700;
+}
+
+.tupas-danger-check {
+    background-color: #fff1f2;
+    border: 1.5px solid #fecdd3;
+    border-radius: 16px;
+    padding: 0.85rem 1.1rem;
+}
+
+/* ==========================================================================
+   4. DARK THEME
+   The generator keeps its lime mascot hero, but every surface below it
+   switches to the app's dark navy palette so light headings, labels and
+   helper text stay readable.
+   ========================================================================== */
+[data-theme="dark"] {
+    --ai-dark-surface: #121a33;
+    --ai-dark-surface-2: #0f1730;
+    --ai-dark-surface-3: #0a1128;
+    --ai-dark-border: rgba(250, 247, 238, 0.16);
+    --ai-dark-border-strong: rgba(250, 247, 238, 0.28);
+    --ai-dark-text: #faf7ee;
+    --ai-dark-text-soft: rgba(250, 247, 238, 0.7);
+}
+
+[data-theme="dark"] .tupas-ai-wrapper {
+    color: var(--ai-dark-text);
+}
+
+/* Hero keeps its lime background, so its ink must stay navy. */
+[data-theme="dark"] .tupas-ai-hero {
+    border-color: rgba(8, 14, 44, 0.18);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .tupas-ai-hero .tupas-ai-title,
+[data-theme="dark"] .tupas-ai-hero .text-navy {
+    color: var(--tupas-navy) !important;
+}
+
+[data-theme="dark"] .tupas-ai-hero .tupas-ai-subtitle {
+    color: rgba(8, 14, 44, 0.82);
+}
+
+/* Cards + section headings */
+[data-theme="dark"] .tupas-ai-card {
+    background-color: var(--ai-dark-surface);
+    border-color: var(--ai-dark-border);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-step-badge {
+    border: 1.5px solid rgba(168, 238, 0, 0.35);
+}
+
+[data-theme="dark"] .tupas-label,
+[data-theme="dark"] .tupas-side-heading {
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-step-desc,
+[data-theme="dark"] .tupas-help-text {
+    color: var(--ai-dark-text-soft);
+}
+
+/* Inputs, selects and textareas */
+[data-theme="dark"] .tupas-ai-card input[type="text"],
+[data-theme="dark"] .tupas-ai-card input[type="number"],
+[data-theme="dark"] .tupas-ai-card select,
+[data-theme="dark"] .tupas-ai-card textarea,
+[data-theme="dark"] .tupas-ai-card .form-control,
+[data-theme="dark"] .tupas-ai-card .form-select {
+    background-color: var(--ai-dark-surface-2);
+    border-color: var(--ai-dark-border);
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-ai-card input::placeholder,
+[data-theme="dark"] .tupas-ai-card textarea::placeholder {
+    color: rgba(250, 247, 238, 0.42);
+}
+
+[data-theme="dark"] .tupas-ai-card .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23faf7ee' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+[data-theme="dark"] .tupas-ai-card input:focus,
+[data-theme="dark"] .tupas-ai-card select:focus,
+[data-theme="dark"] .tupas-ai-card textarea:focus,
+[data-theme="dark"] .tupas-ai-card .form-control:focus,
+[data-theme="dark"] .tupas-ai-card .form-select:focus {
+    border-color: var(--tupas-lime);
+    box-shadow: 0 0 0 4px rgba(168, 238, 0, 0.2);
+}
+
+[data-theme="dark"] .tupas-ai-card option {
+    background-color: var(--ai-dark-surface-2);
+    color: var(--ai-dark-text);
+}
+
+/* New-deck sub-panel */
+[data-theme="dark"] .tupas-subpanel {
+    background-color: rgba(250, 247, 238, 0.04);
+    border-color: rgba(250, 247, 238, 0.2);
+}
+
+/* PDF / slide dropzone */
+[data-theme="dark"] .tupas-pdf-dropzone {
+    background-color: var(--ai-dark-surface-2);
+    border-color: rgba(138, 155, 248, 0.65);
+}
+
+[data-theme="dark"] .tupas-pdf-dropzone.is-dragover {
+    background-color: rgba(138, 155, 248, 0.18);
+    border-color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-pdf-dropzone.is-success {
+    background-color: rgba(168, 238, 0, 0.12);
+    border-color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-pdf-dropzone.is-warning {
+    background-color: rgba(245, 158, 11, 0.16);
+    border-color: #f59e0b;
+}
+
+/* One-tap preset pills */
+[data-theme="dark"] .tupas-preset-pill {
+    background: var(--ai-dark-surface-2);
+    border-color: var(--ai-dark-border-strong);
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-preset-pill:hover {
+    background: #182242;
+    border-color: var(--tupas-lime);
+    color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-preset-pill.active {
+    background: var(--tupas-lime);
+    border-color: var(--tupas-lime-dark);
+    color: var(--tupas-navy);
+}
+
+/* Item-type check cards */
+[data-theme="dark"] .tupas-check-card {
+    background: var(--ai-dark-surface-2);
+    border-color: var(--ai-dark-border);
+}
+
+[data-theme="dark"] .tupas-check-card .form-check-label {
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-check-card .form-check-input {
+    background-color: #0b1227;
+    border-color: var(--ai-dark-border-strong);
+}
+
+[data-theme="dark"] .tupas-check-card .form-check-input:checked {
+    background-color: var(--tupas-lime);
+    border-color: var(--tupas-lime);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23080e2c' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+[data-theme="dark"] .tupas-check-card:has(input:checked) {
+    background: rgba(168, 238, 0, 0.14);
+    border-color: rgba(168, 238, 0, 0.65);
+}
+
+/* Small bits of chrome */
+[data-theme="dark"] .tupas-char-counter {
+    background-color: rgba(250, 247, 238, 0.1);
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-divider {
+    border-top-color: var(--ai-dark-border);
+}
+
+[data-theme="dark"] .tupas-field-error {
+    color: #fca5a5;
+}
+
+/* Right-hand status / feature cards */
+[data-theme="dark"] .tupas-provider-box,
+[data-theme="dark"] .tupas-feature-item {
+    background-color: var(--ai-dark-surface-2);
+    border-color: var(--ai-dark-border);
+}
+
+[data-theme="dark"] .tupas-code {
+    background-color: rgba(250, 247, 238, 0.1);
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-terminal {
+    background-color: #050a1c;
+    border: 1px solid var(--ai-dark-border);
+}
+
+[data-theme="dark"] .tupas-feature-icon.is-flip {
+    background-color: rgba(138, 155, 248, 0.22);
+    color: #b9c4ff;
+}
+
+[data-theme="dark"] .tupas-feature-icon.is-highlight {
+    background-color: rgba(168, 238, 0, 0.18);
+    color: var(--tupas-lime);
+}
+
+[data-theme="dark"] .tupas-feature-icon.is-enum {
+    background-color: rgba(253, 230, 138, 0.16);
+    color: #fde68a;
+}
+
+[data-theme="dark"] .tupas-tip-box {
+    background-color: rgba(138, 155, 248, 0.12);
+    border-color: var(--ai-dark-border);
+    color: var(--ai-dark-text);
+}
+
+/* Validation + danger callouts */
+[data-theme="dark"] .tupas-alert-danger {
+    background-color: rgba(239, 68, 68, 0.16);
+    border-color: rgba(248, 113, 113, 0.6);
+    color: #fecaca;
+}
+
+[data-theme="dark"] .tupas-alert-warning {
+    background-color: rgba(245, 158, 11, 0.14);
+    border-color: rgba(251, 191, 36, 0.55);
+    color: #fde68a;
+}
+
+[data-theme="dark"] .tupas-danger-check {
+    background-color: rgba(239, 68, 68, 0.12);
+    border-color: rgba(254, 205, 211, 0.3);
+    color: var(--ai-dark-text);
+}
+
+[data-theme="dark"] .tupas-danger-check .text-danger {
+    color: #fca5a5 !important;
+}
+
+/* Primary CTA: keep the hard "pressed" shadow visible on dark */
+[data-theme="dark"] .tupas-btn-generate {
+    border-color: #050a1c;
+    box-shadow: 0 5px 0 #050a1c;
+}
+
+[data-theme="dark"] .tupas-btn-generate:hover:not(:disabled) {
+    box-shadow: 0 7px 0 #050a1c;
+}
+
+[data-theme="dark"] .tupas-btn-generate:active:not(:disabled) {
+    box-shadow: 0 2px 0 #050a1c;
+}

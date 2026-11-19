@@ -1,0 +1,378 @@
+/* ==========================================================================
+   TUPAS REGISTRATION SCREEN CSS (Screen 2 - Exact Reference Match)
+   Responsive for iOS, Android & Desktop
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+:root {
+  --tupas-lime: #a8ee00;
+  --tupas-lime-input: #96d700;
+  --tupas-lime-input-focus: #8cca00;
+  --tupas-lime-btn: #7cb600;
+  --tupas-lime-btn-hover: #6ea300;
+  --tupas-navy: #080e2c;
+  --tupas-cream: #faf7ee;
+  --tupas-fb: #4c76f0;
+  --tupas-google: #f65a5a;
+}
+
+.plopp-auth-page {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at 65% 20%, #8a9bf8 0%, #464d70 48%, #f5f2e8 100%);
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+/* Main Lime-Green Card (Matches the right screen in reference image) */
+.plopp-auth-card-scroll {
+  width: 100%;
+  max-width: 430px;
+  background: var(--tupas-lime);
+  border-radius: 38px;
+  padding: 1.85rem 1.75rem 2rem;
+  margin: 0.5rem auto;
+  box-shadow: 0 28px 65px rgba(8, 14, 44, 0.32);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .plopp-auth-page {
+    background: var(--tupas-lime);
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
+  }
+
+  .plopp-auth-card-scroll {
+    max-width: 100%;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    padding: 1.5rem 1.35rem 2rem;
+  }
+}
+
+/* Mascot Header */
+.plopp-auth-mascot {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.plopp-auth-mascot svg {
+  width: clamp(165px, 46vw, 205px);
+  height: auto;
+  display: block;
+  animation: plopp-float 3.5s ease-in-out infinite;
+}
+
+@keyframes plopp-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.plopp-auth-heading {
+  font-size: clamp(1.6rem, 5vw, 1.9rem);
+  font-weight: 800;
+  color: var(--tupas-navy);
+  letter-spacing: -0.03em;
+  margin-top: 0.55rem;
+  margin-bottom: 1.15rem;
+  text-align: center;
+  line-height: 1.15;
+}
+
+#plopp-reg-form {
+  width: 100%;
+}
+
+/* Alert Box */
+.plopp-alert {
+  width: 100%;
+  background: rgba(239, 68, 68, 0.16);
+  border: 2px solid #dc2626;
+  color: var(--tupas-navy);
+  font-weight: 700;
+  font-size: 0.84rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Section Titles (School Profile & Where You Live) */
+.plopp-section-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(8, 14, 44, 0.65);
+  margin: 0.9rem 0 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.plopp-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1.5px;
+  background: rgba(8, 14, 44, 0.14);
+  border-radius: 999px;
+}
+
+/* Responsive Form Grids */
+.plopp-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.plopp-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.55rem;
+}
+
+@media (max-width: 420px) {
+  .plopp-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+.plopp-field-group {
+  margin-bottom: 0.65rem;
+  width: 100%;
+}
+
+/* Compact subtle label above dropdowns/dates so students know what to pick */
+.plopp-field-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: rgba(8, 14, 44, 0.62);
+  margin-bottom: 0.22rem;
+  padding-left: 0.35rem;
+}
+
+.plopp-field-label .req {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+/* Seamless Darker-Lime Input Boxes (Matches Reference Image!) */
+#plopp-reg-form input,
+#plopp-reg-form select,
+#plopp-reg-form textarea {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1.05rem;
+  background-color: var(--tupas-lime-input) !important;
+  border: 2px solid transparent !important;
+  border-radius: 14px !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tupas-navy) !important;
+  outline: none;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  box-shadow: none !important;
+}
+
+#plopp-reg-form input::placeholder,
+#plopp-reg-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.68) !important;
+  font-weight: 500;
+}
+
+#plopp-reg-form select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23080E2C' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.9rem center !important;
+  padding-right: 2.2rem !important;
+  cursor: pointer;
+}
+
+#plopp-reg-form input:focus,
+#plopp-reg-form select:focus {
+  background-color: var(--tupas-lime-input-focus) !important;
+  border-color: rgba(8, 14, 44, 0.35) !important;
+}
+
+.plopp-field-error {
+  font-size: 0.74rem;
+  color: #b91c1c;
+  font-weight: 700;
+  margin-top: 0.22rem;
+  padding-left: 0.3rem;
+  display: block;
+}
+
+/* Password Eye Toggles */
+.plopp-pw-pair {
+  position: relative;
+}
+
+.plopp-pw-pair input {
+  padding-right: 2.6rem !important;
+}
+
+.plopp-pw-pair .plopp-pw-toggle-inner {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  color: rgba(8, 14, 44, 0.55);
+  cursor: pointer;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+}
+
+.plopp-pw-pair .plopp-pw-toggle-inner:hover {
+  color: var(--tupas-navy);
+}
+
+/* Facebook & Google Social Buttons Row */
+.tupas-social-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+
+.tupas-btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.78rem 0.75rem;
+  border-radius: 14px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+.tupas-btn-social:active {
+  transform: scale(0.97);
+}
+
+.tupas-btn-fb {
+  background: var(--tupas-fb);
+}
+
+.tupas-btn-google {
+  background: var(--tupas-google);
+}
+
+.tupas-social-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+
+.tupas-btn-fb .tupas-social-icon {
+  color: var(--tupas-fb);
+}
+
+.tupas-btn-google .tupas-social-icon {
+  color: var(--tupas-google);
+}
+
+/* Primary CTA Submit Button ("Let's TUPAS!") */
+.plopp-btn-cta {
+  display: block;
+  width: 100%;
+  padding: 0.98rem 1.5rem;
+  background: var(--tupas-lime-btn);
+  color: #ffffff !important;
+  font-family: inherit;
+  font-size: 1.02rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  margin-top: 0.75rem;
+  box-shadow: 0 8px 20px rgba(8, 14, 44, 0.12);
+  transition: transform 0.15s ease, background 0.18s ease;
+}
+
+.plopp-btn-cta:hover,
+.plopp-btn-cta:focus {
+  background: var(--tupas-lime-btn-hover);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.plopp-btn-cta:active {
+  transform: scale(0.98);
+}
+
+/* Bottom Sign-In Link */
+.plopp-switch-link {
+  text-align: center;
+  font-size: 0.82rem;
+  color: rgba(8, 14, 44, 0.48);
+  font-weight: 600;
+  margin-top: 1.1rem;
+  margin-bottom: 0;
+}
+
+.plopp-switch-link a {
+  color: rgba(8, 14, 44, 0.78);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.plopp-switch-link a:hover {
+  text-decoration: underline;
+}

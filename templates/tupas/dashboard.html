@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard · TUPAS Reviewer{% endblock %}
+{% block extra_css %}
+<link href="{% static 'css/dashboard.css' %}?v=2025" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="hero-panel mb-4">
+    <!-- Signature Decorative Circles -->
+    <div class="hero-deco-cream" aria-hidden="true"></div>
+    <div class="hero-deco-blue" aria-hidden="true"></div>
+    <div class="hero-deco-navy" aria-hidden="true"></div>
+
+    <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+        <div class="col-lg-7">
+            <span class="eyebrow">📚 Student Dashboard</span>
+            <h1 class="hero-title mt-2 mb-2">
+                Ready for focus, {% if profile %}{{ profile.full_name }}{% else %}{{ user.username }}{% endif %}?
+            </h1>
+            <p class="hero-subtitle mb-3">
+                Let&rsquo;s pop some cards! Practise with 3D flip cards, hide-and-reveal highlights, enumeration drills,
+                and exams.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                {% if profile %}
+                <span class="hero-chip"><i class="bi bi-building"></i> {{ profile.school_name }}</span>
+                <span class="hero-chip"><i class="bi bi-mortarboard"></i> {{ profile.course_or_strand }}</span>
+                <span class="hero-chip"><i class="bi bi-calendar3"></i> {{ profile.year_level }}</span>
+                <span class="hero-chip"><i class="bi bi-geo-alt"></i> {{ profile.city_municipality }}</span>
+                {% else %}
+                <span class="hero-chip"><i class="bi bi-shield-check"></i> Administrator account</span>
+                {% endif %}
+            </div>
+            <div class="retention-strip mt-4">
+                <div class="streak-card">
+                    <span class="streak-flame" aria-hidden="true">🔥</span>
+                    <div>
+                        <div class="streak-value">{{ current_streak }}-day streak</div>
+                        <div class="streak-label">
+                            Longest {{ longest_streak }} ·
+                            {% if studied_today %}studied today{% else %}study today to keep it alive{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="goal-ring" style="--goal-progress: {{ goal_percent }}%;"
+                     role="img" aria-label="{{ today_reviewed }} of {{ daily_goal }} cards reviewed today">
+                    <div class="goal-ring-inner">
+                        <span class="goal-ring-value">{{ today_reviewed }}<small>/{{ daily_goal }}</small></span>
+                        <span class="goal-ring-label">cards today</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-column align-items-start gap-1">
+                    <span class="hero-chip"><i class="bi bi-alarm"></i> {{ due_count }} card{{ due_count|pluralize }} due today</span>
+                    <span class="xp-chip"><i class="bi bi-lightning-charge-fill"></i> Lv {{ stats.level }} · {{ stats.xp_points }} XP</span>
+                    {% if exam_countdown is not None %}
+                    <span class="hero-chip"><i class="bi bi-calendar-event"></i>
+                        {% if profile.target_exam_name %}{{ profile.target_exam_name }}{% else %}Target exam{% endif %}
+                        · {{ exam_countdown }} day{{ exam_countdown|pluralize }}
+                    </span>
+                    {% endif %}
+                    {% if due_count and due_deck %}
+                    <a href="{% url 'tupas:flip_mode' due_deck.id %}?filter=due" class="btn tupas-btn-navy btn-sm">
+                        <i class="bi bi-play-fill me-1"></i> Start Review
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a href="#deck-library" class="btn tupas-btn-navy">
+                    <i class="bi bi-collection me-1"></i> Browse Decks
+                </a>
+                <a href="{% url 'tupas:ai_generator' %}" class="btn tupas-btn-cream">
+                    <i class="bi bi-stars me-1"></i> AI Auto-Reviewer
+                </a>
+                <a href="{% url 'tupas:leaderboard' %}" class="btn tupas-btn-cream">
+                    <i class="bi bi-trophy me-1"></i> Leaderboard
+                </a>
+                <a href="{% url 'tupas:import_deck' %}" class="btn tupas-btn-cream">
+                    <i class="bi bi-upload me-1"></i> Import deck
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <!-- Cute TUPAS Mascot Peeking Over the Mastery Card -->
+            <div class="hero-mascot-peek" aria-hidden="true">
+                <svg viewBox="0 0 220 115" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Cream Hair Tuft -->
+                    <ellipse cx="103" cy="16" rx="8" ry="12" transform="rotate(20 103 16)" fill="#FAF7EE" />
+                    <ellipse cx="114" cy="15" rx="10" ry="14" transform="rotate(42 114 15)" fill="#FAF7EE" />
+                    <!-- Eyebrows -->
+                    <path d="M46 42 Q64 30 80 40" stroke="#080E2C" stroke-width="6.5" fill="none"
+                        stroke-linecap="round" />
+                    <path d="M140 40 Q156 30 174 42" stroke="#080E2C" stroke-width="6.5" fill="none"
+                        stroke-linecap="round" />
+                    <!-- Left Eye -->
+                    <circle cx="66" cy="82" r="32" fill="#FFFFFF" />
+                    <circle cx="71" cy="85" r="17" fill="#080E2C" />
+                    <circle cx="64" cy="78" r="5.5" fill="#FFFFFF" />
+                    <circle cx="77" cy="92" r="3" fill="#FFFFFF" />
+                    <!-- Right Eye -->
+                    <circle cx="154" cy="82" r="32" fill="#FFFFFF" />
+                    <circle cx="159" cy="85" r="17" fill="#080E2C" />
+                    <circle cx="152" cy="78" r="5.5" fill="#FFFFFF" />
+                    <circle cx="165" cy="92" r="3" fill="#FFFFFF" />
+                    <!-- Nostrils -->
+                    <ellipse cx="103" cy="108" rx="3" ry="4" fill="#080E2C" />
+                    <ellipse cx="117" cy="108" rx="3" ry="4" fill="#080E2C" />
+                </svg>
+            </div>
+
+            <!-- Deep-Navy Mastery Snapshot Card -->
+            <div class="mastery-snapshot-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small mastery-label">Mastery snapshot</span>
+                    <i class="bi bi-graph-up-arrow" style="color: #A8EE00;"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <span class="display-6 fw-bolder text-white">{{ stats.mastered }}</span>
+                    <span class="small mastery-label">items marked Got It</span>
+                </div>
+                <div class="progress mt-3 mastery-progress-track">
+                    {% widthratio stats.mastered stats.mastered|add:stats.needs_review 100 as mastery_pct %}
+                    <div class="progress-bar mastery-progress-fill" role="progressbar"
+                         aria-valuenow="{{ mastery_pct|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <script>document.currentScript.previousElementSibling.style.width = '{{ mastery_pct|default:0 }}%';</script>
+                </div>
+                <div class="small mastery-label mt-2">
+                    {{ stats.needs_review }} item{{ stats.needs_review|pluralize }} waiting for another look
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4 Quick Stat Cards -->
+<div class="row g-3 mb-5">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-lime"><i class="bi bi-collection-fill"></i></span>
+            <div>
+                <div class="stat-value">{{ stats.deck_count }}</div>
+                <div class="stat-label">Reviewer decks</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-green"><i class="bi bi-check2-circle"></i></span>
+            <div>
+                <div class="stat-value">{{ stats.mastered }}</div>
+                <div class="stat-label">Got It</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-amber"><i class="bi bi-arrow-repeat"></i></span>
+            <div>
+                <div class="stat-value">{{ stats.needs_review }}</div>
+                <div class="stat-label">Study again</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-blue"><i class="bi bi-bar-chart-fill"></i></span>
+            <div>
+                <div class="stat-value">
+                    {% if stats.average_score %}{{ stats.average_score|floatformat:1 }}%{% else %}—{% endif %}
+                </div>
+                <div class="stat-label">Average exam score</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recommended Decks -->
+{% if recommended_decks %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
+    <div>
+        <span class="section-eyebrow">⭐ Recommended for you</span>
+        <h2 class="section-heading mt-1 mb-0">
+            Picks for {% if profile %}{{ profile.course_or_strand }}{% else %}your course{% endif %}
+        </h2>
+    </div>
+    <span class="small text-muted-soft">Matched to your course or strand</span>
+</div>
+<div class="row g-3 mb-5">
+    {% for deck in recommended_decks %}
+    <div class="col-md-6 col-xl-4">
+        {% include 'tupas/partials/deck_card.html' with deck=deck %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Deck library filters -->
+<div class="surface-card p-3 mb-3 d-flex flex-wrap gap-2 align-items-center">
+    <form method="get" class="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
+        <input type="search" class="form-control form-control-sm" name="q" value="{{ search_q }}"
+               placeholder="Search decks, subjects, tags…" style="max-width: 220px;">
+        <input type="text" class="form-control form-control-sm" name="tag" value="{{ active_tag }}"
+               placeholder="Tag (e.g. midterm)" style="max-width: 160px;">
+        <select name="view" class="form-select form-select-sm" style="max-width: 140px;">
+            <option value="active" {% if view == 'active' %}selected{% endif %}>Active decks</option>
+            <option value="archived" {% if view == 'archived' %}selected{% endif %}>Archived</option>
+        </select>
+        <button class="btn btn-sm btn-brand" type="submit">Filter</button>
+        <a href="{% url 'tupas:dashboard' %}" class="btn btn-sm btn-soft">Reset</a>
+    </form>
+</div>
+
+<!-- All Decks Library -->
+<div id="deck-library">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
+        <div>
+            <span class="section-eyebrow">📚 Deck library</span>
+            <h2 class="section-heading mt-1 mb-0">All reviewer decks</h2>
+        </div>
+        <span class="small text-muted-soft">{{ decks|length }} deck{{ decks|length|pluralize }} available</span>
+    </div>
+
+    {% if decks %}
+    <div class="row g-3">
+        {% for deck in decks %}
+        <div class="col-md-6 col-xl-4">
+            {% include 'tupas/partials/deck_card.html' with deck=deck %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-icon"><i class="bi bi-journals"></i></span>
+        <h3 class="h5 fw-bold">No decks yet</h3>
+        <p class="text-muted-soft mb-3">An administrator can add subjects and decks in the admin site.</p>
+        {% if user.is_staff or user.is_superuser %}
+        <a href="/admin/" class="btn tupas-btn-navy">
+            <i class="bi bi-plus-lg me-1"></i> Add content in admin
+        </a>
+        {% else %}
+        <span class="badge badge-soft">Check back after an administrator uploads reviewers</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Recent Exam Attempts -->
+<div class="surface-card p-4 mt-5">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+        <h2 class="section-heading mb-0">
+            <i class="bi bi-clock-history me-2" style="color: #7CB600;"></i>Recent exam attempts
+        </h2>
+        <span class="small text-muted-soft">Your last five saved scores</span>
+    </div>
+
+    {% if recent_attempts %}
+    <div class="table-responsive">
+        <table class="table tupas-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Deck</th>
+                    <th>Mode</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attempt in recent_attempts %}
+                <tr>
+                    <td>
+                        <a href="{% url 'tupas:deck_detail' attempt.deck.id %}"
+                            class="fw-bold text-reset text-decoration-none">
+                            {{ attempt.deck.title }}
+                        </a>
+                    </td>
+                    <td><span class="badge badge-soft">{{ attempt.get_exam_mode_display }}</span></td>
+                    <td class="small fw-semibold text-muted-soft">{{ attempt.score }} / {{ attempt.total_items }}</td>
+                    <td>
+                        {% if attempt.percentage >= 75 %}
+                        <span class="badge badge-mastered">{{ attempt.percentage|floatformat:1 }}%</span>
+                        {% elif attempt.percentage >= 50 %}
+                        <span class="badge badge-soft">{{ attempt.percentage|floatformat:1 }}%</span>
+                        {% else %}
+                        <span class="badge badge-review">{{ attempt.percentage|floatformat:1 }}%</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted-soft">{{ attempt.date_taken|date:"M d, Y · g:i A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state py-4">
+        <span class="empty-icon"><i class="bi bi-clipboard-check"></i></span>
+        <p class="text-muted-soft mb-0">No exam attempts yet. Open a deck and try an exam mode to start your history.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

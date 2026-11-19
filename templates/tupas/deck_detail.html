@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ deck.title }} · TUPAS Reviewer{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/deck-detail.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tupas:dashboard' %}#deck-library">Deck library</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ deck.title|truncatechars:40 }}</li>
+    </ol>
+</nav>
+
+<div class="surface-card p-4 p-lg-5 mb-4">
+    <div class="row align-items-start g-4">
+        <div class="col-lg-8">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="badge badge-soft">{{ deck.subject.subject_name }}</span>
+                {% if deck.subject.target_course %}
+                    <span class="badge badge-recommended"><i class="bi bi-stars me-1"></i>{{ deck.subject.target_course }}</span>
+                {% endif %}
+            </div>
+            <h1 class="h2 fw-bold mb-2">{{ deck.title }}</h1>
+            {% if deck.description %}
+                <p class="text-muted-soft mb-2">{{ deck.description }}</p>
+            {% endif %}
+            <div class="small text-muted-soft">
+                {{ total_items }} review item{{ total_items|pluralize }}
+                {% if deck.created_by %}
+                    · Added by
+                    {% if deck.created_by.profile %}{{ deck.created_by.profile.full_name }}{% else %}{{ deck.created_by.username }}{% endif %}
+                {% endif %}
+                · {{ deck.created_at|date:"M d, Y" }}
+            </div>
+        </div>
+        <div class="col-lg-4 d-flex flex-column gap-2 justify-content-lg-start">
+            {% if tupas_role != 'ADMIN' %}
+            <a href="{% url 'tupas:ai_generator' %}?deck={{ deck.id }}" class="btn btn-brand">
+                <i class="bi bi-stars me-1"></i> Generate more with AI
+            </a>
+            <a href="{% url 'tupas:deck_cram_sheet' deck.id %}" class="btn btn-soft">
+                <i class="bi bi-printer me-1"></i> 🖨️ Cram Sheet
+            </a>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-soft flex-fill" id="deck-share-btn">
+                    <i class="bi bi-link-45deg me-1"></i> 🔗 Share with Classmates
+                </button>
+                <form method="post" action="{% url 'tupas:clone_deck' deck.id %}" class="flex-fill">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-soft w-100">
+                        <i class="bi bi-files me-1"></i> 📋 Clone to My Decks
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'tupas:export_deck' deck.id %}?format=json" class="btn btn-soft flex-fill">
+                    <i class="bi bi-download me-1"></i> JSON
+                </a>
+                <a href="{% url 'tupas:export_deck' deck.id %}?format=tsv" class="btn btn-soft flex-fill">
+                    <i class="bi bi-filetype-tsv me-1"></i> Quizlet TSV
+                </a>
+            </div>
+            {% if can_edit_deck %}
+            <div class="d-flex flex-wrap gap-2">
+                <form method="post" action="{% url 'tupas:toggle_pin_deck' deck.id %}" class="flex-fill">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-soft w-100">
+                        <i class="bi bi-pin-angle me-1"></i>
+                        {% if deck.is_pinned %}Unpin{% else %}📌 Pin{% endif %}
+                    </button>
+                </form>
+                <form method="post" action="{% url 'tupas:toggle_archive_deck' deck.id %}" class="flex-fill">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-soft w-100">
+                        <i class="bi bi-archive me-1"></i>
+                        {% if deck.is_archived %}Restore{% else %}📦 Archive{% endif %}
+                    </button>
+                </form>
+            </div>
+            {% if deck_tags %}
+            <div class="d-flex flex-wrap gap-1">
+                {% for tag in deck_tags %}
+                <a class="badge badge-soft text-decoration-none" href="{% url 'tupas:dashboard' %}?tag={{ tag|urlencode }}">#{{ tag }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
+            <a href="{% url 'tupas:dashboard' %}" class="btn btn-soft">
+                <i class="bi bi-arrow-left me-1"></i> Back to library
+            </a>
+        </div>
+    </div>
+
+    <hr class="hairline my-4">
+
+    <div class="row g-3">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-label mb-1">Total items</div>
+                <div class="stat-value">{{ total_items }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-label mb-1">Got It</div>
+                <div class="stat-value text-success">{{ progress_counts.mastered }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-label mb-1">Study again</div>
+                <div class="stat-value text-warning">{{ progress_counts.needs_review }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-label mb-1">Mastered</div>
+                <div class="stat-value">
+                    {% widthratio progress_counts.mastered total_items 100 as mastered_pct %}
+                    {{ mastered_pct|default:0 }}%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress mt-3" style="height: .5rem;">
+        {% widthratio progress_counts.mastered total_items 100 as mastery_bar %}
+        <div class="progress-bar" role="progressbar"
+             aria-valuenow="{{ mastery_bar|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+        <script>document.currentScript.previousElementSibling.style.width = '{{ mastery_bar|default:0 }}%';</script>
+    </div>
+    <div class="small text-muted-soft mt-2">
+        {{ progress_counts.total_marked }} item{{ progress_counts.total_marked|pluralize }} marked so far in this deck.
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-end gap-2 mb-3">
+    <div>
+        <span class="eyebrow">Practice modes</span>
+        <h2 class="section-heading mt-1">Choose how you want to review</h2>
+    </div>
+</div>
+
+{% if tupas_role != 'ADMIN' %}
+<div class="row g-3 mb-5">
+    <div class="col-md-4">
+        <div class="mode-card {% if not type_counts.FLIP_CARD %}is-empty{% endif %}">
+            <span class="mode-icon flip"><i class="bi bi-card-text"></i></span>
+            <div class="mode-title">🃏 Flip Card Mode</div>
+            <p class="mode-copy mt-2 mb-0">
+                Tap a card to flip it in 3D, then mark it Got It or Study Again. Your mastery is saved instantly.
+            </p>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="badge badge-soft">{{ type_counts.FLIP_CARD|default:0 }} card{{ type_counts.FLIP_CARD|default:0|pluralize }}</span>
+                {% if type_counts.FLIP_CARD %}
+                    <a href="{% url 'tupas:flip_mode' deck.id %}" class="btn btn-sm btn-brand">Start <i class="bi bi-arrow-right"></i></a>
+                {% else %}
+                    <span class="small text-muted-soft">No cards yet</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="mode-card {% if not type_counts.HIGHLIGHT_NOTE %}is-empty{% endif %}">
+            <span class="mode-icon highlight"><i class="bi bi-highlighter"></i></span>
+            <div class="mode-title">🖍️ Smart Highlighter</div>
+            <p class="mode-copy mt-2 mb-0">
+                Important terms glow in yellow. Switch to blanks mode and tap each hidden term to reveal it.
+            </p>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="badge badge-soft">{{ type_counts.HIGHLIGHT_NOTE|default:0 }} note{{ type_counts.HIGHLIGHT_NOTE|default:0|pluralize }}</span>
+                {% if type_counts.HIGHLIGHT_NOTE %}
+                    <a href="{% url 'tupas:highlight_mode' deck.id %}" class="btn btn-sm btn-brand">Start <i class="bi bi-arrow-right"></i></a>
+                {% else %}
+                    <span class="small text-muted-soft">No notes yet</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="mode-card {% if not type_counts.ENUMERATION %}is-empty{% endif %}">
+            <span class="mode-icon enumeration"><i class="bi bi-list-ol"></i></span>
+            <div class="mode-title">📋 Enumeration Drill</div>
+            <p class="mode-copy mt-2 mb-0">
+                Reveal the list or type the answers yourself. Strict-order and any-order lists are both supported.
+            </p>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="badge badge-soft">{{ type_counts.ENUMERATION|default:0 }} drill{{ type_counts.ENUMERATION|default:0|pluralize }}</span>
+                {% if type_counts.ENUMERATION %}
+                    <a href="{% url 'tupas:enumeration_mode' deck.id %}" class="btn btn-sm btn-brand">Start <i class="bi bi-arrow-right"></i></a>
+                {% else %}
+                    <span class="small text-muted-soft">No drills yet</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if can_edit_deck %}
+<div class="surface-card p-4 mb-5" id="items">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+        <div>
+            <span class="eyebrow">Deck content</span>
+            <h2 class="section-heading mt-1 mb-0">Review items ({{ deck_items|length }})</h2>
+        </div>
+        <button type="button" class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#addItemModal">
+            <i class="bi bi-plus-lg me-1"></i> + Add Review Item
+        </button>
+    </div>
+
+    {% if deck_items %}
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Prompt</th>
+                    <th>Answer / items</th>
+                    <th class="text-end">Manage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in deck_items %}
+                <tr>
+                    <td><span class="badge badge-soft">{{ item.get_item_type_display }}</span></td>
+                    <td class="small">{{ item.prompt_text|truncatechars:90 }}</td>
+                    <td class="small text-muted-soft">
+                        {% if item.item_type == 'ENUMERATION' %}
+                            {{ item.enum_answers.all|length }} answer{{ item.enum_answers.all|length|pluralize }}
+                        {% elif item.main_answer %}
+                            {{ item.main_answer|truncatechars:60 }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <button type="button" class="btn btn-sm btn-soft js-edit-item"
+                                data-item-id="{{ item.id }}"
+                                data-edit-url="{% url 'tupas:edit_review_item' deck.id item.id %}"
+                                data-bs-toggle="modal" data-bs-target="#editItemModal">
+                            <i class="bi bi-pencil-square me-1"></i>Edit
+                        </button>
+                        <form method="post" action="{% url 'tupas:delete_review_item' deck.id item.id %}"
+                              class="d-inline"
+                              onsubmit="return confirm('Delete this review item? This cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-review">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted-soft mb-0">
+        No review items yet. Use <strong>+ Add Review Item</strong> or generate them with AI.
+    </p>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if tupas_role != 'ADMIN' %}
+<div class="row g-4 mb-5">
+    <div class="col-lg-7">
+        <div class="surface-card p-4 h-100">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="mode-icon exam mb-0" style="width:2.5rem;height:2.5rem;font-size:1.1rem;"><i class="bi bi-pencil-square"></i></span>
+                <div>
+                    <h2 class="section-heading">📝 Exam Simulator</h2>
+                    <div class="small text-muted-soft">Auto-graded, saved to your history</div>
+                </div>
+            </div>
+            <p class="text-muted-soft small mb-3">
+                Questions come from this deck. Each correct item is worth one point; the attempt and percentage are saved.
+            </p>
+            <div class="d-grid gap-2">
+                {% include 'tupas/partials/exam_link.html' with deck=deck mode='multiple-choice' label='Multiple choice' icon='bi-ui-radios' count=exam_counts.MULTIPLE_CHOICE %}
+                {% include 'tupas/partials/exam_link.html' with deck=deck mode='identification' label='Identification' icon='bi-input-cursor-text' count=exam_counts.IDENTIFICATION %}
+                {% include 'tupas/partials/exam_link.html' with deck=deck mode='enumeration' label='Enumeration' icon='bi-list-check' count=exam_counts.ENUMERATION %}
+                {% include 'tupas/partials/exam_link.html' with deck=deck mode='mixed' label='Mixed exam' icon='bi-shuffle' count=exam_counts.MIXED %}
+                {% include 'tupas/partials/exam_link.html' with deck=deck mode='true-false' label='True or False' icon='bi-patch-check' count=exam_counts.TRUE_FALSE %}
+                {% include 'tupas/partials/exam_link.html' with deck=deck mode='matching' label='Matching type' icon='bi-arrow-left-right' count=exam_counts.MATCHING %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="surface-card p-4 h-100">
+            <h2 class="section-heading mb-3"><i class="bi bi-lightbulb text-warning me-2"></i>How to use this deck</h2>
+            <ol class="small text-muted-soft ps-3 mb-0 d-grid gap-2">
+                <li>Start with <strong>Flip Card Mode</strong> to learn the core facts.</li>
+                <li>Use <strong>Smart Highlighter</strong> to memorise key terms inside paragraphs.</li>
+                <li>Practise <strong>Enumeration Drill</strong> for lists and processes.</li>
+                <li>Finish with an <strong>Exam</strong> to test yourself under recall conditions.</li>
+                <li>Anything marked <strong>Study Again</strong> can be revisited until it becomes <strong>Got It</strong>.</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<div class="surface-card p-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+        <h2 class="section-heading"><i class="bi bi-clock-history text-navy me-2"></i>Your exam history for this deck</h2>
+        <a href="{% url 'tupas:dashboard' %}" class="small fw-semibold">Back to dashboard</a>
+    </div>
+
+    {% if recent_attempts %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mode</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Date taken</th>
+                        <th class="text-end">Retake</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attempt in recent_attempts %}
+                        <tr>
+                            <td><span class="badge badge-soft">{{ attempt.get_exam_mode_display }}</span></td>
+                            <td class="small text-muted-soft">{{ attempt.score }} / {{ attempt.total_items }}</td>
+                            <td>
+                                {% if attempt.percentage >= 75 %}
+                                    <span class="badge badge-mastered">{{ attempt.percentage|floatformat:1 }}%</span>
+                                {% elif attempt.percentage >= 50 %}
+                                    <span class="badge badge-soft">{{ attempt.percentage|floatformat:1 }}%</span>
+                                {% else %}
+                                    <span class="badge badge-review">{{ attempt.percentage|floatformat:1 }}%</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted-soft">{{ attempt.date_taken|date:"M d, Y · g:i A" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'tupas:exam_attempt_detail' attempt.id %}" class="btn btn-sm btn-soft">View</a>
+                                <a href="{% url 'tupas:exam_mode' deck.id attempt.mode_slug %}" class="btn btn-sm btn-soft">Retake</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state py-4">
+            <span class="empty-icon"><i class="bi bi-clipboard-check"></i></span>
+            <p class="text-muted-soft mb-0">No exam attempts for this deck yet. Choose an exam mode above to begin.</p>
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if can_edit_deck %}
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <form class="modal-content" method="post" action="{% url 'tupas:add_review_item' deck.id %}">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="addItemModalLabel">+ Add Review Item</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label small" for="add-item-type">Item type</label>
+                    <select class="form-select" id="add-item-type" name="item_type">
+                        <option value="FLIP_CARD">🃏 Flip Card</option>
+                        <option value="HIGHLIGHT_NOTE">🖍️ Highlight Note</option>
+                        <option value="ENUMERATION">📋 Enumeration</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small" for="add-prompt">Question / note / prompt</label>
+                    <textarea class="form-control" id="add-prompt" name="prompt_text" rows="3"
+                              maxlength="5000" required></textarea>
+                    <div class="form-text">
+                        Highlight notes: wrap key terms like <code>[[this]]</code> so they become tap-to-reveal blanks.
+                    </div>
+                </div>
+
+                <div data-add-type="FLIP_CARD">
+                    <div class="mb-3">
+                        <label class="form-label small" for="add-answer">Back-of-card answer</label>
+                        <input class="form-control" id="add-answer" name="main_answer" maxlength="255">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Optional wrong choices for Multiple Choice exams</label>
+                        <div class="row g-2">
+                            <div class="col-md-4"><input class="form-control" name="distractor_1" maxlength="255" placeholder="Wrong choice 1"></div>
+                            <div class="col-md-4"><input class="form-control" name="distractor_2" maxlength="255" placeholder="Wrong choice 2"></div>
+                            <div class="col-md-4"><input class="form-control" name="distractor_3" maxlength="255" placeholder="Wrong choice 3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3 d-none" data-add-type="ENUMERATION">
+                    <label class="form-label small" for="add-answers">Accepted answers (one per line)</label>
+                    <textarea class="form-control" id="add-answers" name="answers" rows="4"
+                              placeholder="Planning&#10;Leading&#10;Organizing&#10;Controlling"></textarea>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="add-strict" name="is_strict_order">
+                        <label class="form-check-label small" for="add-strict">Strict order (the sequence matters)</label>
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label small" for="add-explanation">Explanation / 💡 memory trick</label>
+                    <textarea class="form-control" id="add-explanation" name="explanation" rows="2"
+                              maxlength="5000" placeholder="e.g. 💡 Memory Trick: P-L-O-C"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-brand">Add item</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <form class="modal-content" method="post" id="edit-item-form" action="">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="editItemModalLabel">
+                    Edit <span class="text-periwinkle" id="edit-item-kind">item</span>
+                </h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label small" for="edit-prompt">Question / note / prompt</label>
+                    <textarea class="form-control" id="edit-prompt" name="prompt_text" rows="3"
+                              maxlength="5000" required></textarea>
+                </div>
+
+                <div data-edit-type="FLIP_CARD">
+                    <div class="mb-3">
+                        <label class="form-label small" for="edit-answer">Back-of-card answer</label>
+                        <input class="form-control" id="edit-answer" name="main_answer" maxlength="255">
+                    </div>
+                </div>
+
+                <div class="mb-3 d-none" data-edit-type="ENUMERATION">
+                    <label class="form-label small" for="edit-answers">Accepted answers (one per line)</label>
+                    <textarea class="form-control" id="edit-answers" name="answers" rows="4"></textarea>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="edit-strict" name="is_strict_order">
+                        <label class="form-check-label small" for="edit-strict">Strict order (the sequence matters)</label>
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label small" for="edit-explanation">Explanation / 💡 memory trick</label>
+                    <textarea class="form-control" id="edit-explanation" name="explanation" rows="2"
+                              maxlength="5000"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-brand">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if can_edit_deck %}
+{{ edit_items|json_script:"deck-items-data" }}
+{% endif %}
+<script>
+    (function () {
+        const addType = document.getElementById('add-item-type');
+        function syncAddFields() {
+            if (!addType) return;
+            document.querySelectorAll('[data-add-type]').forEach(function (el) {
+                el.classList.toggle('d-none', el.dataset.addType !== addType.value);
+            });
+        }
+        if (addType) {
+            addType.addEventListener('change', syncAddFields);
+            syncAddFields();
+        }
+
+        const dataScript = document.getElementById('deck-items-data');
+        const itemsData = dataScript ? JSON.parse(dataScript.textContent) : [];
+        const editForm = document.getElementById('edit-item-form');
+
+        function field(id) {
+            return document.getElementById(id);
+        }
+
+        document.querySelectorAll('.js-edit-item').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const item = itemsData.find(function (row) {
+                    return String(row.id) === button.dataset.itemId;
+                });
+                if (!item || !editForm) return;
+
+                editForm.action = button.dataset.editUrl;
+                field('edit-prompt').value = item.prompt_text || '';
+                field('edit-answer').value = item.main_answer || '';
+                field('edit-answers').value = item.answers || '';
+                field('edit-explanation').value = item.explanation || '';
+                field('edit-strict').checked = Boolean(item.is_strict_order);
+                field('edit-item-kind').textContent = item.item_type.replace(/_/g, ' ').toLowerCase();
+
+                document.querySelectorAll('[data-edit-type]').forEach(function (el) {
+                    el.classList.toggle('d-none', el.dataset.editType !== item.item_type);
+                });
+            });
+        });
+
+        const shareButton = document.getElementById('deck-share-btn');
+        if (shareButton) {
+            shareButton.addEventListener('click', async function () {
+                const url = window.location.href;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    if (window.tupasToast) {
+                        window.tupasToast('Link copied! Paste it in your class GC.', 'success');
+                    }
+                } catch (error) {
+                    window.prompt('Copy this deck link:', url);
+                }
+            });
+        }
+    })();
+</script>
+{% endblock %}

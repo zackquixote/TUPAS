@@ -105,6 +105,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'tupas.middleware.RequestIDMiddleware',
     'tupas.middleware.AuditDeniedMiddleware',
     'tupas.middleware.AccessLogMiddleware',
@@ -216,7 +217,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (PDF uploads & handouts)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR / 'media'
+else:
+    MEDIA_ROOT = Path('/tmp') / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -442,3 +446,12 @@ LOGGING = {
         'level': 'WARNING',
     },
 }
+
+# On read-only hosts (e.g. Vercel) the log files cannot be written; fall back to
+# console-only logging so requests never crash on a PermissionError.
+if not DEBUG:
+    for _logger in LOGGING.get('loggers', {}).values():
+        _logger['handlers'] = ['console']
+    LOGGING['root']['handlers'] = ['console']
+    for _handler in ('file', 'security_file', 'access_file'):
+        LOGGING.get('handlers', {}).pop(_handler, None)

@@ -102,7 +102,11 @@
                                 </div>
                             </div>
                             <div id="flip-back-{{ item.id }}">
-                                <div class="answer mb-3">{{ item.main_answer }}</div>
+                                <div class="answer mb-3 d-none" id="flip-answer-{{ item.id }}">{{ item.main_answer }}</div>
+                                <button type="button" class="btn btn-brand reveal-btn mb-2"
+                                        data-reveal-target="flip-answer-{{ item.id }}">
+                                    🔓 Reveal Answer
+                                </button>
                                 {% if item.explanation %}
                                     <div class="mt-2">
                                         <span class="badge badge-soft">
@@ -290,7 +294,23 @@
     function flip(card) {
         if (!card) return;
         card.classList.toggle('is-flipped');
+        if (card.classList.contains('is-flipped')) {
+            card.querySelectorAll('.reveal-btn').forEach((btn) => btn.classList.remove('d-none'));
+        } else {
+            card.querySelectorAll('.reveal-btn').forEach((btn) => btn.classList.add('d-none'));
+        }
     }
+
+    // Deferred reveal: show the answer when the student clicks "Reveal".
+    document.addEventListener('click', (event) => {
+        const btn = event.target.closest('.reveal-btn');
+        if (!btn) return;
+        const targetId = btn.dataset.revealTarget;
+        if (!targetId) return;
+        const el = document.getElementById(targetId);
+        if (el) el.classList.remove('d-none');
+        btn.classList.add('d-none');
+    });
 
     cards.forEach((wrapper) => {
         const card = wrapper.querySelector('.flip-card');

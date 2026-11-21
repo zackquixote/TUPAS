@@ -82,13 +82,14 @@ def exam_xp(percentage):
     return amount
 
 
-def leaderboard(scope='overall', user=None):
+def leaderboard(scope='overall', user=None, query=''):
     """Return opt-in students ranked by XP.
 
     Admins and staff members are strictly excluded so the leaderboard reflects
     genuine student achievements.
     ``scope`` is ``overall``, ``course``, or ``school``. Course/school
-    scopes use the viewer's own profile values.
+    scopes use the viewer's own profile values. ``query`` filters by name or
+    username.
     """
     qs = StudentProfile.objects.filter(
         show_on_leaderboard=True,
@@ -107,6 +108,11 @@ def leaderboard(scope='overall', user=None):
         qs = qs.filter(
             Q(school_name__icontains=profile.school_name.strip())
             | Q(user__username=profile.user.username),
+        )
+
+    if query:
+        qs = qs.filter(
+            Q(full_name__icontains=query) | Q(user__username__icontains=query)
         )
 
     return list(

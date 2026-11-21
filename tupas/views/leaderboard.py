@@ -15,7 +15,8 @@ def leaderboard(request):
     scope = (request.GET.get('scope') or 'overall').strip().lower()
     if scope not in {'overall', 'course', 'school'}:
         scope = 'overall'
-    rows = leaderboard_rows(scope, user=request.user)
+    query = (request.GET.get('q') or '').strip()
+    rows = leaderboard_rows(scope, user=request.user, query=query)
     return render(request, 'tupas/leaderboard.html', {
         'scope': scope,
         'rows': rows,

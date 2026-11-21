@@ -22,6 +22,11 @@
     </div>
 </div>
 
+<form method="get" class="surface-card p-3 mb-4" id="leaderboard-search-form">
+    <input name="q" type="search" class="form-control" placeholder="Search students by name or username..."
+           aria-label="Search students" value="{{ request.GET.q }}">
+</form>
+
 {% if rows %}
 <div class="surface-card p-2 p-md-4">
     <div class="table-responsive">

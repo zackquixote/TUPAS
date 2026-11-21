@@ -1,5 +1,7 @@
+import csv
 from django.contrib import admin
 from django.db.models import Count
+from django.http import HttpResponse
 
 from .models import (
     ActivityLog,
@@ -132,6 +134,20 @@ class ReviewItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(Deck)
+class ReviewItemInline(admin.TabularInline):
+    model = ReviewItem
+    extra = 0
+    list_select_related = ('quiz_choices', 'enum_answers')
+
+    def choice_count(self, obj):
+        return obj.quiz_choices.count() if hasattr(obj, 'quiz_choices') else 0
+    choice_count.short_description = 'Choices'
+
+    def enum_count(self, obj):
+        return obj.enum_answers.count() if hasattr(obj, 'enum_answers') else 0
+    enum_count.short_description = 'Enum Answers'
+
+
 class DeckAdmin(admin.ModelAdmin):
     list_display = ('title', 'subject', 'item_count', 'created_by', 'created_at', 'is_pinned', 'is_archived', 'tags')
     list_filter = ('subject', 'created_at', 'is_pinned', 'is_archived')
@@ -139,9 +155,31 @@ class DeckAdmin(admin.ModelAdmin):
     autocomplete_fields = ('subject', 'created_by')
     list_select_related = ('subject', 'created_by')
     date_hierarchy = 'created_at'
+    actions = ('bulk_archive', 'bulk_unarchive', 'bulk_pin', 'bulk_unpin')
+    inlines = (ReviewItemInline,)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_item_count=Count('items'))
+
+    @admin.action(description='Mark selected decks as archived')
+    def bulk_archive(self, request, queryset):
+        updated = queryset.update(is_archived=True)
+        self.message_user(request, f'Archived {updated} deck(s).')
+
+    @admin.action(description='Mark selected decks as not archived')
+    def bulk_unarchive(self, request, queryset):
+        updated = queryset.update(is_archived=False)
+        self.message_user(request, f'Restored {updated} deck(s).')
+
+    @admin.action(description='Pin selected decks to the top')
+    def bulk_pin(self, request, queryset):
+        updated = queryset.update(is_pinned=True)
+        self.message_user(request, f'Pinned {updated} deck(s).')
+
+    @admin.action(description='Unpin selected decks')
+    def bulk_unpin(self, request, queryset):
+        updated = queryset.update(is_pinned=False)
+        self.message_user(request, f'Unpinned {updated} deck(s).')
 
     @admin.display(description='Items', ordering='_item_count')
     def item_count(self, obj):
@@ -260,7 +298,7 @@ class ActivityLogAdmin(admin.ModelAdmin):
         'created_at', 'username_snapshot', 'action', 'detail',
         'ip_address', 'request_id',
     )
-    list_filter = ('action', 'created_at')
+    list_filter = ('action', 'created_at', 'username_snapshot')
     search_fields = (
         'username_snapshot', 'user__username', 'detail', 'ip_address', 'request_id',
     )
@@ -270,6 +308,7 @@ class ActivityLogAdmin(admin.ModelAdmin):
         'user', 'username_snapshot', 'user_id_snapshot', 'request_id',
         'action', 'detail', 'ip_address', 'user_agent', 'created_at',
     )
+    actions = ('export_csv',)
 
     def has_add_permission(self, request):
         return False
@@ -285,4 +324,18 @@ class ActivityLogAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         actions.pop('delete_selected', None)
         return actions
+
+    @admin.action(description='Export selected activity logs as CSV')
+    def export_csv(self, request, queryset):
+        fields = [
+            'created_at', 'username_snapshot', 'user_id_snapshot', 'action',
+            'detail', 'ip_address', 'request_id', 'user_agent',
+        ]
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="activity_logs.csv"'
+        writer = csv.writer(response)
+        writer.writerow(fields)
+        for row in queryset.values_list(*fields):
+            writer.writerow(row)
+        return response
 

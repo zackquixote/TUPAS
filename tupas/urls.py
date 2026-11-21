@@ -9,6 +9,7 @@ app_name = 'tupas'
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
+    path('insights/', views.insights, name='insights'),
     path(
         'offline/',
         TemplateView.as_view(template_name='tupas/offline.html'),

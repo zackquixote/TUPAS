@@ -5,12 +5,13 @@ log, platform stats). They do not share the student study dashboard.
 """
 
 import csv
+import json
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -145,6 +146,49 @@ def admin_dashboard(request):
         'user_filter': username,
         'search_q': query,
         'filter_qs': urlencode(keep),
+    })
+
+
+@login_required
+@never_cache
+def insights(request):
+    """Student progress insights: accuracy by type, study trends, XP."""
+    if is_admin(request.user):
+        return redirect('tupas:admin_dashboard')
+    profile = _get_profile(request.user)
+    attempts = ExamAttempt.objects.filter(user=request.user).select_related('deck').order_by('-date_taken')
+
+    # Accuracy by item type.
+    accuracy = {}
+    for attempt in attempts:
+        for result in json.loads(attempt.details_json or '[]'):
+            item_type = result.get('item_type')
+            if item_type:
+                stats = accuracy.setdefault(item_type, {'correct': 0, 'total': 0})
+                stats['total'] += 1
+                if result.get('is_correct'):
+                    stats['correct'] += 1
+
+    # XP trend (last 30 days).
+    xp_history = []
+    if profile:
+        for i in range(30):
+            day = timezone.now() - timedelta(days=i)
+            xp_history.append({
+                'day': day.strftime('%b %d'),
+                'xp': ExamAttempt.objects.filter(user=request.user, date_taken__date=day.date()).aggregate(
+                    total=Sum('percentage') or 0
+                )['total'],
+            })
+
+    return render(request, 'tupas/insights.html', {
+        'profile': profile,
+        'attempts': attempts[:10],
+        'accuracy': sorted(
+            accuracy.items(),
+            key=lambda kv: (kv[1]['total'] and -(kv[1]['correct'] / kv[1]['total']) or 0),
+        ),
+        'xp_history': xp_history,
     })
 
 

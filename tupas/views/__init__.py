@@ -8,7 +8,7 @@ keep using ``views.<name>``.
 from ..ai import extract_text_from_pptx_stream_view
 from .ai import ai_generator, extract_image, health
 from .auth import RateLimitedLoginView, register
-from .dashboard import dashboard
+from .dashboard import dashboard, insights
 from .decks import (
     clone_deck,
     deck_cram_sheet,
@@ -72,6 +72,7 @@ __all__ = [
     'extract_image',
     'flip_mode',
     'highlight_mode',
+    'insights',
     'import_deck',
     'item_feedback',
     'leaderboard',

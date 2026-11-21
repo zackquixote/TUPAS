@@ -88,6 +88,7 @@ urlpatterns = [
         template_name='tupas/auth/password_reset_complete.html',
     ), name='password_reset_complete'),
     path('decks/<int:deck_id>/', views.deck_detail, name='deck_detail'),
+    path('d/<slug:slug>/', views.deck_short_link, name='deck_short'),
     path('decks/<int:deck_id>/cram-sheet/', views.deck_cram_sheet, name='deck_cram_sheet'),
     path('decks/<int:deck_id>/clone/', views.clone_deck, name='clone_deck'),
     path('decks/<int:deck_id>/merge/', views.merge_deck, name='merge_deck'),

@@ -88,6 +88,15 @@ def _dashboard_decks(request):
 
 
 @login_required
+@login_required
+def deck_short_link(request, slug):
+    """Short, shareable deck link: /d/<slug>/."""
+    deck = get_object_or_404(Deck.objects.filter(slug=slug))
+    if not request.user.is_authenticated:
+        return redirect('tupas:landing', permanent=False)
+    return redirect('tupas:deck_detail', deck_id=deck.id, permanent=False)
+
+
 def deck_detail(request, deck_id):
     deck = get_object_or_404(
         Deck.objects.select_related('subject', 'created_by'),

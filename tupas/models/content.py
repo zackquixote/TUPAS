@@ -1,5 +1,7 @@
 """Subjects, decks, and the multi-modal review item tables."""
 
+import re
+
 from django.conf import settings
 from django.db import models
 
@@ -43,12 +45,29 @@ class Deck(models.Model):
     )
     is_pinned = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
+    slug = models.SlugField(max_length=100, blank=True, default='')
 
     class Meta:
         ordering = ['-is_pinned', '-created_at']
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = re.sub(r'[^a-z0-9]+', '-', self.title.lower()).strip('-')[:40]
+            slug = base
+            counter = 1
+            while Deck.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f'{base}-{counter}'
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    @property
+    def short_url(self):
+        from django.urls import reverse
+        return reverse('tupas:deck_short', args=[self.slug])
 
 
 class ReviewItem(models.Model):

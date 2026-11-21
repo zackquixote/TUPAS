@@ -25,6 +25,10 @@ class StudyDocument(models.Model):
         on_delete=models.SET_NULL,
         related_name='source_documents',
     )
+    is_shared = models.BooleanField(
+        default=False,
+        help_text='Share this handout summary with classmates.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -40,6 +44,12 @@ class StudyDocument(models.Model):
         if not self.extracted_text:
             return 0
         return len(self.extracted_text.split())
+
+    @property
+    def summary_preview(self):
+        for msg in self.messages.filter(sender=StudyChatMessage.Sender.TUPAS):
+            return msg.message[:300]
+        return ''
 
 
 class StudyChatMessage(models.Model):

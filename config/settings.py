@@ -77,7 +77,8 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
         'ALLOWED_HOSTS',
-        'tupas.vercel.app,.vercel.app,.pythonanywhere.com,localhost,127.0.0.1',
+        'tupas.vercel.app,.vercel.app,.pythonanywhere.com,'
+        'lourdianrentinoakol.pythonanywhere.com,localhost,127.0.0.1',
     ).split(',')
     if host.strip()
 ]
@@ -90,7 +91,8 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         'CSRF_TRUSTED_ORIGINS',
-        'https://tupas.vercel.app,https://*.vercel.app,https://*.pythonanywhere.com',
+        'https://tupas.vercel.app,https://*.vercel.app,https://*.pythonanywhere.com,'
+        'https://lourdianrentinoakol.pythonanywhere.com',
     ).split(',')
     if origin.strip()
 ]

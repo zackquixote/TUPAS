@@ -36,6 +36,25 @@ from ..services.rbac import student_only
 MAX_CHAT_LENGTH = 2000
 
 
+def _auto_analyze(document):
+    """Analyze an uploaded handout so students see a summary without pasting."""
+    try:
+        reply = chat_with_tupas_tutor(
+            document.extracted_text,
+            "Summarize the key points of this handout in 2-3 short bullet points "
+            "and note the main concepts students should focus on.",
+        )
+    except Exception:
+        return
+    if not reply:
+        return
+    StudyChatMessage.objects.create(
+        document=document,
+        sender='TUPAS',
+        message=reply[:MAX_CHAT_LENGTH],
+    )
+
+
 def _wants_json(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
@@ -91,9 +110,13 @@ def study_buddy(request):
                 document.title,
                 request,
             )
+            # Automatically analyze the document: send the Study Buddy a
+            # summary request so the student doesn't have to paste anything.
+            _auto_analyze(document)
             messages.success(
                 request,
-                f'â€œ{document.title}â€ is ready. Ask the TUPAS Study Buddy anything about it.',
+                f'â€œ{document.title}â€ is ready. I already analyzed it for you; '
+                'check the chat to see the summary, or ask anything.',
             )
             return redirect('tupas:study_buddy_detail', doc_id=document.pk)
 

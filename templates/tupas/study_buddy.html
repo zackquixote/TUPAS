@@ -371,6 +371,11 @@
                                aria-label="Open {{ document.title }}">
                                 <i class="bi bi-chat-square-text"></i>
                             </a>
+                            <button type="button" class="btn btn-sm btn-soft"
+                                    aria-label="Share {{ document.title }}"
+                                    data-share-doc>
+                                <i class="bi bi-link-45deg"></i>
+                            </button>
                             <form method="post"
                                   action="{% url 'tupas:study_buddy_delete_doc' document.id %}"
                                   data-confirm="Delete “{{ document.title|escapejs }}” and its chat?">
@@ -524,6 +529,19 @@
             form.addEventListener('submit', function (event) {
                 if (!window.confirm(form.dataset.confirm)) {
                     event.preventDefault();
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-share-doc]').forEach(function (button) {
+            button.addEventListener('click', async function () {
+                const link = button.closest('a');
+                const url = link ? link.href : window.location.href;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    window.tupasToast?.('Handout link copied!', 'success');
+                } catch (error) {
+                    window.prompt('Copy this handout link:', url);
                 }
             });
         });

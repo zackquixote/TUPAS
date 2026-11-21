@@ -371,7 +371,12 @@ def study_buddy_delete_doc(request, doc_id):
 def study_buddy_generate_deck(request, doc_id):
     document = get_object_or_404(StudyDocument, pk=doc_id, user=request.user)
     detail_url = reverse('tupas:study_buddy_detail', args=[document.pk])
-    form = GenerateDeckFromDocForm(request.POST)
+
+    # Auto-generate: if no title was provided, default it to the handout title.
+    data = request.POST.copy()
+    if not (data.get('deck_title') or '').strip():
+        data['deck_title'] = document.title
+    form = GenerateDeckFromDocForm(data)
 
     if not form.is_valid():
         messages.error(request, 'Add a deck title before generating a reviewer from this handout.')

@@ -149,6 +149,11 @@ class StudentProfileUpdateForm(BootstrapFormMixin, forms.ModelForm):
             'show_on_leaderboard',
             'target_exam_name',
             'target_exam_date',
+            'buddy_personality',
+            'study_goal_items_per_day',
+            'study_goal_streak',
+            'study_goal_days_per_week',
+            'study_time',
         )
         widgets = {
             'full_name': forms.TextInput(attrs={'placeholder': 'Juan Dela Cruz'}),
@@ -171,6 +176,10 @@ class StudentProfileUpdateForm(BootstrapFormMixin, forms.ModelForm):
                 attrs={'placeholder': 'e.g. Midterms / Board Exam'},
             ),
             'target_exam_date': forms.DateInput(attrs={'type': 'date'}),
+            'study_goal_items_per_day': forms.NumberInput(attrs={'min': 1, 'max': 50}),
+            'study_goal_streak': forms.NumberInput(attrs={'min': 1, 'max': 100}),
+            'study_goal_days_per_week': forms.NumberInput(attrs={'min': 1, 'max': 7}),
+            'study_time': forms.TimeInput(attrs={'type': 'time'}),
         }
 
     def __init__(self, *args, user=None, **kwargs):
@@ -182,6 +191,9 @@ class StudentProfileUpdateForm(BootstrapFormMixin, forms.ModelForm):
         self.fields['show_on_leaderboard'].required = False
         self.fields['target_exam_name'].required = False
         self.fields['target_exam_date'].required = False
+        for f in ('study_goal_items_per_day', 'study_goal_streak',
+                  'study_goal_days_per_week', 'study_time'):
+            self.fields[f].required = False
         self._style_fields()
 
     def clean_email(self):

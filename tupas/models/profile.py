@@ -48,6 +48,25 @@ class StudentProfile(models.Model):
     target_exam_name = models.CharField(max_length=150, blank=True)
     target_exam_date = models.DateField(null=True, blank=True)
 
+    # Study Goals
+    study_goal_items_per_day = models.PositiveIntegerField(default=5)
+    study_goal_streak = models.PositiveIntegerField(default=7)
+    study_goal_days_per_week = models.PositiveIntegerField(default=5)
+
+    # Study Buddy Personality
+    buddy_personality = models.CharField(
+        max_length=20,
+        choices=[
+            ('PEER', 'Study Buddy (Peer)'),
+            ('MENTOR', 'Study Mentor (Tutor)'),
+            ('COACH', 'Exam Coach'),
+        ],
+        default='PEER',
+    )
+
+    # Custom study time slot (HH:MM, e.g. '14:30')
+    study_time = models.CharField(max_length=5, blank=True, default='')
+
     class Meta:
         verbose_name = 'student profile'
         verbose_name_plural = 'student profiles'

@@ -231,6 +231,36 @@
                         </label>
                         {{ profile_form.daily_goal }}
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label small" for="{{ profile_form.study_goal_items_per_day.id_for_label }}">
+                            Study goal (items/day)
+                        </label>
+                        {{ profile_form.study_goal_items_per_day }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small" for="{{ profile_form.study_goal_streak.id_for_label }}">
+                            Study goal (streak)
+                        </label>
+                        {{ profile_form.study_goal_streak }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small" for="{{ profile_form.study_goal_days_per_week.id_for_label }}">
+                            Study goal (days/week)
+                        </label>
+                        {{ profile_form.study_goal_days_per_week }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.study_time.id_for_label }}">
+                            Preferred study time
+                        </label>
+                        {{ profile_form.study_time }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small" for="{{ profile_form.buddy_personality.id_for_label }}">
+                            Study Buddy personality
+                        </label>
+                        {{ profile_form.buddy_personality }}
+                    </div>
                     <div class="col-md-6 d-flex align-items-end">
                         <div class="form-check form-switch">
                             {{ profile_form.show_on_leaderboard }}

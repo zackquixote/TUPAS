@@ -35,13 +35,13 @@
         <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-label mb-1">XP</div>
-                <div class="stat-value">{{ profile.xp_points if profile else 0 }}</div>
+                <div class="stat-value">{% if profile %}{{ profile.xp_points }}{% else %}0{% endif %}</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-label mb-1">Streak</div>
-                <div class="stat-value">{{ profile.current_streak if profile else 0 }}</div>
+                <div class="stat-value">{% if profile %}{{ profile.current_streak }}{% else %}0{% endif %}</div>
             </div>
         </div>
     </div>

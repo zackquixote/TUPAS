@@ -287,11 +287,6 @@ class StudyChatMessageAdmin(admin.ModelAdmin):
     short_message.short_description = "Message"
 
 
-admin.site.site_header = 'TUPAS Reviewer Administration'
-admin.site.site_title = 'TUPAS Reviewer Admin'
-admin.site.index_title = 'Content and student management'
-
-
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):
     list_display = (

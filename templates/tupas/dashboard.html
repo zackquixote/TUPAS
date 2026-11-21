@@ -197,10 +197,11 @@
         <div class="progress-bar-fill" style="width: {{ goal_percent }}%"></div>
     </div>
     <div class="small text-muted-soft mt-1">{{ today_reviewed }} / {{ daily_goal }} reviewed today</div>
-    <button type="button" class="btn btn-sm btn-brand mt-2" id="boost-study-btn"
-            data-boost-url="{% url 'tupas:flip_mode' due_deck.id %}">
+    {% if due_deck %}
+    <a class="btn btn-sm btn-brand mt-2" href="{% url 'tupas:flip_mode' due_deck.id %}">
         🚀 Start Reviewing Due Cards
-    </button>
+    </a>
+    {% endif %}
 </div>
 {% endif %}
 

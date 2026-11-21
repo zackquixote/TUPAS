@@ -150,9 +150,16 @@
                 {% csrf_token %}
                 <label class="form-label small" for="id_message">Ask about this handout</label>
                 <textarea class="form-control" id="id_message" name="message" rows="3" maxlength="2000"
-                          required placeholder="e.g. Explain the difference between mitosis and meiosis"></textarea>
+                          placeholder="e.g. Explain the difference between mitosis and meiosis"></textarea>
                 <div class="d-flex justify-content-between align-items-center mt-2">
-                    <span class="small text-muted-soft">Keep it under 2,000 characters.</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-soft" id="study-mic-btn"
+                                aria-pressed="false" aria-label="Voice input">
+                            <i class="bi bi-mic-fill"></i>
+                        </button>
+                        <span class="small text-muted-soft" id="study-mic-status" hidden>Listening…</span>
+                    </div>
+                    <span class="small text-muted-soft me-3">Keep it under 2,000 characters.</span>
                     <button type="submit" class="btn btn-brand">
                         <i class="bi bi-send me-1"></i> Send
                     </button>
@@ -534,6 +541,60 @@
                 }
             });
         });
+
+        // Voice input for the chat textarea (Web Speech API, Chrome/Edge/Safari).
+        (function () {
+            const micBtn = document.getElementById('study-mic-btn');
+            const micStatus = document.getElementById('study-mic-status');
+            const messageBox = document.getElementById('id_message');
+            if (!micBtn || !messageBox) return;
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) return;
+
+            const recognition = new SpeechRec();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            let isRecording = false;
+            function reset() {
+                micBtn.classList.remove('active');
+                micBtn.setAttribute('aria-pressed', 'false');
+                if (micStatus) micStatus.hidden = true;
+            }
+
+            recognition.onstart = function () {
+                isRecording = true;
+                micBtn.classList.add('active');
+                micBtn.setAttribute('aria-pressed', 'true');
+                if (micStatus) micStatus.hidden = false;
+            };
+            recognition.onend = function () {
+                isRecording = false;
+                reset();
+            };
+            recognition.onresult = function (event) {
+                let text = '';
+                for (const result of event.results) {
+                    if (result.isFinal) {
+                        messageBox.value += messageBox.value ? ' ' + result[0].transcript.trim() : result[0].transcript.trim();
+                    }
+                }
+            };
+            recognition.onerror = function () {
+                window.tupasToast?.('Voice input is not available. Use the text input.', 'warning');
+                reset();
+            };
+
+            micBtn.addEventListener('click', () => {
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    messageBox.value = messageBox.value.trim();
+                    recognition.start();
+                }
+            });
+        })();
     })();
 </script>
 {% else %}

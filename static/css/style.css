@@ -1554,6 +1554,24 @@ a {
     background: #05081c;
 }
 
+/* Dashboard: study goal + activity feed + stat cards in dark mode. */
+[data-theme="dark"] .progress-bar-fill {
+    background-color: var(--tupas-lime);
+}
+[data-theme="dark"] .boost-study-btn,
+[data-theme="dark"] #boost-study-btn {
+    color: var(--tupas-navy) !important;
+}
+[data-theme="dark"] .activity-feed-item,
+[data-theme="dark"] .activity-feed-dot {
+    color: var(--tupas-text-soft);
+}
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .study-goal-text {
+    color: var(--tupas-text) !important;
+}
+
 /* Admin dark mode: invert the default admin palette when data-theme=dark. */
 [data-theme="dark"] #header,
 [data-theme="dark"] #header a,

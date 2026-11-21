@@ -1,5 +1,5 @@
 import csv
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Count
 from django.http import HttpResponse
 
@@ -133,7 +133,6 @@ class ReviewItemAdmin(admin.ModelAdmin):
         return obj.enum_answers.count()
 
 
-@admin.register(Deck)
 class ReviewItemInline(admin.TabularInline):
     model = ReviewItem
     extra = 0
@@ -148,6 +147,7 @@ class ReviewItemInline(admin.TabularInline):
     enum_count.short_description = 'Enum Answers'
 
 
+@admin.register(Deck)
 class DeckAdmin(admin.ModelAdmin):
     list_display = ('title', 'subject', 'item_count', 'created_by', 'created_at', 'is_pinned', 'is_archived', 'tags')
     list_filter = ('subject', 'created_at', 'is_pinned', 'is_archived')
@@ -157,6 +157,16 @@ class DeckAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     actions = ('bulk_archive', 'bulk_unarchive', 'bulk_pin', 'bulk_unpin')
     inlines = (ReviewItemInline,)
+
+    @admin.action(description='Preview deletion (safe check)')
+    def bulk_delete_preview(self, request, queryset):
+        total_items = sum(qs.item_count for qs in queryset)
+        self.message_user(
+            request,
+            f'Preview: deleting {queryset.count()} deck(s) will remove {total_items} item(s). '
+            'Use the standard bulk delete action to confirm.',
+            messages.WARNING,
+        )
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(_item_count=Count('items'))

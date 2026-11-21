@@ -9,41 +9,70 @@
 (function () {
     'use strict';
 
-    const toggle = document.getElementById('tupas-theme-toggle');
-    if (!toggle) {
-        return;
-    }
-
-    const label = toggle.querySelector('[data-theme-label]');
-    const icon = toggle.querySelector('[data-theme-icon]');
-
     function currentTheme() {
         return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     }
 
-    function render() {
-        const dark = currentTheme() === 'dark';
-        if (label) {
-            label.textContent = dark ? 'Light mode' : 'Dark mode';
-        }
-        if (icon) {
-            icon.className = dark ? 'bi bi-sun-fill me-2' : 'bi bi-moon-stars-fill me-2';
-        }
-        toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
-    }
-
-    render();
-
-    toggle.addEventListener('click', () => {
-        const next = currentTheme() === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
+    function saveTheme(next) {
         try {
             localStorage.setItem('tupas-theme', next);
         } catch (error) {
             /* Private browsing can block storage; the theme still applies */
         }
+    }
+
+    function buildToggle() {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'tupas-theme-toggle-admin';
+        button.setAttribute('aria-label', 'Toggle dark mode');
+        button.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+        return button;
+    }
+
+    function wireToggle(toggle) {
+        const icon = toggle.querySelector('[data-theme-icon], i');
+        const label = toggle.querySelector('[data-theme-label]');
+
+        function render() {
+            const dark = currentTheme() === 'dark';
+            if (label) {
+                label.textContent = dark ? 'Light mode' : 'Dark mode';
+            }
+            if (icon) {
+                icon.className = dark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+            }
+            toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
+            toggle.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+        }
+
         render();
-    });
+        toggle.addEventListener('click', () => {
+            const next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            saveTheme(next);
+            render();
+        });
+    }
+
+    // Existing TUPAS navbar toggle (base.html).
+    const toggle = document.getElementById('tupas-theme-toggle');
+    if (toggle) {
+        wireToggle(toggle);
+    }
+
+    // Pages without the TUPAS navbar (e.g. admin) get a floating toggle.
+    if (!toggle && !document.querySelector('#theme-toggle-admin')) {
+        const button = buildToggle();
+        button.id = 'theme-toggle-admin';
+        button.style.cssText =
+            'position: fixed; right: 20px; bottom: 20px; z-index: 100; ' +
+            'border-radius: 50%; width: 50px; height: 50px; background: #a8ee00; ' +
+            'border: none; color: #080e2c; font-size: 1.2rem; cursor: pointer; ' +
+            'box-shadow: 0 2px 8px rgba(0,0,0,0.2);';
+        document.body.appendChild(button);
+        wireToggle(button);
+    }
 })();
 
 /* ---------- Read aloud ---------- */

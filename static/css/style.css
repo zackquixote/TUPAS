@@ -1554,6 +1554,49 @@ a {
     background: #05081c;
 }
 
+/* Admin dark mode: invert the default admin palette when data-theme=dark. */
+[data-theme="dark"] #header,
+[data-theme="dark"] #header a,
+[data-theme="dark"] #header span,
+[data-theme="dark"] .module caption,
+[data-theme="dark"] .module thead th,
+[data-theme="dark"] #branding,
+[data-theme="dark"] #user-tools,
+[data-theme="dark"] #user-tools a {
+    background: #121a33 !important;
+    color: var(--tupas-text) !important;
+}
+[data-theme="dark"] #container,
+[data-theme="dark"] #content,
+[data-theme="dark"] #main,
+[data-theme="dark"] #nav-sidebar,
+[data-theme="dark"] #nav-sidebar .item,
+[data-theme="dark"] #nav-sidebar a,
+[data-theme="dark"] #nav-sidebar li a span {
+    background: #0a1128 !important;
+    color: var(--tupas-text-soft) !important;
+    border-color: rgba(250, 247, 238, 0.12) !important;
+}
+[data-theme="dark"] .module,
+[data-theme="dark"] .box,
+[data-theme="dark"] .form-row,
+[data-theme="dark"] .fieldset,
+[data-theme="dark"] table,
+[data-theme="dark"] th,
+[data-theme="dark"] td,
+[data-theme="dark"] #toolbar,
+[data-theme="dark"] .paginator {
+    background: var(--tupas-white) !important;
+    color: var(--tupas-text-soft) !important;
+    border-color: rgba(250, 247, 238, 0.12) !important;
+}
+[data-theme="dark"] .module caption,
+[data-theme="dark"] .main-group,
+[data-theme="dark"] .inline-related {
+    background: #0a1128 !important;
+    color: var(--tupas-text-soft) !important;
+}
+
 .tupas-close-enough {
     color: var(--tupas-lime-dark);
     font-weight: 700;

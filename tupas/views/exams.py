@@ -99,6 +99,9 @@ def exam_mode(request, deck_id, mode):
         return redirect('tupas:deck_detail', deck_id=deck.id)
 
     started_at = timezone.now()
+    # Show the timer by default (15 min unless the student chose otherwise).
+    if not duration:
+        duration = 15
     context = {
         'deck': deck,
         'exam_mode_key': mode,
@@ -112,10 +115,7 @@ def exam_mode(request, deck_id, mode):
         'retry_count': len(retry_ids),
         'is_weak_exam': exam_filter == 'weak',
         'duration_minutes': duration,
-        'exam_deadline': (
-            (started_at + timedelta(minutes=duration)).isoformat()
-            if duration else None
-        ),
+        'exam_deadline': (started_at + timedelta(minutes=duration)).isoformat(),
         'show_results': False,
     }
 

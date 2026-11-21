@@ -175,7 +175,34 @@
             </div>
         </div>
     </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card d-flex align-items-center gap-3">
+            <span class="stat-icon stat-icon-amber"><i class="bi bi-clock-history-fill"></i></span>
+            <div>
+                <div class="stat-value">{{ due_count }}</div>
+                <div class="stat-label">Due soon</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Study Goal Progress -->
+{% if profile %}
+<div class="surface-card p-4 mb-5">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-2">
+        <h2 class="section-heading mb-0"><i class="bi bi-goal-proven mb-1" style="color: #7CB600;"></i>Study Goal</h2>
+        <span class="small text-muted-soft">Study {{ daily_goal }} cards today ({{ goal_percent }}%)</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-bar-fill" style="width: {{ goal_percent }}%"></div>
+    </div>
+    <div class="small text-muted-soft mt-1">{{ today_reviewed }} / {{ daily_goal }} reviewed today</div>
+    <button type="button" class="btn btn-sm btn-brand mt-2" id="boost-study-btn"
+            data-boost-url="{% url 'tupas:flip_mode' due_deck.id %}">
+        🚀 Start Reviewing Due Cards
+    </button>
+</div>
+{% endif %}
 
 <!-- Analytics Link -->
 <div class="d-flex justify-content-end mb-3">
@@ -262,6 +289,13 @@
         </h2>
         <span class="small text-muted-soft">Your last five saved scores</span>
     </div>
+    {% if recent_attempts %}
+    <div class="mb-2">
+        <a href="{% url 'tupas:export_all_attempts' %}" class="btn btn-sm btn-soft">
+            <i class="bi bi-filetype-csv me-1"></i> Export my quiz results
+        </a>
+    </div>
+    {% endif %}
 
     {% if recent_attempts %}
     <div class="table-responsive">

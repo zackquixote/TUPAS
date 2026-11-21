@@ -298,6 +298,36 @@ def export_deck(request, deck_id):
 
 
 @student_only
+def export_all_attempts(request):
+    """Export all quiz/exam attempts for the current student as CSV."""
+    from django.utils import timezone as tz
+    from django.http import HttpResponse
+
+    attempts = ExamAttempt.objects.filter(user=request.user).order_by('-date_taken')
+    import csv
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="my-quiz-results.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['deck', 'exam_mode', 'score', 'total_items', 'percentage', 'date_taken'])
+    for attempt in attempts:
+        writer.writerow([
+            attempt.deck.title if attempt.deck else '',
+            attempt.get_exam_mode_display(),
+            attempt.score,
+            attempt.total_items,
+            str(attempt.percentage),
+            attempt.date_taken.strftime('%Y-%m-%d %H:%M') if attempt.date_taken else '',
+        ])
+    record_activity(
+        request.user,
+        ActivityLog.Action.EXPORT,
+        'All quiz results as CSV',
+        request,
+    )
+    return response
+
+
+@student_only
 def export_attempts(request, deck_id):
     """Export all quiz/exam attempts for a deck as CSV."""
     deck = get_object_or_404(Deck, pk=deck_id)

@@ -7,6 +7,7 @@ Staff accounts do not get implicit access to another student's handout.
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -67,7 +68,13 @@ def _json_error(error, status=400):
 @never_cache
 def study_buddy(request):
     """List the student's handouts and accept a new PDF or pasted notes."""
-    documents = StudyDocument.objects.filter(user=request.user)[:12]
+    query = (request.GET.get('q') or '').strip()
+    documents = StudyDocument.objects.filter(user=request.user)
+    if query:
+        documents = documents.filter(
+            Q(title__icontains=query) | Q(extracted_text__icontains=query)
+        )
+    documents = documents[:12]
     form = StudyDocumentUploadForm(request.POST or None, request.FILES or None)
 
     if request.method == 'POST' and form.is_valid():

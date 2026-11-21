@@ -343,6 +343,11 @@
             <span class="badge badge-soft">{{ documents|length }} handout{{ documents|length|pluralize }}</span>
         </div>
 
+        <form method="get" class="mb-4" onsubmit="return !(document.getElementById('study-search').value.trim() === '');">
+            <input id="study-search" name="q" type="search" class="form-control"
+                   placeholder="Search handouts..." aria-label="Search handouts">
+        </form>
+
         {% if documents %}
         <div class="d-grid gap-3">
             {% for document in documents %}

@@ -34,6 +34,7 @@ urlpatterns = [
     path('users/<int:user_id>/password/', views.admin_set_password, name='admin_set_password'),
     path('ai/generate/', views.ai_generator, name='ai_generator'),
     path('ai/extract-image/', views.extract_image, name='extract_image'),
+    path('ai/extract-pptx/', views.extract_text_from_pptx_stream_view, name='extract_pptx'),
     path('study-buddy/', views.study_buddy, name='study_buddy'),
     path('study-buddy/<int:doc_id>/', views.study_buddy_detail, name='study_buddy_detail'),
     path(

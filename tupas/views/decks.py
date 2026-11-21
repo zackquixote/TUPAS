@@ -19,6 +19,25 @@ from ..services.decks import copy_deck, merge_decks
 from ..services.text import split_answers
 
 
+def _last_quiz_ago(user, deck):
+    """Return the relative time of the student's last quiz/exam for this deck."""
+    from django.utils import timezone as tz
+
+    last = ExamAttempt.objects.filter(user=user, deck=deck).order_by('-date_taken').first()
+    if not last or not last.date_taken:
+        return None
+    delta = tz.now() - last.date_taken
+    if delta.days > 0:
+        return f'{delta.days} day(s) ago'
+    hours = delta.seconds // 3600
+    if hours > 0:
+        return f'{hours} hour(s) ago'
+    minutes = delta.seconds // 60
+    if minutes > 0:
+        return f'{minutes} minute(s) ago'
+    return 'just now'
+
+
 def _editable_items(deck_items):
     """Serialise deck items for the inline edit modal."""
     return [
@@ -110,6 +129,7 @@ def deck_detail(request, deck_id):
         'exam_counts': exam_counts,
         'progress_counts': progress_counts,
         'recent_attempts': ExamAttempt.objects.filter(user=request.user, deck=deck)[:8],
+        'last_quiz_ago': _last_quiz_ago(request.user, deck),
         'deck_items': deck_items,
         'can_edit_deck': can_edit,
         'edit_items': _editable_items(deck_items) if can_edit else [],

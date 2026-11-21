@@ -24,6 +24,7 @@ import urllib.error
 import urllib.request
 
 from django.db import transaction
+from django.http import JsonResponse
 
 from .models import EnumerationItem, QuizChoice, ReviewItem
 
@@ -1001,6 +1002,20 @@ IMAGE_OCR_PROMPT = (
     'definitions, and formulas from this image accurately into clean '
     'structured study notes.'
 )
+
+
+def extract_text_from_pptx_stream_view(request):
+    """Server-side PPTX fallback: extract slide text from an uploaded .pptx."""
+    from .services.documents import extract_text_from_pptx_stream
+
+    upload = request.FILES.get('file')
+    if upload is None:
+        return JsonResponse({'ok': False, 'error': 'Choose a .pptx file first.'}, status=400)
+    try:
+        text, page_count = extract_text_from_pptx_stream(upload)
+    except AIError as exc:
+        return JsonResponse({'ok': False, 'error': str(exc)}, status=400)
+    return JsonResponse({'ok': True, 'text': text, 'page_count': page_count})
 
 
 def extract_text_from_image(image_bytes, mime_type):

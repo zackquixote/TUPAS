@@ -239,6 +239,7 @@ def exam_mode(request, deck_id, mode):
             total_items=total_items,
             percentage=percentage,
             details_json=json.dumps(details),
+            started_at=timezone.now(),
         )
         # Missed items immediately join the student's Weak Spots queue.
         for item_id in wrong_item_ids:

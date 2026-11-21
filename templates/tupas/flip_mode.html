@@ -314,6 +314,23 @@
         if (event.target.matches('input, textarea, select, button')) return;
         if (event.key === 'ArrowLeft') showCard(index - 1);
         if (event.key === 'ArrowRight') showCard(index + 1);
+        if (event.key === 'g' || event.key === 'Enter' || event.key === ' ') {
+            const cardEl = document.querySelector(`.flip-card-item[data-item-id="${deckEl.closest('.flip-stage') ? cards[index].dataset.itemId : ''}"] .flip-card.is-flipped`);
+            if (cardEl) flip(cardEl);
+        }
+        const actions = document.querySelectorAll(`.flip-actions[data-item-id="${cards[index]?.dataset?.itemId || ''}"] button[data-progress-url]`);
+        if (event.key === 'g' && actions.length) {
+            const goodBtn = actions.find(b => b.dataset.itemStatus === 'MASTERED');
+            if (goodBtn) goodBtn.click();
+        }
+        if (event.key === 'h' && actions.length) {
+            const hardBtn = actions.find(b => b.dataset.itemStatus === 'NEEDS_REVIEW');
+            if (hardBtn) hardBtn.click();
+        }
+        if (event.key === 's' && actions.length) {
+            const againBtn = actions.find(b => b.dataset.itemConfidence === 'AGAIN');
+            if (againBtn) againBtn.click();
+        }
     });
 
     document.addEventListener('tupas:progress', (event) => {

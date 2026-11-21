@@ -5,13 +5,14 @@ and data definitions in `tupas.models`. These re-exports let `tupas.urls`
 keep using ``views.<name>``.
 """
 
-from .ai import ai_generator, extract_image, health
+from .ai import ai_generator, extract_image, extract_text_from_pptx_stream_view, health
 from .auth import RateLimitedLoginView, register
 from .dashboard import dashboard
 from .decks import (
     clone_deck,
     deck_cram_sheet,
     deck_detail,
+    export_attempts,
     export_deck,
     import_deck,
     merge_deck,
@@ -55,10 +56,12 @@ __all__ = [
     'ai_generator',
     'clone_deck',
     'dashboard',
+    'extract_text_from_pptx_stream_view',
     'deck_cram_sheet',
     'deck_detail',
     'delete_review_item',
     'edit_review_item',
+    'export_attempts',
     'enumeration_mode',
     'exam_mode',
     'exam_attempt_detail',

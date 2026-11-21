@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from .content import Deck, ReviewItem
 
@@ -77,6 +78,7 @@ class ExamAttempt(models.Model):
     total_items = models.IntegerField()
     percentage = models.DecimalField(max_digits=5, decimal_places=2)
     details_json = models.TextField(blank=True, default='[]')
+    started_at = models.DateTimeField(default=timezone.now)
     date_taken = models.DateTimeField(auto_now_add=True)
 
     class Meta:

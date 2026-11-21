@@ -65,6 +65,9 @@
                 <a href="{% url 'tupas:export_deck' deck.id %}?format=tsv" class="btn btn-soft flex-fill">
                     <i class="bi bi-filetype-tsv me-1"></i> Quizlet TSV
                 </a>
+                <a href="{% url 'tupas:export_attempts' deck.id %}" class="btn btn-soft flex-fill">
+                    <i class="bi bi-filetype-csv me-1"></i> Quiz CSV
+                </a>
             </div>
             {% if can_edit_deck %}
             <div class="d-flex flex-wrap gap-2">

@@ -268,6 +268,33 @@ def export_deck(request, deck_id):
     return response
 
 
+@student_only
+def export_attempts(request, deck_id):
+    """Export all quiz/exam attempts for a deck as CSV."""
+    deck = get_object_or_404(Deck, pk=deck_id)
+    attempts = ExamAttempt.objects.filter(deck=deck, user=request.user).order_by('-date_taken')
+    record_activity(
+        request.user,
+        ActivityLog.Action.EXPORT,
+        f'{deck.title} quiz results as CSV',
+        request,
+    )
+    import csv
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="{deck.title}-quiz-results.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['date_taken', 'exam_mode', 'score', 'total_items', 'percentage'])
+    for attempt in attempts:
+        writer.writerow([
+            attempt.date_taken.strftime('%Y-%m-%d %H:%M'),
+            attempt.get_exam_mode_display(),
+            attempt.score,
+            attempt.total_items,
+            str(attempt.percentage),
+        ])
+    return response
+
+
 @login_required
 def import_deck(request):
     """Import a TUPAS JSON deck or Quizlet TSV (Term<TAB>Definition)."""

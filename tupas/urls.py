@@ -81,6 +81,7 @@ urlpatterns = [
     path('decks/<int:deck_id>/toggle-pin/', views.toggle_pin_deck, name='toggle_pin_deck'),
     path('decks/<int:deck_id>/toggle-archive/', views.toggle_archive_deck, name='toggle_archive_deck'),
     path('decks/<int:deck_id>/export/', views.export_deck, name='export_deck'),
+    path('decks/<int:deck_id>/export/attempts/', views.export_attempts, name='export_attempts'),
     path('decks/import/', views.import_deck, name='import_deck'),
     path('exams/attempts/<int:attempt_id>/', views.exam_attempt_detail, name='exam_attempt_detail'),
     path('items/<int:item_id>/explain-deeper/', views.explain_deeper, name='explain_deeper'),

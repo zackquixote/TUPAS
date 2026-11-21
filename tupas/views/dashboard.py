@@ -253,6 +253,12 @@ def dashboard(request):
         'badges': profile.badges if profile else [],
     }
 
+    # Live activity feed: recent actions from this student's cards + decks.
+    my_activity = ActivityLog.objects.filter(
+        Q(username_snapshot=request.user.username)
+        | Q(user=request.user)
+    ).order_by('-created_at')[:8]
+
     return render(request, 'tupas/dashboard.html', {
         'profile': profile,
         'decks': deck_list,
@@ -272,4 +278,5 @@ def dashboard(request):
         'search_q': query,
         'active_tag': tag,
         'exam_countdown': exam_countdown,
+        'recent_activity': my_activity,
     })

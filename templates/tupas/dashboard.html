@@ -302,4 +302,52 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Live Activity Feed -->
+<div class="surface-card p-4 mt-5">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+        <h2 class="section-heading mb-0">
+            <i class="bi bi-activity me-2" style="color: #7CB600;"></i>Your recent activity
+        </h2>
+        <span class="small text-muted-soft">Auto-refresh every 30s</span>
+    </div>
+    <div id="activity-feed">
+        {% if recent_activity %}
+        <div class="list-group list-group-flush">
+            {% for row in recent_activity %}
+            <div class="list-group-item small">
+                <span class="text-warning me-2">●</span>
+                <span class="text-muted-soft">{{ row.created_at|date:"M d, Y · g:i A" }} — </span>
+                <span class="fw-semibold">{{ row.action }}</span>
+                <span class="text-muted-soft"> — {{ row.detail|truncatewords:6 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted-soft mb-0">No activity yet. Study a deck to see progress here.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    (function () {
+        const feed = document.getElementById('activity-feed');
+        if (!feed) return;
+        function refresh() {
+            fetch('{% url "tupas:dashboard" %}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newFeed = doc.getElementById('activity-feed');
+                    if (newFeed) feed.replaceWith(newFeed.cloneNode(true));
+                })
+                .catch(() => {})
+                .finally(() => setTimeout(refresh, 30000));
+        }
+        setTimeout(refresh, 30000);
+    })();
+</script>
+{% endblock %}
 {% endblock %}
